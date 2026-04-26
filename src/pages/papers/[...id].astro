@@ -30,29 +30,51 @@ const updatedStr = data.updated?.toLocaleDateString("zh-CN", {
 
 const base = import.meta.env.BASE_URL.replace(/\/$/, "");
 
-// Resolve the PDF URL for the split (compare) view.
-// Priority:
-//   1. `data.pdf` absolute URL (https://...)            → use as-is
-//   2. `data.pdf` site-relative path (papers/foo.pdf)   → prepend base; lives in /public
-//   3. no `data.pdf` but has `data.arxiv`               → fall back to arxiv.org PDF
-// Hosting raw PDFs in /public is discouraged: they bloat the repo and GitHub
-// Pages serves them with `X-Frame-Options: deny`, which kills the iframe view.
+// Resolve URLs for the split (compare) view.
+//
+// Three concerns, three URLs:
+//   - embedUrl     : what the iframe loads (must be iframe-able cross-origin)
+//   - externalUrl  : what "open in new tab" / fallback navigates to (canonical paper page)
+//   - pdfUrl       : what the optional "PDF" button opens in a new tab (raw PDF)
+//
+// Priority for embedUrl:
+//   1. `data.pdf` absolute URL          → use as-is (caller knows what they want)
+//   2. `data.pdf` site-relative path    → prepend base; lives in /public
+//   3. no `data.pdf` but has `data.arxiv` → use ar5iv HTML (cross-device iframe-friendly)
+//
+// Why ar5iv instead of arxiv.org/pdf for the iframe? arxiv.org sets
+// X-Frame-Options: SAMEORIGIN, which is bypassed on desktop Chrome/Edge by their
+// internal PDF.js handoff but is strictly enforced on iOS WebKit (= iPad Chrome,
+// Safari, etc.). ar5iv.labs.arxiv.org has no X-Frame-Options, so it iframes
+// uniformly across desktop/tablet/mobile.
+let embedUrl: string | undefined;
+let externalUrl: string | undefined;
 let pdfUrl: string | undefined;
+
 if (data.pdf) {
   if (/^https?:\/\//.test(data.pdf)) {
-    pdfUrl = data.pdf;
+    embedUrl = data.pdf;
+    externalUrl = data.pdf;
   } else {
     const clean = data.pdf.replace(/^\.?\//, "");
-    pdfUrl = `${base}/${clean}`;
+    embedUrl = `${base}/${clean}`;
+    externalUrl = embedUrl;
   }
-} else if (data.arxiv) {
+}
+
+if (data.arxiv) {
   const arxivId = data.arxiv
-    .replace(/^https?:\/\/(?:www\.)?arxiv\.org\/(?:abs|pdf)\//, "")
+    .replace(/^https?:\/\/(?:www\.)?arxiv\.org\/(?:abs|pdf|html)\//, "")
     .replace(/\.pdf$/, "")
     .replace(/v\d+$/, "");
-  if (arxivId) pdfUrl = `https://arxiv.org/pdf/${arxivId}.pdf`;
+  if (arxivId) {
+    pdfUrl = `https://arxiv.org/pdf/${arxivId}.pdf`;
+    if (!embedUrl) embedUrl = `https://ar5iv.labs.arxiv.org/html/${arxivId}`;
+    if (!externalUrl) externalUrl = `https://arxiv.org/abs/${arxivId}`;
+  }
 }
-const canSplit = Boolean(pdfUrl);
+
+const canSplit = Boolean(embedUrl);
 ---
 
 <BaseLayout
@@ -177,7 +199,14 @@ const canSplit = Boolean(pdfUrl);
       </div>
     </article>
 
-    {canSplit && pdfUrl && <SplitView url={pdfUrl} label={data.title} />}
+    {canSplit && embedUrl && (
+      <SplitView
+        embedUrl={embedUrl}
+        externalUrl={externalUrl ?? embedUrl}
+        pdfUrl={pdfUrl}
+        label={data.title}
+      />
+    )}
   </div>
 </BaseLayout>
 

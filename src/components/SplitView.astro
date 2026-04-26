@@ -1,10 +1,20 @@
 ---
 interface Props {
-  url: string;
+  /** URL to load inside the iframe. Must be iframe-able cross-origin (no X-Frame-Options). */
+  embedUrl: string;
+  /** URL the "open in new tab" / fallback button navigates to. Defaults to embedUrl. */
+  externalUrl?: string;
+  /** Optional raw PDF URL for the explicit "PDF" button (e.g. arxiv.org/pdf/<id>.pdf). */
+  pdfUrl?: string;
   label?: string;
 }
 
-const { url, label = "原文" } = Astro.props;
+const {
+  embedUrl,
+  externalUrl = embedUrl,
+  pdfUrl,
+  label = "原文",
+} = Astro.props;
 ---
 
 <aside class="split-pane" aria-hidden="true">
@@ -12,9 +22,21 @@ const { url, label = "原文" } = Astro.props;
     <span class="split-doc-label" title={label}>{label}</span>
 
     <div class="split-actions">
+      {pdfUrl && (
+        <a
+          href={pdfUrl}
+          target="_blank"
+          rel="noreferrer"
+          title="在新标签页打开 PDF 原版"
+          aria-label="Open PDF in new tab"
+          class="split-action-btn split-action-btn--text"
+        >
+          PDF
+        </a>
+      )}
       <a
         id="split-open-tab"
-        href={url}
+        href={externalUrl}
         target="_blank"
         rel="noreferrer"
         title="在新标签页打开"
@@ -42,7 +64,7 @@ const { url, label = "原文" } = Astro.props;
   <div class="split-frame-wrap">
     <iframe
       id="split-iframe"
-      src={url}
+      src={embedUrl}
       title={label}
       loading="lazy"
       referrerpolicy="no-referrer-when-downgrade"
@@ -50,7 +72,7 @@ const { url, label = "原文" } = Astro.props;
 
     <div id="split-frame-fallback" class="split-fallback">
       <p>对方服务器不允许内嵌（X-Frame-Options 限制），点击下方按钮在新标签页阅读。</p>
-      <a id="split-fallback-link" href={url} target="_blank" rel="noreferrer" class="split-fallback-link">
+      <a id="split-fallback-link" href={externalUrl} target="_blank" rel="noreferrer" class="split-fallback-link">
         在新标签页打开 ↗
       </a>
     </div>
