@@ -30,8 +30,11 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      # Use `npm run build` (NOT `npx astro build`) so the `prebuild` script
+      # fires and downloads the self-hosted PDF.js viewer into public/pdfjs/.
+      # Otherwise the iframe pointing at /pdfjs/web/viewer.html would 404.
       - name: Build with Astro
-        run: npx astro build
+        run: npm run build
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
