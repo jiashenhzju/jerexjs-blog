@@ -26,3 +26,8 @@ pnpm-debug.log*
 
 # misc
 *.log
+
+# Don't track raw PDFs in /public — they bloat the repo and GitHub Pages
+# blocks them from being iframed (X-Frame-Options: deny). Articles fall back
+# to arxiv.org PDFs via frontmatter `arxiv` field instead.
+public/papers/*.pdf

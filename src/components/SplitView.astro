@@ -49,7 +49,7 @@ const { url, label = "原文" } = Astro.props;
     ></iframe>
 
     <div id="split-frame-fallback" class="split-fallback">
-      <p>无法在框内打开此文件。</p>
+      <p>对方服务器不允许内嵌（X-Frame-Options 限制），点击下方按钮在新标签页阅读。</p>
       <a id="split-fallback-link" href={url} target="_blank" rel="noreferrer" class="split-fallback-link">
         在新标签页打开 ↗
       </a>

@@ -33,7 +33,6 @@ venue: "arXiv"
 year: 2026
 arxiv: "2604.20329"
 projectPage: "https://vision-banana.github.io"
-pdf: "papers/vision_banana_2604.pdf"
 date: 2026-04-26
 summary: "对 Nano Banana Pro 做轻量指令微调得到 Vision Banana，把每个视觉任务都改写成可解码的 RGB 图像生成；在 Cityscapes 分割、RefCOCOg/ReasonSeg 指代分割、4 个公开数据集的 metric depth、indoor surface normal 上击败或追平 SAM 3、DINO-X、Depth Anything V3、Lotus-2 等专科模型，且 GenAI-Bench 53.5%、ImgEdit 47.8% 的胜率证明生成能力没有退化。"
 tags:

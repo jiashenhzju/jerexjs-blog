@@ -31,10 +31,12 @@ const updatedStr = data.updated?.toLocaleDateString("zh-CN", {
 const base = import.meta.env.BASE_URL.replace(/\/$/, "");
 
 // Resolve the PDF URL for the split (compare) view.
-// `data.pdf` may be:
-//   - an absolute URL (https://...)
-//   - a site-relative path (e.g. "papers/foo.pdf" or "/papers/foo.pdf"),
-//     pointing into the public/ directory; we prepend the base path.
+// Priority:
+//   1. `data.pdf` absolute URL (https://...)            → use as-is
+//   2. `data.pdf` site-relative path (papers/foo.pdf)   → prepend base; lives in /public
+//   3. no `data.pdf` but has `data.arxiv`               → fall back to arxiv.org PDF
+// Hosting raw PDFs in /public is discouraged: they bloat the repo and GitHub
+// Pages serves them with `X-Frame-Options: deny`, which kills the iframe view.
 let pdfUrl: string | undefined;
 if (data.pdf) {
   if (/^https?:\/\//.test(data.pdf)) {
@@ -43,6 +45,12 @@ if (data.pdf) {
     const clean = data.pdf.replace(/^\.?\//, "");
     pdfUrl = `${base}/${clean}`;
   }
+} else if (data.arxiv) {
+  const arxivId = data.arxiv
+    .replace(/^https?:\/\/(?:www\.)?arxiv\.org\/(?:abs|pdf)\//, "")
+    .replace(/\.pdf$/, "")
+    .replace(/v\d+$/, "");
+  if (arxivId) pdfUrl = `https://arxiv.org/pdf/${arxivId}.pdf`;
 }
 const canSplit = Boolean(pdfUrl);
 ---
@@ -209,14 +217,16 @@ const canSplit = Boolean(pdfUrl);
         history.replaceState(null, "", url.toString());
       } catch {}
 
-      // Fallback safety: if `load` never fires within 8s after first reveal, show fallback.
+      // Fallback safety: if `load` never fires within 3s after first reveal, show fallback.
+      // Cross-origin PDF/HTML servers often block embedding via X-Frame-Options or
+      // frame-ancestors CSP, in which case `load` never fires. 3s gives a fast UX.
       if (on && !iframe.dataset.watched) {
         iframe.dataset.watched = "1";
         let settled = false;
         iframe.addEventListener("load", () => { settled = true; }, { once: true });
         window.setTimeout(() => {
           if (!settled && fallbackBox) fallbackBox.classList.add("is-active");
-        }, 8000);
+        }, 3000);
       }
     };
 

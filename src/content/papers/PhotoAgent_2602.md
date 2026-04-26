@@ -17,7 +17,6 @@ venue: "arXiv"
 year: 2026
 arxiv: "2602.22809"
 projectPage: "https://mdyao.github.io/PhotoAgent"
-pdf: "papers/PhotoAgent_2602.pdf"
 date: 2026-04-26
 summary: "把照片编辑显式建模为长时程决策问题，用 VLM 感知 + MCTS 规划 + 多工具执行 + 集成 evaluator 的闭环 agent，自主完成多轮美学优化；并训练 UGC 奖励模型作为搜索 reward。User study 42% vs GPT-4o 30.2%，但默认配置 470s/张。"
 tags:
