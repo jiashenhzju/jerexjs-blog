@@ -31,3 +31,7 @@ pnpm-debug.log*
 # blocks them from being iframed (X-Frame-Options: deny). Articles fall back
 # to arxiv.org PDFs via frontmatter `arxiv` field instead.
 public/papers/*.pdf
+
+# Self-hosted PDF.js viewer — copied from node_modules at build time by
+# scripts/copy-pdfjs.mjs (~11 MB). Don't track in git.
+public/pdfjs/

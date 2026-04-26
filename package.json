@@ -5,6 +5,9 @@
   "private": true,
   "description": "JerexJs Blog — personal research reading log, hosted on GitHub Pages.",
   "scripts": {
+    "copy:pdfjs": "node scripts/copy-pdfjs.mjs",
+    "predev": "node scripts/copy-pdfjs.mjs",
+    "prebuild": "node scripts/copy-pdfjs.mjs",
     "dev": "astro dev",
     "start": "astro dev",
     "build": "astro build",

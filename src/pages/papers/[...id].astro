@@ -32,33 +32,33 @@ const base = import.meta.env.BASE_URL.replace(/\/$/, "");
 
 // Resolve URLs for the split (compare) view.
 //
-// Three concerns, three URLs:
-//   - embedUrl     : what the iframe loads (must be iframe-able cross-origin)
-//   - externalUrl  : what "open in new tab" / fallback navigates to (canonical paper page)
-//   - pdfUrl       : what the optional "PDF" button opens in a new tab (raw PDF)
+// Strategy: self-host PDF.js viewer at /pdfjs/web/viewer.html and feed it the
+// PDF URL via `?file=<encoded url>`. The viewer is same-origin (no
+// X-Frame-Options issue), and PDF.js fetches the PDF via XHR. To pass the
+// browser CORS check we fetch from `export.arxiv.org` which sets
+// `Access-Control-Allow-Origin: *` (vs. `arxiv.org` which doesn't).
 //
-// Priority for embedUrl:
-//   1. `data.pdf` absolute URL          → use as-is (caller knows what they want)
-//   2. `data.pdf` site-relative path    → prepend base; lives in /public
-//   3. no `data.pdf` but has `data.arxiv` → use ar5iv HTML (cross-device iframe-friendly)
-//
-// Why ar5iv instead of arxiv.org/pdf for the iframe? arxiv.org sets
-// X-Frame-Options: SAMEORIGIN, which is bypassed on desktop Chrome/Edge by their
-// internal PDF.js handoff but is strictly enforced on iOS WebKit (= iPad Chrome,
-// Safari, etc.). ar5iv.labs.arxiv.org has no X-Frame-Options, so it iframes
-// uniformly across desktop/tablet/mobile.
+// Three URLs:
+//   - embedUrl    : iframe src — points at our own viewer.html
+//   - externalUrl : "open in new tab" target — canonical arxiv abs page
+//   - pdfUrl     : raw PDF for the explicit "PDF" toolbar button
 let embedUrl: string | undefined;
 let externalUrl: string | undefined;
 let pdfUrl: string | undefined;
 
+const wrapInViewer = (rawPdfUrl: string) =>
+  `${base}/pdfjs/web/viewer.html?file=${encodeURIComponent(rawPdfUrl)}`;
+
 if (data.pdf) {
   if (/^https?:\/\//.test(data.pdf)) {
-    embedUrl = data.pdf;
+    pdfUrl = data.pdf;
+    embedUrl = wrapInViewer(data.pdf);
     externalUrl = data.pdf;
   } else {
     const clean = data.pdf.replace(/^\.?\//, "");
-    embedUrl = `${base}/${clean}`;
-    externalUrl = embedUrl;
+    pdfUrl = `${base}/${clean}`;
+    embedUrl = pdfUrl;
+    externalUrl = pdfUrl;
   }
 }
 
@@ -68,8 +68,11 @@ if (data.arxiv) {
     .replace(/\.pdf$/, "")
     .replace(/v\d+$/, "");
   if (arxivId) {
-    pdfUrl = `https://arxiv.org/pdf/${arxivId}.pdf`;
-    if (!embedUrl) embedUrl = `https://ar5iv.labs.arxiv.org/html/${arxivId}`;
+    if (!pdfUrl) pdfUrl = `https://arxiv.org/pdf/${arxivId}.pdf`;
+    if (!embedUrl) {
+      const corsPdf = `https://export.arxiv.org/pdf/${arxivId}.pdf`;
+      embedUrl = wrapInViewer(corsPdf);
+    }
     if (!externalUrl) externalUrl = `https://arxiv.org/abs/${arxivId}`;
   }
 }
@@ -246,16 +249,17 @@ const canSplit = Boolean(embedUrl);
         history.replaceState(null, "", url.toString());
       } catch {}
 
-      // Fallback safety: if `load` never fires within 3s after first reveal, show fallback.
-      // Cross-origin PDF/HTML servers often block embedding via X-Frame-Options or
-      // frame-ancestors CSP, in which case `load` never fires. 3s gives a fast UX.
+      // Fallback safety: if `load` never fires within 8s after first reveal, show
+      // fallback. Self-hosted PDF.js viewer's `load` typically fires once viewer.html
+      // is parsed (well under 1s), even before the actual PDF starts streaming, so 8s
+      // is a generous safety net for slow networks / CDN cold starts.
       if (on && !iframe.dataset.watched) {
         iframe.dataset.watched = "1";
         let settled = false;
         iframe.addEventListener("load", () => { settled = true; }, { once: true });
         window.setTimeout(() => {
           if (!settled && fallbackBox) fallbackBox.classList.add("is-active");
-        }, 3000);
+        }, 8000);
       }
     };
 
