@@ -1,0 +1,25 @@
+---
+interface Props {
+  tag: string;
+  count?: number;
+  active?: boolean;
+  size?: "sm" | "md";
+}
+
+const { tag, count, active = false, size = "sm" } = Astro.props;
+const base = import.meta.env.BASE_URL.replace(/\/$/, "");
+const href = `${base}/tags/${encodeURIComponent(tag)}`;
+
+const padding = size === "md" ? "px-3 py-1 text-sm" : "px-2.5 py-0.5 text-xs";
+---
+
+<a
+  href={href}
+  class={`tag-chip ${padding} ${active ? "tag-chip-active" : ""}`}
+>
+  <span class="text-accent-400">#</span>
+  <span>{tag}</span>
+  {count !== undefined && (
+    <span class="ml-1 text-[10px] font-mono text-ink-50">{count}</span>
+  )}
+</a>

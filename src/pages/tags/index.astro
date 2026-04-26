@@ -1,0 +1,29 @@
+---
+import { getCollection } from "astro:content";
+import BaseLayout from "@/layouts/BaseLayout.astro";
+import TagBadge from "@/components/TagBadge.astro";
+
+const papers = (await getCollection("papers")).filter((p) => !p.data.draft);
+
+const tagCount = new Map<string, number>();
+papers.forEach((p) =>
+  p.data.tags.forEach((t) => tagCount.set(t, (tagCount.get(t) ?? 0) + 1)),
+);
+const tags = Array.from(tagCount.entries()).sort((a, b) => b[1] - a[1]);
+---
+
+<BaseLayout title="Tags">
+  <section class="max-w-4xl mx-auto px-5 lg:px-8 pt-10 pb-16">
+    <h1 class="text-xl font-semibold text-ink-300 tracking-tight">
+      Tags <span class="ml-2 text-sm font-mono text-ink-50">{tags.length}</span>
+    </h1>
+
+    <div class="mt-5 flex flex-wrap gap-2">
+      {tags.length === 0 ? (
+        <p class="text-ink-50 text-sm">还没有标签。</p>
+      ) : (
+        tags.map(([tag, count]) => <TagBadge tag={tag} count={count} size="md" />)
+      )}
+    </div>
+  </section>
+</BaseLayout>

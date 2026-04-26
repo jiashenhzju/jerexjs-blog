@@ -1,0 +1,77 @@
+---
+import { getCollection } from "astro:content";
+import BaseLayout from "@/layouts/BaseLayout.astro";
+import PaperCard from "@/components/PaperCard.astro";
+import TagBadge from "@/components/TagBadge.astro";
+import SearchBox from "@/components/SearchBox.astro";
+
+const papers = (await getCollection("papers"))
+  .filter((p) => !p.data.draft)
+  .sort((a, b) => b.data.date.getTime() - a.data.date.getTime());
+
+const tagCount = new Map<string, number>();
+papers.forEach((p) =>
+  p.data.tags.forEach((t) => tagCount.set(t, (tagCount.get(t) ?? 0) + 1)),
+);
+const allTags = Array.from(tagCount.entries()).sort((a, b) => b[1] - a[1]);
+---
+
+<BaseLayout>
+  <section class="max-w-5xl mx-auto px-5 lg:px-8 pt-10 pb-16">
+    <div class="flex flex-col gap-3">
+      <SearchBox />
+
+      {allTags.length > 0 && (
+        <div class="flex flex-wrap gap-1.5">
+          {allTags.map(([tag, count]) => <TagBadge tag={tag} count={count} />)}
+        </div>
+      )}
+    </div>
+
+    {papers.length === 0 ? (
+      <div class="card text-center py-12 text-ink-100 mt-8">
+        <p class="font-medium">还没有笔记</p>
+        <p class="text-sm text-ink-50 mt-1">
+          把 markdown 笔记放进 <code class="font-mono">src/content/papers/</code> 即可。
+        </p>
+      </div>
+    ) : (
+      <div class="mt-7">
+        <div id="paper-grid" class="grid gap-4">
+          {papers.map((p) => (
+            <div
+              data-paper-card
+              data-haystack={[
+                p.data.title,
+                p.data.titleZh,
+                ...(p.data.authors ?? []),
+                ...(p.data.tags ?? []),
+                p.data.summary,
+              ]
+                .filter(Boolean)
+                .join(" ")
+                .toLowerCase()}
+            >
+              <PaperCard
+                id={p.id}
+                title={p.data.title}
+                titleZh={p.data.titleZh}
+                date={p.data.date}
+                summary={p.data.summary}
+                tags={p.data.tags}
+                status={p.data.status}
+                rating={p.data.rating}
+                venue={p.data.venue}
+                year={p.data.year}
+                authors={p.data.authors}
+              />
+            </div>
+          ))}
+        </div>
+        <div id="empty-state" class="hidden text-center py-10 text-ink-50 text-sm">
+          没有匹配的论文。
+        </div>
+      </div>
+    )}
+  </section>
+</BaseLayout>

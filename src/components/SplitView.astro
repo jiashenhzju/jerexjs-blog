@@ -1,0 +1,58 @@
+---
+interface Props {
+  url: string;
+  label?: string;
+}
+
+const { url, label = "原文" } = Astro.props;
+---
+
+<aside class="split-pane" aria-hidden="true">
+  <div class="split-toolbar">
+    <span class="split-doc-label" title={label}>{label}</span>
+
+    <div class="split-actions">
+      <a
+        id="split-open-tab"
+        href={url}
+        target="_blank"
+        rel="noreferrer"
+        title="在新标签页打开"
+        aria-label="Open in new tab"
+        class="split-action-btn"
+      >
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" class="w-4 h-4" aria-hidden="true">
+          <path d="M14 3h7v7" /><path d="M10 14 21 3" /><path d="M21 14v5a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5" />
+        </svg>
+      </a>
+      <button
+        type="button"
+        id="split-close"
+        title="关闭对照视图"
+        aria-label="Close split view"
+        class="split-action-btn"
+      >
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" class="w-4 h-4" aria-hidden="true">
+          <path d="M18 6 6 18" /><path d="m6 6 12 12" />
+        </svg>
+      </button>
+    </div>
+  </div>
+
+  <div class="split-frame-wrap">
+    <iframe
+      id="split-iframe"
+      src={url}
+      title={label}
+      loading="lazy"
+      referrerpolicy="no-referrer-when-downgrade"
+    ></iframe>
+
+    <div id="split-frame-fallback" class="split-fallback">
+      <p>无法在框内打开此文件。</p>
+      <a id="split-fallback-link" href={url} target="_blank" rel="noreferrer" class="split-fallback-link">
+        在新标签页打开 ↗
+      </a>
+    </div>
+  </div>
+</aside>

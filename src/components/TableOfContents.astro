@@ -1,0 +1,58 @@
+---
+import type { MarkdownHeading } from "astro";
+
+interface Props {
+  headings: MarkdownHeading[];
+}
+
+const { headings } = Astro.props;
+const items = headings.filter((h) => h.depth >= 2 && h.depth <= 3);
+---
+
+{items.length > 0 && (
+  <nav class="hidden xl:block sticky top-20 self-start text-sm" aria-label="Table of contents">
+    <p class="text-[11px] uppercase tracking-wider text-ink-50 font-mono mb-3">
+      On this page
+    </p>
+    <ul class="space-y-1.5 border-l border-paper-200 pl-3">
+      {items.map((h) => (
+        <li class={h.depth === 3 ? "ml-3" : ""}>
+          <a
+            href={`#${h.slug}`}
+            class="block text-ink-100 hover:text-accent-400 transition-colors leading-snug py-0.5"
+            data-toc-target={h.slug}
+          >
+            {h.text}
+          </a>
+        </li>
+      ))}
+    </ul>
+  </nav>
+)}
+
+<script is:inline>
+  // Highlight current TOC entry on scroll
+  (() => {
+    const links = document.querySelectorAll("[data-toc-target]");
+    if (links.length === 0) return;
+    const map = new Map();
+    links.forEach((a) => {
+      const id = a.getAttribute("data-toc-target");
+      if (id) map.set(id, a);
+    });
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((e) => {
+          const link = map.get(e.target.id);
+          if (!link) return;
+          if (e.isIntersecting) {
+            links.forEach((l) => l.classList.remove("text-accent-400", "font-medium"));
+            link.classList.add("text-accent-400", "font-medium");
+          }
+        });
+      },
+      { rootMargin: "-30% 0px -65% 0px", threshold: 0 },
+    );
+    document.querySelectorAll(".prose-paper h2, .prose-paper h3").forEach((el) => observer.observe(el));
+  })();
+</script>
