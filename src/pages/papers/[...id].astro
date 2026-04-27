@@ -70,7 +70,11 @@ if (data.arxiv) {
   if (arxivId) {
     if (!pdfUrl) pdfUrl = `https://arxiv.org/pdf/${arxivId}.pdf`;
     if (!embedUrl) {
-      const corsPdf = `https://export.arxiv.org/pdf/${arxivId}.pdf`;
+      // NOTE: Do NOT append `.pdf` here. `export.arxiv.org/pdf/<id>.pdf` 302's
+      // to `export.arxiv.org/pdf/<id>`, and the redirect response itself lacks
+      // CORS headers, so cross-origin fetch (PDF.js) bails on the whole chain.
+      // The trailing-slash form returns the PDF directly with proper CORS.
+      const corsPdf = `https://export.arxiv.org/pdf/${arxivId}`;
       embedUrl = wrapInViewer(corsPdf);
     }
     if (!externalUrl) externalUrl = `https://arxiv.org/abs/${arxivId}`;
