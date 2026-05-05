@@ -4,6 +4,7 @@ import BaseLayout from "@/layouts/BaseLayout.astro";
 import TagBadge from "@/components/TagBadge.astro";
 import TableOfContents from "@/components/TableOfContents.astro";
 import SplitView from "@/components/SplitView.astro";
+import Comments from "@/components/Comments.astro";
 
 export async function getStaticPaths() {
   const papers = await getCollection("papers");
@@ -203,6 +204,10 @@ const canSplit = Boolean(embedUrl);
           <Content />
         </div>
         <TableOfContents headings={headings} />
+      </div>
+
+      <div class="max-w-prose">
+        <Comments paperId={paper.id} />
       </div>
     </article>
 

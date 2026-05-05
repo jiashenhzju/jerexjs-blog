@@ -1,0 +1,302 @@
+---
+interface Props {
+  paperId: string;
+}
+
+const { paperId } = Astro.props;
+
+// Public env vars are inlined at build time. Configure these on GitHub Actions
+// (repo Settings → Secrets and variables → Actions → Variables) and pass them
+// through in deploy.yml. See README §留言板 for setup.
+const supabaseUrl = (import.meta.env.PUBLIC_SUPABASE_URL ?? "").trim();
+const supabaseAnon = (import.meta.env.PUBLIC_SUPABASE_ANON_KEY ?? "").trim();
+const enabled = Boolean(supabaseUrl && supabaseAnon);
+---
+
+<section
+  id="comments"
+  class="comments-section mt-16 pt-10 border-t border-paper-200"
+  data-paper-id={paperId}
+  data-supabase-url={supabaseUrl}
+  data-supabase-key={supabaseAnon}
+>
+  <div class="flex items-baseline justify-between mb-5">
+    <h2 class="text-xl font-semibold text-ink-300 m-0">留言板</h2>
+    <span class="text-xs font-mono text-ink-50" id="comment-count"></span>
+  </div>
+
+  {!enabled && (
+    <div class="rounded-md border border-dashed border-paper-300 bg-paper-50 px-4 py-5 text-sm text-ink-100 leading-relaxed">
+      留言板未配置。请在构建环境中设置
+      <code class="px-1 py-0.5 rounded bg-paper-100 text-accent-500 font-mono text-xs">PUBLIC_SUPABASE_URL</code>
+      与
+      <code class="px-1 py-0.5 rounded bg-paper-100 text-accent-500 font-mono text-xs">PUBLIC_SUPABASE_ANON_KEY</code>
+      ，并按 <code class="font-mono text-xs">supabase/comments.sql</code> 在 Supabase 中创建 <code class="font-mono text-xs">comments</code> 表与 RLS 策略。
+    </div>
+  )}
+
+  {enabled && (
+    <>
+      <form id="comment-form" class="space-y-3 mb-8">
+        <input
+          id="comment-author"
+          type="text"
+          maxlength="40"
+          placeholder="昵称（可选，留空显示为匿名读者）"
+          class="block w-full sm:w-72 px-3 py-2 rounded-md border border-paper-200 bg-paper-50 text-sm text-ink-300 placeholder:text-ink-50 focus:outline-none focus:border-accent-300 focus:ring-1 focus:ring-accent-200"
+        />
+        <textarea
+          id="comment-body"
+          required
+          rows="3"
+          maxlength="2000"
+          placeholder="留下一些想法… (纯文本，不解析 Markdown)"
+          class="block w-full px-3 py-2 rounded-md border border-paper-200 bg-paper-50 text-sm text-ink-300 placeholder:text-ink-50 focus:outline-none focus:border-accent-300 focus:ring-1 focus:ring-accent-200 resize-y"
+        ></textarea>
+        <div class="flex items-center gap-3">
+          <button
+            type="submit"
+            class="inline-flex items-center px-4 py-1.5 rounded-md text-sm font-medium bg-accent-400 text-white hover:bg-accent-500 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            发布
+          </button>
+          <span id="comment-status" class="text-xs text-ink-50" role="status" aria-live="polite"></span>
+        </div>
+        <p class="text-xs text-ink-50">
+          这是一个开放留言板，任何人都可以新增、编辑或删除任意留言；请友善发言。
+        </p>
+      </form>
+
+      <div id="comment-list" class="space-y-3">
+        <div class="text-sm text-ink-50" id="comment-empty">加载中…</div>
+      </div>
+    </>
+  )}
+</section>
+
+<script is:inline>
+  (() => {
+    const root = document.getElementById("comments");
+    if (!root) return;
+    const SB_URL = root.dataset.supabaseUrl;
+    const SB_KEY = root.dataset.supabaseKey;
+    const PAPER = root.dataset.paperId;
+    if (!SB_URL || !SB_KEY || !PAPER) return;
+
+    const baseHeaders = {
+      apikey: SB_KEY,
+      Authorization: `Bearer ${SB_KEY}`,
+      "Content-Type": "application/json",
+    };
+
+    const list = document.getElementById("comment-list");
+    const form = document.getElementById("comment-form");
+    const authorEl = document.getElementById("comment-author");
+    const bodyEl = document.getElementById("comment-body");
+    const statusEl = document.getElementById("comment-status");
+    const counter = document.getElementById("comment-count");
+
+    const escape = (s) =>
+      String(s)
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#39;");
+
+    const fmt = (iso) => {
+      try {
+        const d = new Date(iso);
+        return d.toLocaleString("zh-CN", {
+          year: "numeric",
+          month: "2-digit",
+          day: "2-digit",
+          hour: "2-digit",
+          minute: "2-digit",
+        });
+      } catch {
+        return iso;
+      }
+    };
+
+    const NAME_KEY = "jerexjs-comment-author";
+    if (authorEl) {
+      try {
+        const saved = localStorage.getItem(NAME_KEY) ?? "";
+        if (saved) authorEl.value = saved;
+      } catch {}
+      authorEl.addEventListener("change", () => {
+        try {
+          localStorage.setItem(NAME_KEY, (authorEl.value ?? "").trim());
+        } catch {}
+      });
+    }
+
+    let statusTimer = null;
+    const setStatus = (msg, kind) => {
+      if (!statusEl) return;
+      statusEl.textContent = msg ?? "";
+      statusEl.className = `text-xs ${kind === "err" ? "text-red-600" : kind === "ok" ? "text-moss-500" : "text-ink-50"}`;
+      if (statusTimer) clearTimeout(statusTimer);
+      if (msg) {
+        statusTimer = setTimeout(() => {
+          if (statusEl.textContent === msg) statusEl.textContent = "";
+        }, 4000);
+      }
+    };
+
+    const render = (rows) => {
+      list.innerHTML = "";
+      if (counter) counter.textContent = rows.length ? `${rows.length} 条` : "";
+      if (!rows.length) {
+        list.innerHTML = `<div class="text-sm text-ink-50">还没有留言，来抢沙发 ☕</div>`;
+        return;
+      }
+      for (const c of rows) {
+        const node = document.createElement("article");
+        node.className =
+          "comment-item rounded-md border border-paper-200 bg-paper-50/60 px-4 py-3";
+        const name = (c.author && c.author.trim()) || "匿名读者";
+        const isEdited = c.updated_at && c.updated_at !== c.created_at;
+        node.innerHTML = `
+          <header class="flex items-start justify-between gap-3 mb-1.5">
+            <div class="text-sm leading-tight">
+              <span class="font-medium text-ink-300">${escape(name)}</span>
+              <span class="text-xs text-ink-50 ml-2 font-mono">${escape(fmt(c.created_at))}${
+                isEdited ? ` · 编辑于 ${escape(fmt(c.updated_at))}` : ""
+              }</span>
+            </div>
+            <div class="flex items-center gap-3 text-xs shrink-0">
+              <button type="button" data-act="edit" data-id="${escape(c.id)}" class="text-ink-50 hover:text-accent-500 transition-colors">编辑</button>
+              <button type="button" data-act="delete" data-id="${escape(c.id)}" class="text-ink-50 hover:text-red-600 transition-colors">删除</button>
+            </div>
+          </header>
+          <div class="comment-body whitespace-pre-wrap text-sm text-ink-300 leading-relaxed">${escape(c.body)}</div>
+        `;
+        node.dataset.body = c.body ?? "";
+        list.appendChild(node);
+      }
+    };
+
+    const load = async () => {
+      try {
+        const url = `${SB_URL}/rest/v1/comments?paper_id=eq.${encodeURIComponent(
+          PAPER,
+        )}&select=*&order=created_at.asc`;
+        const res = await fetch(url, { headers: baseHeaders });
+        if (!res.ok) throw new Error(`${res.status} ${await res.text()}`);
+        const data = await res.json();
+        render(data);
+      } catch (err) {
+        list.innerHTML = `<div class="text-sm text-red-600">加载失败：${escape(err.message ?? err)}</div>`;
+      }
+    };
+
+    form?.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const text = (bodyEl.value ?? "").trim();
+      if (!text) return;
+      const author = (authorEl?.value ?? "").trim() || null;
+      const submitBtn = form.querySelector('button[type="submit"]');
+      submitBtn.disabled = true;
+      setStatus("发布中…");
+      try {
+        const res = await fetch(`${SB_URL}/rest/v1/comments`, {
+          method: "POST",
+          headers: { ...baseHeaders, Prefer: "return=minimal" },
+          body: JSON.stringify({ paper_id: PAPER, author, body: text }),
+        });
+        if (!res.ok) throw new Error(`${res.status} ${await res.text()}`);
+        bodyEl.value = "";
+        setStatus("已发布", "ok");
+        await load();
+      } catch (err) {
+        setStatus(`发布失败：${err.message ?? err}`, "err");
+      } finally {
+        submitBtn.disabled = false;
+      }
+    });
+
+    list?.addEventListener("click", async (e) => {
+      const btn = e.target.closest("button[data-act]");
+      if (!btn) return;
+      const id = btn.dataset.id;
+      const node = btn.closest("article");
+      if (!id || !node) return;
+
+      if (btn.dataset.act === "delete") {
+        if (!confirm("确认删除这条留言？删除后不可恢复。")) return;
+        setStatus("删除中…");
+        try {
+          const res = await fetch(`${SB_URL}/rest/v1/comments?id=eq.${id}`, {
+            method: "DELETE",
+            headers: { ...baseHeaders, Prefer: "return=minimal" },
+          });
+          if (!res.ok) throw new Error(`${res.status} ${await res.text()}`);
+          setStatus("已删除", "ok");
+          await load();
+        } catch (err) {
+          setStatus(`删除失败：${err.message ?? err}`, "err");
+        }
+        return;
+      }
+
+      if (btn.dataset.act === "edit") {
+        if (node.querySelector(".edit-zone")) return;
+        const oldBody = node.dataset.body ?? "";
+        const bodyView = node.querySelector(".comment-body");
+        if (bodyView) bodyView.style.display = "none";
+
+        const editor = document.createElement("div");
+        editor.className = "edit-zone mt-2 space-y-2";
+        editor.innerHTML = `
+          <textarea class="edit-body block w-full px-3 py-2 rounded-md border border-paper-200 bg-paper-50 text-sm text-ink-300 focus:outline-none focus:border-accent-300 focus:ring-1 focus:ring-accent-200 resize-y" rows="3" maxlength="2000"></textarea>
+          <div class="flex items-center gap-2">
+            <button type="button" class="save-btn inline-flex items-center px-3 py-1 rounded-md text-xs font-medium bg-accent-400 text-white hover:bg-accent-500 transition-colors">保存</button>
+            <button type="button" class="cancel-btn inline-flex items-center px-3 py-1 rounded-md text-xs font-medium border border-paper-200 text-ink-100 hover:border-accent-200 transition-colors">取消</button>
+          </div>
+        `;
+        node.appendChild(editor);
+        const ta = editor.querySelector(".edit-body");
+        ta.value = oldBody;
+        ta.focus();
+
+        editor.querySelector(".cancel-btn").addEventListener("click", () => {
+          if (bodyView) bodyView.style.display = "";
+          editor.remove();
+        });
+
+        editor.querySelector(".save-btn").addEventListener("click", async () => {
+          const next = (ta.value ?? "").trim();
+          if (!next) {
+            setStatus("内容不能为空", "err");
+            return;
+          }
+          if (next === oldBody) {
+            if (bodyView) bodyView.style.display = "";
+            editor.remove();
+            return;
+          }
+          setStatus("保存中…");
+          try {
+            const res = await fetch(`${SB_URL}/rest/v1/comments?id=eq.${id}`, {
+              method: "PATCH",
+              headers: { ...baseHeaders, Prefer: "return=minimal" },
+              body: JSON.stringify({
+                body: next,
+                updated_at: new Date().toISOString(),
+              }),
+            });
+            if (!res.ok) throw new Error(`${res.status} ${await res.text()}`);
+            setStatus("已保存", "ok");
+            await load();
+          } catch (err) {
+            setStatus(`保存失败：${err.message ?? err}`, "err");
+          }
+        });
+      }
+    });
+
+    load();
+  })();
+</script>

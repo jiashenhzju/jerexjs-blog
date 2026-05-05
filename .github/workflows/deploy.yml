@@ -35,6 +35,12 @@ jobs:
       # Otherwise the iframe pointing at /pdfjs/web/viewer.html would 404.
       - name: Build with Astro
         run: npm run build
+        env:
+          # Comments backend (Supabase). Set these as repository variables in
+          # Settings → Secrets and variables → Actions → Variables. They are
+          # public on purpose — the anon key is meant to ship to the browser.
+          PUBLIC_SUPABASE_URL: ${{ vars.PUBLIC_SUPABASE_URL }}
+          PUBLIC_SUPABASE_ANON_KEY: ${{ vars.PUBLIC_SUPABASE_ANON_KEY }}
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3

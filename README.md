@@ -181,6 +181,36 @@ git push -u origin main
 
 ---
 
+## 留言板（开放式评论）
+
+每篇论文页底部有一个开放留言板：**无需登录，任何人都可以新增、编辑或删除任何留言**。后端是 Supabase Free Tier，前端纯静态、不引 SDK，直接用 `fetch` 调 PostgREST。
+
+### 设置步骤
+
+1. 去 [supabase.com](https://supabase.com) 新建一个免费项目。
+2. 在项目 → SQL Editor 里执行 [`supabase/comments.sql`](./supabase/comments.sql)，会创建 `public.comments` 表 + 4 条 RLS 策略（select / insert / update / delete 全部对 `anon` 开放）。
+3. 在项目 → Settings → API 拷贝 `Project URL` 和 `anon public key`。
+4. 在 GitHub 仓库 → **Settings → Secrets and variables → Actions → Variables** 新建两个 **Repository variables**：
+   - `PUBLIC_SUPABASE_URL` = 你的 Project URL
+   - `PUBLIC_SUPABASE_ANON_KEY` = 你的 anon public key
+5. push 到 `main` 触发重新部署。文章页底部就会出现「留言板」区块。
+
+> 用 **Variables** 而不是 **Secrets**：anon key 本来就要暴露到浏览器，不算秘密；GitHub Actions 也不会把 secret 注入到带 `PUBLIC_` 前缀的 env 上。
+
+### 本地开发
+
+复制 [`.env.example`](./.env.example) 为 `.env`，填入同样两个变量。Astro dev server 会自动读取 `.env`。没有这两个变量时，留言板区块会渲染一个「未配置」提示，不会报错。
+
+### 安全提醒
+
+这是设计成**完全开放**的 —— 任何访问者都能改/删任何留言，相当于一块公共白板。如果不想要这种语义：
+
+- 想要只能本人编辑：在 SQL 里把 update/delete policy 改成检查某个客户端生成的 `edit_token`（写入时存 hash，编辑时验证）。
+- 想要审核制：加一个 `approved boolean default false`，select policy 改为 `using (approved)`，靠你自己手工在 dashboard 里 approve。
+- 想要防垃圾：上 [hCaptcha](https://www.hcaptcha.com/) 或 Cloudflare Turnstile 做客户端校验。
+
+---
+
 ## paper-reading skill
 
 本仓库的笔记格式正好对接我自己写的 [`paper-reading`](https://docs.cursor.com/agent/skills) skill：
