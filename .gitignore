@@ -32,6 +32,13 @@ pnpm-debug.log*
 # to arxiv.org PDFs via frontmatter `arxiv` field instead.
 public/papers/*.pdf
 
+# Large local-only PDF library. The dev server exposes these files with range
+# requests; production builds fall back to arXiv and never copy this directory.
+local-papers/
+
 # Self-hosted PDF.js viewer — copied from node_modules at build time by
 # scripts/copy-pdfjs.mjs (~11 MB). Don't track in git.
 public/pdfjs/
+paper_reading/
+src/content/papers/*_tmp.html
+src/content/papers/*.raw.{md,mdx}

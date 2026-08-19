@@ -4,6 +4,7 @@ import mdx from "@astrojs/mdx";
 import sitemap from "@astrojs/sitemap";
 import remarkMath from "remark-math";
 import rehypeKatex from "rehype-katex";
+import { localPdfDevServer } from "./scripts/local-pdf-dev-server.mjs";
 
 // To deploy on GitHub Pages, set the following two values:
 //   site: "https://<your-username>.github.io"
@@ -23,6 +24,7 @@ export default defineConfig({
     },
   },
   vite: {
+    plugins: [localPdfDevServer({ base: "/jerexjs-blog" })],
     server: {
       fs: { strict: false },
     },

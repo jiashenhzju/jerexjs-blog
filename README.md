@@ -2,11 +2,11 @@
 
 > 个人研究阅读日志 —— 用中英双语精读 AI / CV / Graphics 论文，托管在 GitHub Pages。
 
-[![Deploy to GitHub Pages](https://github.com/<your-username>/jerexjs-blog/actions/workflows/deploy.yml/badge.svg)](https://github.com/<your-username>/jerexjs-blog/actions/workflows/deploy.yml)
+[![Deploy to GitHub Pages](https://github.com/jiashenhzju/jerexjs-blog/actions/workflows/deploy.yml/badge.svg)](https://github.com/jiashenhzju/jerexjs-blog/actions/workflows/deploy.yml)
 
 基于 [Astro](https://astro.build) + Tailwind 的极简静态站点。暖米白底色、衬线/无衬线混排、专门用于沉淀论文阅读笔记。每篇笔记是一段双语对照的精读 + 独立分析 + 内嵌图表。
 
-线上预览：`https://<your-username>.github.io/jerexjs-blog/`（请把 `<your-username>` 换成你自己的 GitHub 用户名）
+线上预览：[jiashenhzju.github.io/jerexjs-blog](https://jiashenhzju.github.io/jerexjs-blog/)
 
 ---
 
@@ -14,7 +14,7 @@
 
 - **双语对照**：英文段落与中文翻译交替排版，配合 KaTeX 公式渲染。
 - **图表内联**：每篇笔记的图、表都被抽出来作为 PNG 放在同名子目录里，markdown 直接引用，不依赖外链。
-- **PDF 镜像**：原 PDF 拷贝到 `public/papers/`，在文章页可对照阅读。
+- **本地 PDF 加速**：大 PDF 放在 Git 忽略的 `local-papers/`，开发态通过 Range 请求按需加载；生产态自动回退 arXiv。
 - **内容集合 + 类型校验**：用 Astro Content Collections + Zod schema 强约束 frontmatter，写错会在 build 时报错。
 - **零运行时**：纯静态、零数据库、`npm run build` 即得 `dist/` 全量站点。
 - **自动部署**：push 到 `main` 即触发 GitHub Actions，自动构建 + 发布到 GitHub Pages。
@@ -44,7 +44,8 @@ jerexjs-blog/
 ├── tsconfig.json
 ├── public/
 │   ├── favicon.svg
-│   └── papers/                # 原始 PDF 镜像（被文章 frontmatter 的 pdf 字段引用）
+│   └── pdfjs/                 # 构建前生成，不提交 Git
+├── local-papers/              # 本地 PDF 或软链接；不提交、不进 dist
 ├── src/
 │   ├── content.config.ts      # papers collection 的 zod schema
 │   ├── content/
@@ -70,7 +71,7 @@ jerexjs-blog/
 ## 快速上手
 
 ```bash
-git clone https://github.com/<your-username>/jerexjs-blog.git
+git clone https://github.com/jiashenhzju/jerexjs-blog.git
 cd jerexjs-blog
 npm install
 
@@ -83,18 +84,77 @@ ASTRO_TELEMETRY_DISABLED=1 npm run preview  # 本地预览构建产物
 
 ---
 
-## 新增一篇笔记
+## 新增论文：放哪里、怎么读
 
-每篇笔记 = 一个 markdown 文件 + 同名子目录（放图）。
+### 1. 放置原始 PDF
+
+把待处理 PDF 放到仓库根目录下、已被 Git 忽略的 `local-papers/inbox/`。不要放进 `public/`、`src/`，也不要提交到 Git。
+
+单篇论文：
+
+```text
+local-papers/inbox/MyPaper_2604.pdf
+```
+
+一批论文可以按主题或日期建目录：
+
+```text
+local-papers/inbox/world-models-2026/
+├── Paper-A.pdf
+├── Paper-B.pdf
+└── Paper-C.pdf
+```
+
+PDF 原本已经在下载目录、文献库或外置硬盘时，不必复制进仓库；调用 skill 时直接给它**绝对路径**即可。`paper-reading` 会在 `local-papers/` 下建立软链接，不重复占用一份空间。
+
+> `example/MiniWorld-2608.pdf` 仅用于演示完整流程，不建议把 `example/` 当成日常论文库，因为它没有被 Git 忽略。
+
+### 2. 在 Codex 中调用 `paper-reading`
+
+在本项目的 Codex 任务输入框中直接发送下面的内容。推荐显式写 `$paper-reading`，并使用绝对路径，避免工作目录变化导致找不到文件。
+
+单篇深度精读（默认模式）：
+
+```text
+$paper-reading 深度精读 /Users/you/projects/jerexjs-blog/local-papers/inbox/MyPaper_2604.pdf，生成到当前 JerexJs Blog，完成图表核对并运行 build。
+```
+
+整目录逐篇处理：
+
+```text
+$paper-reading 依次深度精读 /Users/you/projects/jerexjs-blog/local-papers/inbox/world-models-2026/ 下的所有 PDF。每篇生成独立文章；逐篇完成提取、核图和 build，遇到失败时停下并报告。
+```
+
+也可以按阅读目标切换颗粒度：
+
+| 目标 | 调用示例 |
+| --- | --- |
+| 快速读懂 | `$paper-reading 快速读懂 /absolute/path/paper.pdf，只输出宏观总结、论证地图、关键证据与局限。` |
+| 深度精读 | `$paper-reading 深度精读 /absolute/path/paper.pdf，并生成博客文章。` |
+| 全文翻译 | `$paper-reading 全文翻译 /absolute/path/paper.pdf，按语义大段双语展示。` |
+| 精读某节 | `$paper-reading 精读 /absolute/path/paper.pdf 的第 3 节，补充关键句、术语和公式分析。` |
+| 翻译某节 | `$paper-reading 翻译 /absolute/path/paper.pdf 的 Related Work，尽量少做扩展分析。` |
+
+未指定模式时使用 `deep`：先给出宏观结论和论证链，再做研究者分析与正文语义分块精读，而不是逐句机械翻译。
+
+### 3. 生成产物
+
+每篇论文会生成一个 Markdown 文件和同名资源目录：
 
 ```
 src/content/papers/MyPaper_2604.md
 src/content/papers/MyPaper_2604/
+├── paper.raw.json             # 带版面信息的抽取结果
+├── paper.raw.md               # 便于检查的原始文本
 └── images/
     ├── fig_01.png
-    ├── fig_02.png
-    └── tab_01.png
+    └── fig_02.png
+local-papers/MyPaper_2604.pdf  # 指向原 PDF 的本地软链接
 ```
+
+最终发布内容是 `MyPaper_2604.md` 和其中引用的图片；原 PDF 与 `local-papers/` 不进入 GitHub Pages 部署包。
+
+### 4. 手工新增时的 frontmatter
 
 markdown 顶部的 frontmatter 是必需的：
 
@@ -113,7 +173,7 @@ arxiv: "2604.12345"
 projectPage: "https://..."          # 可选
 github: "https://github.com/..."    # 可选
 huggingface: "https://..."          # 可选
-pdf: "papers/MyPaper_2604.pdf"      # 可选；放在 public/papers/ 下
+localPdf: "MyPaper_2604.pdf"        # 可选；仅本地开发使用
 date: 2026-04-26
 summary: "一句话讲清楚论文做了什么。"
 tags:
@@ -123,9 +183,7 @@ status: done                         # reading | done | skimmed | draft
 ---
 ```
 
-完整 schema 见 [`src/content.config.ts`](./src/content.config.ts)。任何字段类型不匹配，`npm run build` 都会报错。
-
-> **推荐用 [`paper-reading`](https://github.com/<your-username>/jerexjs-blog#paper-reading-skill) skill 自动生成**：它会按本仓库的 frontmatter 规范输出双语精读 + 自动抽图 + PDF 镜像，开箱即用。
+推荐让 `paper-reading` 自动生成这些字段；手工编写时，完整 schema 见 [`src/content.config.ts`](./src/content.config.ts)。任何字段类型不匹配，`npm run build` 都会报错。
 
 ### 写作约定
 
@@ -134,15 +192,55 @@ status: done                         # reading | done | skimmed | draft
 - 公式用 `$...$` / `$$...$$`，会经 `remark-math` + `rehype-katex` 渲染。
 - 图、表统一用 `![](./MyPaper_2604/images/fig_01.png)` 相对引用。
 
+### 5. 大体积本地 PDF 的加载策略
+
+PDF 不应放入 `public/`：Astro 会把它复制进 `dist/`，GitHub 仓库和部署包都会迅速膨胀。本项目采用双源策略：
+
+```bash
+mkdir -p local-papers
+ln -s /absolute/path/MyPaper_2604.pdf local-papers/MyPaper_2604.pdf
+```
+
+frontmatter 设置 `localPdf: "MyPaper_2604.pdf"`，并保留 `arxiv`：
+
+- `npm run dev`：优先走本地 PDF；开发服务器支持 HTTP Range，PDF.js 按块读取。
+- `npm run build`：忽略 `local-papers/`，页面自动使用 arXiv PDF。
+- 如果手工管理外置论文库，也可以在启动前设置 `PAPER_LIBRARY_DIR=/path/to/library`；此时 `localPdf` 应填写相对于该目录的路径。
+
 ---
 
 ## 部署到 GitHub Pages
 
-仓库已经包含 `.github/workflows/deploy.yml`，**无需任何 CI 配置**，按下面步骤推上去就会自动部署。
+当前仓库已配置为：
 
-### 1. 改 `astro.config.mjs`
+```ts
+site: "https://jiashenhzju.github.io"
+base: "/jerexjs-blog"
+```
 
-把 `site` 和 `base` 换成你自己的：
+部署工作流位于 [`.github/workflows/deploy.yml`](./.github/workflows/deploy.yml)，push 到 `main` 后会自动执行 `npm ci`、`npm run build` 并发布 `dist/`。
+
+### 当前仓库首次部署
+
+1. 在 GitHub 仓库进入 **Settings → Pages**，将 **Source** 设为 **GitHub Actions**。
+2. 本地先验证，然后提交并推送：
+
+```bash
+ASTRO_TELEMETRY_DISABLED=1 npm run build
+git add README.md src/content/papers
+git commit -m "Add paper reading note"
+git push origin main
+```
+
+3. 到 **Actions → Deploy to GitHub Pages** 查看状态。成功后访问 [jiashenhzju.github.io/jerexjs-blog](https://jiashenhzju.github.io/jerexjs-blog/)。
+
+以后每次 push 到 `main` 都会重新部署。也可以在 Actions 页面用 `workflow_dispatch` 手动触发。
+
+> `local-papers/` 和原始 PDF 不会被上传。线上论文页优先使用 frontmatter 的 `arxiv` 作为 PDF 来源；没有可公开访问的 `arxiv` 或 `pdf` 时，正文仍可发布，但线上不会出现原文对照入口。
+
+### Fork 后部署到自己的仓库
+
+把 `astro.config.mjs` 的 `site` 和 `base` 换成自己的 GitHub Pages 地址：
 
 ```ts
 // astro.config.mjs
@@ -155,7 +253,7 @@ export default defineConfig({
 
 > 如果你把仓库名改成 `<your-username>.github.io`（用户/组织主页），`base` 改成 `"/"`。
 
-### 2. 推到 GitHub（首次）
+然后推到自己的 GitHub 仓库：
 
 ```bash
 cd jerexjs-blog
@@ -167,17 +265,7 @@ git remote add origin https://github.com/<your-username>/jerexjs-blog.git
 git push -u origin main
 ```
 
-### 3. 在 GitHub 启用 Pages
-
-- 进仓库 → **Settings → Pages**
-- **Source** 选 **GitHub Actions**（不是 Deploy from a branch）
-
-### 4. 等首次部署
-
-- 进 **Actions** 标签页 → 看 `Deploy to GitHub Pages` 是否绿。
-- 绿了之后访问 `https://<your-username>.github.io/jerexjs-blog/`。
-
-之后每次 `git push` 到 `main`，都会自动重建 + 发布。
+最后同样在 **Settings → Pages** 选择 **GitHub Actions**，等待首次 workflow 完成。
 
 ---
 
@@ -213,13 +301,39 @@ git push -u origin main
 
 ## paper-reading skill
 
-本仓库的笔记格式正好对接我自己写的 [`paper-reading`](https://docs.cursor.com/agent/skills) skill：
+本仓库保存了一份可维护的 skill 源码：`example/paper-reading/`；当前机器安装后的路径是 `~/.codex/skills/paper-reading/`。
 
 - 输入：本地 PDF 路径
-- 输出：直接落到 `src/content/papers/<stem>.md` + `src/content/papers/<stem>/images/*.png` + `public/papers/<stem>.pdf`，frontmatter 完全符合本仓库的 schema。
-- 内置：双语对照翻译、图表抽取、独立分析模板、tag 候选提示。
+- 输出：`src/content/papers/<stem>.md`、抽取产物、图表和本地 PDF 软链接
+- 内置：宏观总结、论证地图、证据核验、独立分析、语义分块双语精读、frontmatter 校验与构建验收
 
-如果你也想给自己的 blog 接一套，可以参考 `~/.claude/skills/paper-reading/`（或 Cursor 的 `~/.cursor/skills-cursor/`）。
+首次在其他机器使用时，先复制到个人 skill 目录：
+
+```bash
+mkdir -p ~/.codex/skills/paper-reading
+cp -R example/paper-reading/. ~/.codex/skills/paper-reading/
+```
+
+重新打开 Codex 任务后，在输入框中使用 `$paper-reading` 调用：
+
+```text
+$paper-reading 请精读 /absolute/path/paper.pdf，生成到当前 JerexJs Blog 并跑完验证。
+```
+
+自然语言也会自动触发，例如：
+
+```text
+帮我精读 /Users/you/projects/jerexjs-blog/example/MiniWorld-2608.pdf，生成双语论文笔记。
+```
+
+修改 skill 时以 `example/paper-reading/` 为源文件，校验通过后再同步安装：
+
+```bash
+python ~/.codex/skills/.system/skill-creator/scripts/quick_validate.py example/paper-reading
+cp -R example/paper-reading/. ~/.codex/skills/paper-reading/
+```
+
+详细的论文放置、单篇/批量调用方式见上文“新增论文：放哪里、怎么读”。
 
 ---
 

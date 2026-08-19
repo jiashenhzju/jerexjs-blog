@@ -10,24 +10,24 @@ const isActive = (href: string) => {
 const link = (href: string) => `${base}${href}`;
 ---
 
-<header class="border-b border-paper-200 bg-paper-50/85 backdrop-blur-md sticky top-0 z-30">
-  <div class="max-w-6xl mx-auto px-5 lg:px-8 h-14 flex items-center justify-between">
+<header class="site-header">
+  <div class="site-header-inner">
     <a
       href={link("/")}
-      class="flex items-center gap-2.5 text-ink-300 hover:text-accent-400 transition-colors group"
+      class="site-brand"
+      aria-label="Jerex Research Index"
     >
-      <span class="inline-flex items-center justify-center w-7 h-7 rounded-md bg-accent-50 border border-accent-100 group-hover:rotate-3 transition-transform">
-        <svg viewBox="0 0 24 24" class="w-4 h-4 text-accent-400" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z" />
-          <polyline points="14 3 14 8 19 8" />
-        </svg>
+      <span class="site-brand-mark">JX</span>
+      <span class="site-brand-copy">
+        <strong>Research Index</strong>
+        <small>notes on intelligent systems</small>
       </span>
-      <span class="font-semibold tracking-tight">JerexJs Blog</span>
     </a>
 
-    <nav class="flex items-center gap-1">
-      <a href={link("/")} class={`nav-link ${isActive("/") ? "nav-link-active" : ""}`}>Papers</a>
-      <a href={link("/tags")} class={`nav-link ${isActive("/tags") ? "nav-link-active" : ""}`}>Tags</a>
+    <nav class="site-nav" aria-label="Primary navigation">
+      <a href={link("/")} class={`nav-link ${isActive("/") ? "nav-link-active" : ""}`}>Index</a>
+      <a href={link("/tags")} class={`nav-link ${isActive("/tags") ? "nav-link-active" : ""}`}>Topics</a>
+      <a href={link("/rss.xml")} class="nav-link">RSS</a>
     </nav>
   </div>
 </header>

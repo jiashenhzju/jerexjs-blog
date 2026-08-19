@@ -7,6 +7,7 @@ interface Props {
   /** Optional raw PDF URL for the explicit "PDF" button (e.g. arxiv.org/pdf/<id>.pdf). */
   pdfUrl?: string;
   label?: string;
+  source?: "local" | "remote";
 }
 
 const {
@@ -14,12 +15,18 @@ const {
   externalUrl = embedUrl,
   pdfUrl,
   label = "原文",
+  source = "remote",
 } = Astro.props;
 ---
 
 <aside class="split-pane" aria-hidden="true">
   <div class="split-toolbar">
-    <span class="split-doc-label" title={label}>{label}</span>
+    <div class="split-doc-meta">
+      <span class={`split-source-badge ${source === "local" ? "is-local" : ""}`}>
+        {source === "local" ? "LOCAL" : "REMOTE"}
+      </span>
+      <span class="split-doc-label" title={label}>{label}</span>
+    </div>
 
     <div class="split-actions">
       {pdfUrl && (

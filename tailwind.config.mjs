@@ -4,39 +4,38 @@ export default {
   theme: {
     extend: {
       colors: {
-        // Claude Code inspired palette: warm off-white surface,
-        // deep warm neutrals for type, terracotta accent.
+        // Quiet research-notebook palette: warm neutral paper, graphite type,
+        // and one technical blue reserved for state and navigation.
         paper: {
-          50: "#FAF7F0",
-          100: "#F5F1E8",
-          200: "#EDE6D6",
-          300: "#E0D6BE",
-          400: "#C8BB9E",
+          50: "#F7F7F4",
+          100: "#F0F0EB",
+          200: "#DEDED6",
+          300: "#C7C7BC",
+          400: "#A9A99D",
         },
         ink: {
-          50: "#7B756B",
-          100: "#5C5650",
-          200: "#403C37",
-          300: "#2D2A26",
-          400: "#1F1D1A",
+          50: "#77776E",
+          100: "#55554E",
+          200: "#343430",
+          300: "#20201D",
+          400: "#11110F",
         },
         accent: {
-          50: "#FCEFE8",
-          100: "#F5D6C3",
-          200: "#E5A98A",
-          300: "#D38A66",
-          400: "#CC785C", // primary accent (Claude terracotta)
-          500: "#B26649",
-          600: "#8F4F38",
+          50: "#EEF2FF",
+          100: "#DCE5FF",
+          200: "#B9CAFF",
+          300: "#86A4FF",
+          400: "#315EFB",
+          500: "#2448D8",
+          600: "#1835A8",
         },
         moss: {
-          400: "#7A8B5C", // secondary accent for tags
-          500: "#5F6F44",
+          400: "#537A66",
+          500: "#3E6250",
         },
       },
       fontFamily: {
         sans: [
-          "Inter",
           "ui-sans-serif",
           "system-ui",
           "-apple-system",
@@ -46,8 +45,6 @@ export default {
           "sans-serif",
         ],
         mono: [
-          "JetBrains Mono",
-          "Fira Code",
           "ui-monospace",
           "SFMono-Regular",
           "Menlo",
@@ -56,7 +53,9 @@ export default {
           "monospace",
         ],
         serif: [
-          "Source Serif 4",
+          "Iowan Old Style",
+          "Palatino Linotype",
+          "Book Antiqua",
           "ui-serif",
           "Georgia",
           "Cambria",

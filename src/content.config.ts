@@ -17,6 +17,8 @@ const papers = defineCollection({
     projectPage: z.string().url().optional(),
     github: z.string().url().optional(),
     huggingface: z.string().url().optional(),
+    // Filename relative to the dev-only local PDF library. Never deployed.
+    localPdf: z.string().optional(),
     pdf: z.string().optional(),
     date: z.coerce.date(),
     updated: z.coerce.date().optional(),

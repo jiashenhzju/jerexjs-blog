@@ -2,24 +2,16 @@
 // Lightweight client-side filter for the home grid (no external deps).
 ---
 
-<label class="relative block">
+<label class="research-search">
   <span class="sr-only">Filter papers</span>
+  <span class="research-search-prefix">⌕</span>
   <input
     id="paper-search"
     type="search"
-    placeholder="按标题 / 作者 / 标签筛选..."
-    class="w-full bg-white border border-paper-200 rounded-lg pl-10 pr-3 py-2.5 text-sm placeholder:text-ink-50 focus:outline-none focus:border-accent-300 focus:ring-2 focus:ring-accent-100 transition-shadow shadow-soft"
+    placeholder="Search title, author, method, tag…"
+    class="research-search-input"
   />
-  <svg
-    viewBox="0 0 24 24"
-    fill="none"
-    stroke="currentColor"
-    stroke-width="1.8"
-    class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-ink-50 pointer-events-none"
-  >
-    <circle cx="11" cy="11" r="7" />
-    <line x1="21" y1="21" x2="16.65" y2="16.65" />
-  </svg>
+  <kbd class="research-search-key">/</kbd>
 </label>
 
 <script is:inline>
@@ -39,6 +31,12 @@
         if (ok) visible++;
       });
       if (empty) empty.style.display = visible === 0 ? "" : "none";
+    });
+    document.addEventListener("keydown", (event) => {
+      if (event.key === "/" && document.activeElement !== input) {
+        event.preventDefault();
+        input.focus();
+      }
     });
   })();
 </script>

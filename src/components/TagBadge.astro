@@ -17,9 +17,9 @@ const padding = size === "md" ? "px-3 py-1 text-sm" : "px-2.5 py-0.5 text-xs";
   href={href}
   class={`tag-chip ${padding} ${active ? "tag-chip-active" : ""}`}
 >
-  <span class="text-accent-400">#</span>
+  <span class="tag-hash">#</span>
   <span>{tag}</span>
   {count !== undefined && (
-    <span class="ml-1 text-[10px] font-mono text-ink-50">{count}</span>
+    <span class="tag-count">{count}</span>
   )}
 </a>

@@ -1,0 +1,4642 @@
+{
+  "meta": {
+    "pdf_path": "/Users/xnnxax/projects/jerexjs-blog/local-papers/MOSS-VL-2608.pdf",
+    "pdf_name": "MOSS-VL-2608.pdf",
+    "pdf_stem": "MOSS-VL-2608",
+    "num_pages": 22,
+    "columns": 2,
+    "body_font_size": 8.97,
+    "num_figures": 10
+  },
+  "blocks": [
+    {
+      "id": "b1",
+      "type": "paragraph",
+      "text": "Most open vision–language models understand video offline: given a finished clip, they read it end to end\nand then answer questions about it [3, 4, 14]. The settings where video understanding matters most do\nnot wait for the clip to end. A live assistant watches a scene that is still unfolding, decides for itself when\nsomething is worth saying, and must keep watching while it says it. Table 1 organizes this capability space\ninto five levels. L1 is the offline regime. L2–L4 form the streaming regime occupied by recent streaming\nmodels [11, 24, 41, 47]: input arrives continuously, deliberate silence and persistent queries come into play, yet\nthe model stays blind for the duration of each reply. L5 adds the ability that separates real-time interaction\nfrom everything below: perceiving while generating, so a reply can be revised or cut short the moment the\nevidence changes.",
+      "page": 1,
+      "bbox": [
+        70.87,
+        515.17,
+        541.14,
+        624.6
+      ],
+      "column": 1
+    },
+    {
+      "id": "b2",
+      "type": "paragraph",
+      "text": "MOSS-VL is an open vision–language model family that treats real-time interaction as a first-class capability,\nand it reaches that capability by co-design rather than through any single component. The architecture\nenables the behavior: the language decoder attends to vision only through gated cross-attention, so visual\ntokens never enter the decoded sequence, and an arriving frame merely appends to the cross-attention\ncache—the model naturally keeps perceiving while it generates (§2). XRoPE orders text and vision along one\nshared timeline, and absolute timestamp tokens make wall-clock time explicit. The data injects the behavior:",
+      "page": 1,
+      "bbox": [
+        70.87,
+        633.29,
+        542.38,
+        705.42
+      ],
+      "column": 1
+    },
+    {
+      "id": "b3",
+      "type": "heading",
+      "text": "OpenMOSS Team∗",
+      "page": 1,
+      "bbox": [
+        254.28,
+        149.62,
+        357.23,
+        165.84
+      ],
+      "column": 0,
+      "level": 2
+    },
+    {
+      "id": "b4",
+      "type": "title",
+      "text": "arXiv:2608.15045v1  [cs.CV]  15 Aug 2026",
+      "page": 1,
+      "bbox": [
+        14.94,
+        281.5,
+        41.62,
+        634.8
+      ],
+      "column": 0,
+      "level": 0
+    },
+    {
+      "id": "b5",
+      "type": "paragraph",
+      "text": "Project: https://openmoss.ai/MOSS-VL/\nCode: https://github.com/OpenMOSS/MOSS-VL\nModels: https://huggingface.co/OpenMOSS-Team\nContact: pywang24@m.fudan.edu.cn, xpqiu@fudan.edu.cn",
+      "page": 1,
+      "bbox": [
+        87.15,
+        397.48,
+        356.68,
+        445.17
+      ],
+      "column": 0
+    },
+    {
+      "id": "b6",
+      "type": "paragraph",
+      "text": "1\nIntroduction",
+      "page": 1,
+      "bbox": [
+        70.87,
+        492.11,
+        157.86,
+        504.06
+      ],
+      "column": 0
+    },
+    {
+      "id": "b7",
+      "type": "paragraph",
+      "text": "∗Full contributors are listed in the Contributors section.",
+      "page": 1,
+      "bbox": [
+        85.21,
+        712.14,
+        279.2,
+        722.73
+      ],
+      "column": 0
+    },
+    {
+      "id": "b8",
+      "type": "title",
+      "text": "MOSS-VL Technical Report",
+      "page": 1,
+      "bbox": [
+        192.12,
+        104.58,
+        419.88,
+        122.51
+      ],
+      "column": 1,
+      "level": 0
+    },
+    {
+      "id": "b9",
+      "type": "heading",
+      "text": "Abstract",
+      "page": 1,
+      "bbox": [
+        283.09,
+        205.24,
+        328.91,
+        217.2
+      ],
+      "column": 1,
+      "level": 1
+    },
+    {
+      "id": "b10",
+      "type": "paragraph",
+      "text": "We present MOSS-VL, an open vision–language model family that treats real-time interaction—\nperceiving while it speaks—as a first-class capability. It is co-designed across the stack: the language\ndecoder attends to vision only through gated cross-attention, so the model can naturally see incoming\nframes while generating; a synthesized interaction corpus supervises when to speak, when to stay\nsilent, and when to revise; and a staged curriculum concentrates all real-time-specific training in\none light final stage over a strong offline foundation. Offline, MOSS-VL-Instruct is competitive\nat comparable scale and leads temporal-reasoning video sets. Across four streaming benchmarks,\nMOSS-VL-Realtime posts the best average on three (second on the fourth) among open-source\nstreaming models, sweeping the three subsets that squarely test proactive behavior—66.0 vs. 37.5\nfor the best baseline on OmniMMI Proactive Alerting. With 11.3B parameters but visual tokens\noutside the decoded sequence, MOSS-VL widens its time-to-first-token advantage over same-backbone\nQwen3-VL-8B from 2.8× to 5.1× as visual context grows. We release all five checkpoints, the training\ncurriculum, and the real-time inference code at https://github.com/OpenMOSS/MOSS-VL.",
+      "page": 1,
+      "bbox": [
+        86.65,
+        226.95,
+        526.84,
+        387.08
+      ],
+      "column": 1
+    },
+    {
+      "id": "b11",
+      "type": "paragraph",
+      "text": "a synthesized corpus of real-time interaction supervises when to speak, when to stay silent, and how to revise\na reply the scene has overturned (§4). The training strategy keeps the stack stable: a four-stage pre-training\ncurriculum and standard supervised fine-tuning build the offline foundation (§3), every real-time-specific\nchoice is concentrated in Realtime-SFT, one light final stage, and a single system prompt moves the same\nweights among offline, streaming, and real-time operation. MOSS-VL continues a line that began with\nMOSS-Video-Preview [39], which explored the real-time paradigm; this release redesigns the stack from\nscratch and gives the line its first quantitative streaming evaluation.",
+      "page": 2,
+      "bbox": [
+        70.45,
+        79.94,
+        541.14,
+        164.51
+      ],
+      "column": 0
+    },
+    {
+      "id": "b12",
+      "type": "paragraph",
+      "text": "Figure 1 previews the outcome. Offline, MOSS-VL-Instruct is competitive with open models of comparable\nscale and leads the temporal-reasoning video sets Minerva, TOMATO, and VideoMME-Logical (§6.1). In the\nstreaming regime, the wins land precisely where timing is being tested: across four streaming benchmarks\nagainst open-source streaming baselines, MOSS-VL-Realtime posts the best average on three of the four (and\nis second on the fourth), sweeping the three subsets that squarely test proactive behavior—66.0 vs. 37.5 on\nOmniMMI’s Proactive Alerting (§6.2). Efficiency follows from the same design: against Qwen3-VL-8B, built\non the same Qwen3-8B language backbone, the time-to-first-token gap widens from 2.8× to 5.1× as visual\ncontext grows (§6.3). L5 behavior itself is demonstrated qualitatively, through live demos and the released\nreal-time inference code (§6.4); quantitative validation covers L2–L4, where public benchmarks exist.",
+      "page": 2,
+      "bbox": [
+        70.87,
+        173.19,
+        541.14,
+        282.62
+      ],
+      "column": 1
+    },
+    {
+      "id": "fig1",
+      "type": "figure",
+      "page": 2,
+      "bbox": [
+        66.87,
+        299.37,
+        545.14,
+        633.66
+      ],
+      "column": 1,
+      "image_path": "images/fig_01.png",
+      "caption": "Figure 1 Results overview. (a) Average scores on four streaming benchmarks against open-source streaming baselines\n(details in Table 6; the StreamingBench average covers its visual groups, §6.2). (b) MOSS-VL against the best competing\nmodel on the proactive streaming subsets—PA (Proactive Alerting, OmniMMI), PO (Proactive Output, StreamingBench),\nand FAR (Forward Active Responding, OVO-Bench), all testing whether the model speaks up unprompted at the right\nmoment—and on selected offline strengths (details in Tables 5 and 6). Green = MOSS-VL; gray = the labeled competitor.",
+      "figure_label": "Figure 1"
+    },
+    {
+      "id": "b15",
+      "type": "paragraph",
+      "text": "(a) Streaming benchmarks — average score vs. open-source streaming baselines",
+      "page": 2,
+      "bbox": [
+        104.1,
+        303.81,
+        384.02,
+        316.95
+      ],
+      "column": 0
+    },
+    {
+      "id": "b16",
+      "type": "paragraph",
+      "text": "80",
+      "page": 2,
+      "bbox": [
+        90.83,
+        319.84,
+        98.26,
+        331.06
+      ],
+      "column": 0
+    },
+    {
+      "id": "b17",
+      "type": "heading",
+      "text": "70.2",
+      "page": 2,
+      "bbox": [
+        126.45,
+        329.93,
+        139.08,
+        340.83
+      ],
+      "column": 0,
+      "level": 3
+    },
+    {
+      "id": "b18",
+      "type": "paragraph",
+      "text": "65.3",
+      "page": 2,
+      "bbox": [
+        147.19,
+        337.28,
+        159.82,
+        348.18
+      ],
+      "column": 0
+    },
+    {
+      "id": "b19",
+      "type": "paragraph",
+      "text": "59.2\n57.8\n59.3",
+      "page": 2,
+      "bbox": [
+        167.94,
+        346.38,
+        222.05,
+        359.55
+      ],
+      "column": 0
+    },
+    {
+      "id": "b20",
+      "type": "paragraph",
+      "text": "Benchmark average",
+      "page": 2,
+      "bbox": [
+        75.76,
+        349.2,
+        88.59,
+        416.87
+      ],
+      "column": 0
+    },
+    {
+      "id": "b21",
+      "type": "paragraph",
+      "text": "60",
+      "page": 2,
+      "bbox": [
+        90.83,
+        350.22,
+        98.26,
+        361.44
+      ],
+      "column": 0
+    },
+    {
+      "id": "b22",
+      "type": "paragraph",
+      "text": "40",
+      "page": 2,
+      "bbox": [
+        90.83,
+        380.49,
+        98.26,
+        391.71
+      ],
+      "column": 0
+    },
+    {
+      "id": "b23",
+      "type": "heading",
+      "text": "32.7",
+      "page": 2,
+      "bbox": [
+        251.77,
+        386.79,
+        264.41,
+        397.69
+      ],
+      "column": 0,
+      "level": 3
+    },
+    {
+      "id": "b24",
+      "type": "paragraph",
+      "text": "JoyAI-VL-Interaction",
+      "page": 2,
+      "bbox": [
+        169.19,
+        389.46,
+        178.48,
+        443.39
+      ],
+      "column": 0
+    },
+    {
+      "id": "b25",
+      "type": "paragraph",
+      "text": "25.4",
+      "page": 2,
+      "bbox": [
+        272.52,
+        397.78,
+        285.15,
+        408.68
+      ],
+      "column": 0
+    },
+    {
+      "id": "b26",
+      "type": "paragraph",
+      "text": "VideoChat3-4B",
+      "page": 2,
+      "bbox": [
+        189.94,
+        404.4,
+        199.23,
+        443.39
+      ],
+      "column": 0
+    },
+    {
+      "id": "b27",
+      "type": "paragraph",
+      "text": "ViSpeak-7B",
+      "page": 2,
+      "bbox": [
+        210.68,
+        412.95,
+        219.98,
+        443.39
+      ],
+      "column": 0
+    },
+    {
+      "id": "b28",
+      "type": "paragraph",
+      "text": "15.1",
+      "page": 2,
+      "bbox": [
+        293.26,
+        413.39,
+        305.89,
+        424.29
+      ],
+      "column": 0
+    },
+    {
+      "id": "b29",
+      "type": "paragraph",
+      "text": "AURA",
+      "page": 2,
+      "bbox": [
+        148.45,
+        425.95,
+        157.75,
+        443.39
+      ],
+      "column": 0
+    },
+    {
+      "id": "b30",
+      "type": "paragraph",
+      "text": "AURA",
+      "page": 2,
+      "bbox": [
+        273.78,
+        425.95,
+        283.07,
+        443.39
+      ],
+      "column": 0
+    },
+    {
+      "id": "b31",
+      "type": "paragraph",
+      "text": "M4",
+      "page": 2,
+      "bbox": [
+        294.52,
+        434.84,
+        303.82,
+        443.39
+      ],
+      "column": 0
+    },
+    {
+      "id": "b32",
+      "type": "paragraph",
+      "text": "OVO-Bench\nOmniMMI\nStreamingBench\nProactiveVideoQA\n0",
+      "page": 2,
+      "bbox": [
+        94.01,
+        441.14,
+        499.57,
+        459.45
+      ],
+      "column": 0
+    },
+    {
+      "id": "b33",
+      "type": "paragraph",
+      "text": "(b) Highlights — MOSS-VL vs. the best competing model on each benchmark",
+      "page": 2,
+      "bbox": [
+        104.1,
+        472.13,
+        378.27,
+        485.27
+      ],
+      "column": 0
+    },
+    {
+      "id": "b34",
+      "type": "paragraph",
+      "text": "Proactive subsets\nOffline strengths",
+      "page": 2,
+      "bbox": [
+        176.64,
+        487.19,
+        434.02,
+        498.41
+      ],
+      "column": 0
+    },
+    {
+      "id": "b35",
+      "type": "paragraph",
+      "text": "100",
+      "page": 2,
+      "bbox": [
+        86.58,
+        495.74,
+        97.73,
+        506.96
+      ],
+      "column": 0
+    },
+    {
+      "id": "b36",
+      "type": "paragraph",
+      "text": "80",
+      "page": 2,
+      "bbox": [
+        90.83,
+        518.49,
+        98.26,
+        529.71
+      ],
+      "column": 0
+    },
+    {
+      "id": "b37",
+      "type": "heading",
+      "text": "66.0",
+      "page": 2,
+      "bbox": [
+        127.0,
+        529.94,
+        139.63,
+        540.84
+      ],
+      "column": 0,
+      "level": 3
+    },
+    {
+      "id": "b38",
+      "type": "heading",
+      "text": "62.1",
+      "page": 2,
+      "bbox": [
+        244.95,
+        534.38,
+        257.58,
+        545.28
+      ],
+      "column": 0,
+      "level": 3
+    },
+    {
+      "id": "b39",
+      "type": "heading",
+      "text": "60.0",
+      "page": 2,
+      "bbox": [
+        185.97,
+        536.76,
+        198.61,
+        547.66
+      ],
+      "column": 0,
+      "level": 3
+    },
+    {
+      "id": "b40",
+      "type": "paragraph",
+      "text": "60",
+      "page": 2,
+      "bbox": [
+        90.83,
+        541.28,
+        98.26,
+        552.5
+      ],
+      "column": 0
+    },
+    {
+      "id": "b41",
+      "type": "paragraph",
+      "text": "55.8",
+      "page": 2,
+      "bbox": [
+        265.98,
+        541.46,
+        278.61,
+        552.36
+      ],
+      "column": 0
+    },
+    {
+      "id": "b42",
+      "type": "paragraph",
+      "text": "Score",
+      "page": 2,
+      "bbox": [
+        71.53,
+        541.7,
+        84.36,
+        561.03
+      ],
+      "column": 0
+    },
+    {
+      "id": "b43",
+      "type": "paragraph",
+      "text": "53.2",
+      "page": 2,
+      "bbox": [
+        207.01,
+        544.41,
+        219.64,
+        555.31
+      ],
+      "column": 0
+    },
+    {
+      "id": "b44",
+      "type": "paragraph",
+      "text": "37.5",
+      "page": 2,
+      "bbox": [
+        148.04,
+        562.27,
+        160.67,
+        573.17
+      ],
+      "column": 0
+    },
+    {
+      "id": "b45",
+      "type": "paragraph",
+      "text": "40",
+      "page": 2,
+      "bbox": [
+        90.83,
+        563.97,
+        98.26,
+        575.2
+      ],
+      "column": 0
+    },
+    {
+      "id": "b46",
+      "type": "paragraph",
+      "text": "AURA",
+      "page": 2,
+      "bbox": [
+        149.3,
+        594.19,
+        158.59,
+        611.63
+      ],
+      "column": 0
+    },
+    {
+      "id": "b47",
+      "type": "paragraph",
+      "text": "AURA",
+      "page": 2,
+      "bbox": [
+        208.27,
+        594.19,
+        217.57,
+        611.63
+      ],
+      "column": 0
+    },
+    {
+      "id": "b48",
+      "type": "paragraph",
+      "text": "AURA",
+      "page": 2,
+      "bbox": [
+        267.24,
+        594.19,
+        276.54,
+        611.63
+      ],
+      "column": 0
+    },
+    {
+      "id": "b49",
+      "type": "paragraph",
+      "text": "PA\nPO\nFAR\nBLINK\nV*\nEgoSchema\nMinerva\n0",
+      "page": 2,
+      "bbox": [
+        94.01,
+        609.46,
+        512.35,
+        627.77
+      ],
+      "column": 0
+    },
+    {
+      "id": "b50",
+      "type": "paragraph",
+      "text": "MOSS-VL-Realtime (ours)\nStreaming baselines",
+      "page": 2,
+      "bbox": [
+        449.07,
+        323.41,
+        530.59,
+        345.16
+      ],
+      "column": 1
+    },
+    {
+      "id": "b51",
+      "type": "paragraph",
+      "text": "69.7\n71.1",
+      "page": 2,
+      "bbox": [
+        335.61,
+        328.48,
+        368.99,
+        341.59
+      ],
+      "column": 1
+    },
+    {
+      "id": "b52",
+      "type": "paragraph",
+      "text": "57.2",
+      "page": 2,
+      "bbox": [
+        377.1,
+        349.56,
+        389.73,
+        360.46
+      ],
+      "column": 1
+    },
+    {
+      "id": "b53",
+      "type": "heading",
+      "text": "47.2",
+      "page": 2,
+      "bbox": [
+        419.45,
+        364.81,
+        432.08,
+        375.71
+      ],
+      "column": 1,
+      "level": 3
+    },
+    {
+      "id": "b54",
+      "type": "paragraph",
+      "text": "39.8\n42.7",
+      "page": 2,
+      "bbox": [
+        440.19,
+        371.55,
+        473.57,
+        386.84
+      ],
+      "column": 1
+    },
+    {
+      "id": "b55",
+      "type": "paragraph",
+      "text": "33.4\n31.6",
+      "page": 2,
+      "bbox": [
+        481.68,
+        385.65,
+        515.05,
+        399.28
+      ],
+      "column": 1
+    },
+    {
+      "id": "b56",
+      "type": "paragraph",
+      "text": "VideoChat3-4B",
+      "page": 2,
+      "bbox": [
+        503.68,
+        404.4,
+        512.98,
+        443.39
+      ],
+      "column": 1
+    },
+    {
+      "id": "b57",
+      "type": "paragraph",
+      "text": "MMDuet2-RL",
+      "page": 2,
+      "bbox": [
+        441.45,
+        407.48,
+        450.75,
+        443.39
+      ],
+      "column": 1
+    },
+    {
+      "id": "b58",
+      "type": "paragraph",
+      "text": "MMDuet+rm",
+      "page": 2,
+      "bbox": [
+        462.19,
+        409.42,
+        471.49,
+        443.39
+      ],
+      "column": 1
+    },
+    {
+      "id": "b59",
+      "type": "paragraph",
+      "text": "ViSpeak-7B",
+      "page": 2,
+      "bbox": [
+        378.36,
+        412.95,
+        387.65,
+        443.39
+      ],
+      "column": 1
+    },
+    {
+      "id": "b60",
+      "type": "paragraph",
+      "text": "MMDuet",
+      "page": 2,
+      "bbox": [
+        482.94,
+        420.47,
+        492.23,
+        443.39
+      ],
+      "column": 1
+    },
+    {
+      "id": "b61",
+      "type": "paragraph",
+      "text": "AURA",
+      "page": 2,
+      "bbox": [
+        357.61,
+        425.95,
+        366.91,
+        443.39
+      ],
+      "column": 1
+    },
+    {
+      "id": "b62",
+      "type": "paragraph",
+      "text": "89.0\n85.9",
+      "page": 2,
+      "bbox": [
+        362.89,
+        503.79,
+        396.56,
+        518.13
+      ],
+      "column": 1
+    },
+    {
+      "id": "b63",
+      "type": "heading",
+      "text": "78.0",
+      "page": 2,
+      "bbox": [
+        303.92,
+        516.29,
+        316.55,
+        527.19
+      ],
+      "column": 1,
+      "level": 3
+    },
+    {
+      "id": "b64",
+      "type": "paragraph",
+      "text": "69.1",
+      "page": 2,
+      "bbox": [
+        324.95,
+        526.33,
+        337.59,
+        537.23
+      ],
+      "column": 1
+    },
+    {
+      "id": "b65",
+      "type": "paragraph",
+      "text": "67.0\n65.0",
+      "page": 2,
+      "bbox": [
+        421.86,
+        528.8,
+        455.53,
+        541.89
+      ],
+      "column": 1
+    },
+    {
+      "id": "b66",
+      "type": "heading",
+      "text": "40.5",
+      "page": 2,
+      "bbox": [
+        480.83,
+        558.94,
+        493.46,
+        569.84
+      ],
+      "column": 1,
+      "level": 3
+    },
+    {
+      "id": "b67",
+      "type": "paragraph",
+      "text": "32.3",
+      "page": 2,
+      "bbox": [
+        501.87,
+        568.18,
+        514.5,
+        579.08
+      ],
+      "column": 1
+    },
+    {
+      "id": "b68",
+      "type": "paragraph",
+      "text": "LLaVA-OV-2",
+      "page": 2,
+      "bbox": [
+        385.18,
+        576.42,
+        394.48,
+        611.63
+      ],
+      "column": 1
+    },
+    {
+      "id": "b69",
+      "type": "paragraph",
+      "text": "Qwen2.5-VL",
+      "page": 2,
+      "bbox": [
+        444.16,
+        578.98,
+        453.45,
+        611.63
+      ],
+      "column": 1
+    },
+    {
+      "id": "b70",
+      "type": "paragraph",
+      "text": "Qwen3-VL",
+      "page": 2,
+      "bbox": [
+        326.21,
+        583.59,
+        335.51,
+        611.63
+      ],
+      "column": 1
+    },
+    {
+      "id": "b71",
+      "type": "paragraph",
+      "text": "Gemma-4",
+      "page": 2,
+      "bbox": [
+        503.13,
+        587.01,
+        512.42,
+        611.63
+      ],
+      "column": 1
+    },
+    {
+      "id": "b72",
+      "type": "caption",
+      "text": "Table 1 Levels of video understanding, from offline to real-time. Each level lights up one additional capability axis;\nthe dividing line between the streaming regime (L2–L4) and real-time (L5) is whether the model keeps perceiving while\nit generates—L2–L4 models are blind during a reply, an L5 model is not. MOSS-VL-Realtime achieves L5 behavior,\ndemonstrated through live demos and the released real-time inference code, and is quantitatively validated at levels\nL2–L4 on four streaming benchmarks; a dedicated benchmark for L5 behavior remains an open problem.",
+      "page": 3,
+      "bbox": [
+        70.57,
+        78.45,
+        542.26,
+        131.25
+      ],
+      "column": 1
+    },
+    {
+      "id": "b73",
+      "type": "list",
+      "text": "• A stack co-designed for real-time interaction. The architecture enables it—gated cross-attention with\nXRoPE and absolute timestamps lets the model take in new frames naturally while it generates; the\ndata injects it—synthesized streams supervise response timing; the training strategy keeps it stable—the\nlanguage backbone stays intact behind zero-initialized gates.",
+      "page": 3,
+      "bbox": [
+        74.79,
+        451.04,
+        541.14,
+        498.3
+      ],
+      "column": 1
+    },
+    {
+      "id": "b74",
+      "type": "list",
+      "text": "• Realtime-SFT, an interaction paradigm in one light stage. Two added state tokens, one shared system\nprompt, and a reweighted next-token loss—under 3% of total training tokens—teach when to speak, when\nto stay silent, and when to revise, delivering the best average on three of four streaming benchmarks and\nthe proactive sweep above.",
+      "page": 3,
+      "bbox": [
+        74.79,
+        508.98,
+        541.14,
+        556.24
+      ],
+      "column": 1
+    },
+    {
+      "id": "b75",
+      "type": "list",
+      "text": "• Timing understanding shows up offline as well. MOSS-VL-Instruct, trained without the real-time corpus,\nleads the temporal-reasoning video sets in our comparison—Minerva, TOMATO, VideoMME-Logical—\nechoing the perception and temporal-understanding foundations laid during pre-training.",
+      "page": 3,
+      "bbox": [
+        74.79,
+        566.92,
+        543.12,
+        601.75
+      ],
+      "column": 1
+    },
+    {
+      "id": "b76",
+      "type": "list",
+      "text": "• More parameters, faster serving. MOSS-VL spends 11.3B parameters, yet visual tokens stay outside the\ndecoded sequence, so serving latency grows more slowly with visual context than its same-backbone\ninterleaved counterpart—measured in SGLang, not estimated. We release the complete training curriculum\nand all five checkpoints.",
+      "page": 3,
+      "bbox": [
+        74.79,
+        612.43,
+        541.13,
+        659.69
+      ],
+      "column": 1
+    },
+    {
+      "id": "b77",
+      "type": "paragraph",
+      "text": "MOSS-VL pairs a native-resolution vision encoder with a language decoder initialized from Qwen3-8B [49],\nand the two interact only through gated cross-attention (Figure 2). Visual tokens never enter the decoded",
+      "page": 3,
+      "bbox": [
+        70.87,
+        699.35,
+        542.38,
+        721.75
+      ],
+      "column": 1
+    },
+    {
+      "id": "fig2",
+      "type": "figure",
+      "page": 4,
+      "bbox": [
+        69.23,
+        73.95,
+        543.45,
+        232.71
+      ],
+      "column": 1,
+      "image_path": "images/fig_02.png",
+      "caption": "Figure 2 MOSS-VL architecture. Images and video frames are encoded by a 27-layer vision encoder at native dynamic\nresolution, then pooled 2 × 2 and projected into visual tokens; text is tokenized alongside. The LLM decoder (48 layers,\ninitialized from Qwen3-8B) attends to visual tokens only through 12 tanh-gated cross-attention layers (Gated-XAttention,\nright inset), one in every four; the other 36 self-attention layers operate on the text sequence alone, so visual tokens never\njoin the decoded sequence. Cross-attention queries carry text positions and keys carry three-axis XRoPE coordinates\n(𝑡, ℎ, 𝑤). Gates are zero-initialized scalars, so training starts from an intact language backbone.",
+      "figure_label": "Figure 2"
+    },
+    {
+      "id": "b78",
+      "type": "paragraph",
+      "text": "L1\noffline\nWatches the full video first, then an-\nswers questions about it (multi-turn al-\nlowed).",
+      "page": 3,
+      "bbox": [
+        106.96,
+        195.06,
+        340.7,
+        225.95
+      ],
+      "column": 0
+    },
+    {
+      "id": "b79",
+      "type": "paragraph",
+      "text": "L2\nstreaming\nVideo arrives continuously; the user\nmay ask at any moment and the model\nanswers immediately—but it is blind\nwhile replying.",
+      "page": 3,
+      "bbox": [
+        106.96,
+        231.23,
+        339.39,
+        273.07
+      ],
+      "column": 0
+    },
+    {
+      "id": "b80",
+      "type": "paragraph",
+      "text": "L3\nstreaming\nAdds waiting: if the answer is not yet de-\nterminable, the model stays silent until\nthe key evidence appears, then answers.",
+      "page": 3,
+      "bbox": [
+        106.96,
+        278.35,
+        340.7,
+        309.24
+      ],
+      "column": 0
+    },
+    {
+      "id": "b81",
+      "type": "paragraph",
+      "text": "L4\nstreaming\nAdds persistent queries: one question\nstays resident and the model re-answers\nas the scene evolves (still blind during\neach individual reply).",
+      "page": 3,
+      "bbox": [
+        106.96,
+        314.52,
+        339.21,
+        356.36
+      ],
+      "column": 0
+    },
+    {
+      "id": "b82",
+      "type": "paragraph",
+      "text": "L5\nreal-time\nAdds perception during generation: the\nmodel keeps watching while it speaks,\nrevising or interrupting its own reply\nthe moment the evidence changes.",
+      "page": 3,
+      "bbox": [
+        106.96,
+        361.64,
+        340.34,
+        403.48
+      ],
+      "column": 0
+    },
+    {
+      "id": "b83",
+      "type": "heading",
+      "text": "In summary, our main contributions are:",
+      "page": 3,
+      "bbox": [
+        70.87,
+        430.39,
+        249.26,
+        440.36
+      ],
+      "column": 0,
+      "level": 2
+    },
+    {
+      "id": "b84",
+      "type": "paragraph",
+      "text": "2\nArchitecture",
+      "page": 3,
+      "bbox": [
+        70.87,
+        676.29,
+        156.52,
+        688.24
+      ],
+      "column": 0
+    },
+    {
+      "id": "b85",
+      "type": "paragraph",
+      "text": "Capability axes",
+      "page": 3,
+      "bbox": [
+        397.63,
+        149.09,
+        458.26,
+        158.06
+      ],
+      "column": 1
+    },
+    {
+      "id": "b86",
+      "type": "paragraph",
+      "text": "Level\nRegime\nDefining behavior\nStream.\ninput\nSilence\nMulti-\nresp.\nPerceive\nwhile gen.",
+      "page": 3,
+      "bbox": [
+        101.29,
+        165.84,
+        510.71,
+        185.77
+      ],
+      "column": 1
+    },
+    {
+      "id": "b87",
+      "type": "paragraph",
+      "text": "✗\n–\n✗\n✗",
+      "page": 3,
+      "bbox": [
+        363.57,
+        193.27,
+        492.76,
+        204.03
+      ],
+      "column": 1
+    },
+    {
+      "id": "b88",
+      "type": "paragraph",
+      "text": "✓\n✗\n✗\n✗",
+      "page": 3,
+      "bbox": [
+        362.75,
+        229.43,
+        492.76,
+        238.4
+      ],
+      "column": 1
+    },
+    {
+      "id": "b89",
+      "type": "paragraph",
+      "text": "✓\n✓\n✗\n✗",
+      "page": 3,
+      "bbox": [
+        362.75,
+        276.56,
+        492.76,
+        285.52
+      ],
+      "column": 1
+    },
+    {
+      "id": "b90",
+      "type": "paragraph",
+      "text": "✓\n✓\n✓\n✗",
+      "page": 3,
+      "bbox": [
+        362.75,
+        312.72,
+        492.76,
+        321.69
+      ],
+      "column": 1
+    },
+    {
+      "id": "b91",
+      "type": "paragraph",
+      "text": "✓\n✓\n✓\n✓",
+      "page": 3,
+      "bbox": [
+        362.75,
+        359.85,
+        493.58,
+        368.81
+      ],
+      "column": 1
+    },
+    {
+      "id": "b94",
+      "type": "paragraph",
+      "text": "sequence: each frame contributes a few timestamp tokens and one placeholder token to the text stream, while\nits patch tokens are consumed as cross-attention keys and values. Table 2 lists the configuration.",
+      "page": 4,
+      "bbox": [
+        70.87,
+        324.58,
+        541.14,
+        346.97
+      ],
+      "column": 1
+    },
+    {
+      "id": "b95",
+      "type": "paragraph",
+      "text": "The vision encoder is a 27-layer transformer initialized from the Qwen3-VL vision encoder [4]; it processes\nimages and frames at native resolution, from 4,096 to 16.8M pixels, drawing features from three intermediate\nlayers and the final layer. The projection module merges each 2 × 2 patch group and maps it into the decoder’s\nhidden space. The decoder stacks 48 layers: 36 self-attention layers carried over from Qwen3-8B, and 12\ngated cross-attention layers, one at every fourth position. Of the 11.3B total parameters, roughly 8.2B form\nthe language backbone, 2.3B the cross-attention stack, and 0.8B the vision encoder and projection module.",
+      "page": 4,
+      "bbox": [
+        70.56,
+        381.3,
+        541.14,
+        453.43
+      ],
+      "column": 0
+    },
+    {
+      "id": "b96",
+      "type": "paragraph",
+      "text": "Each cross-attention layer follows the gated design of Flamingo [2]—queries come from the text hidden\nstates, keys and values from the visual tokens—implemented here with grouped-query attention (32 query\n/ 8 key–value heads) and QK-RMSNorm. The layer wraps its attention and feed-forward paths in tanh\ngates whose scalars are zero-initialized, so training starts from an intact language backbone (§3). The 36\nself-attention layers never see visual tokens.",
+      "page": 4,
+      "bbox": [
+        69.66,
+        487.76,
+        541.52,
+        547.46
+      ],
+      "column": 0
+    },
+    {
+      "id": "b97",
+      "type": "paragraph",
+      "text": "To our knowledge, XRoPE (cross-attention rotary position embedding) is the first position encoding introduced\nfor the cross-attention channel of a vision–language architecture: it gives the visual stream position information\nthat this channel otherwise lacks. XRoPE places text tokens and visual patches in one three-axis coordinate\nspace (𝑡, ℎ, 𝑤), ordered by their logical position in the stream (Figure 3). A text token advances all three axes\ntogether, taking coordinate (𝑥, 𝑥, 𝑥). A frame whose merged patch grid is ℎ′ × 𝑤′ anchors at the coordinate 𝑡\nfollowing the preceding text, and its patches tile so height and width offsets ride on the shared temporal anchor. The separator token that closes the frame on the\nvision side and the frame’s placeholder token in the text stream both take (𝑥, 𝑥, 𝑥) with 𝑥= max(𝑡+ ℎ′, 𝑡+ 𝑤′),\nand the next text token continues from 𝑥+ 1: the two channels advance along a single timeline. The 64",
+      "page": 4,
+      "bbox": [
+        70.56,
+        580.54,
+        541.14,
+        652.67
+      ],
+      "column": 0
+    },
+    {
+      "id": "fig3",
+      "type": "figure",
+      "page": 5,
+      "bbox": [
+        66.87,
+        73.95,
+        545.09,
+        311.67
+      ],
+      "column": 0,
+      "image_path": "images/fig_03.png",
+      "caption": "Figure 3 XRoPE, the position encoding of the cross-attention channel. Text tokens and visual patches share one three-axis\ncoordinate space (𝑡, ℎ, 𝑤), ordered by their logical position in the stream: a text token advances all three axes together,\nwhile a frame anchored at coordinate 𝑡tiles its patches from (𝑡, 𝑡, 𝑡) at the top-left to (𝑡, 𝑡+ℎ−1, 𝑡+𝑤−1) at the bottom-right.\nThe separator token closing each frame on the vision side and that frame’s placeholder token in the text stream receive\nthe same coordinate, so both channels advance along a single shared timeline. Rotations are applied to text-side queries\nand vision-side keys before they meet in cross-attention.",
+      "figure_label": "Figure 3"
+    },
+    {
+      "id": "b99",
+      "type": "paragraph",
+      "text": "2D Pooling Layer",
+      "page": 4,
+      "bbox": [
+        129.48,
+        89.72,
+        164.17,
+        94.78
+      ],
+      "column": 0
+    },
+    {
+      "id": "b100",
+      "type": "paragraph",
+      "text": "Linear Projection Layer",
+      "page": 4,
+      "bbox": [
+        123.35,
+        104.38,
+        169.84,
+        109.44
+      ],
+      "column": 0
+    },
+    {
+      "id": "b101",
+      "type": "heading",
+      "text": "Projection",
+      "page": 4,
+      "bbox": [
+        133.89,
+        114.66,
+        159.85,
+        120.28
+      ],
+      "column": 0,
+      "level": 3
+    },
+    {
+      "id": "b102",
+      "type": "paragraph",
+      "text": "Concatenate",
+      "page": 4,
+      "bbox": [
+        133.42,
+        130.68,
+        159.06,
+        135.74
+      ],
+      "column": 0
+    },
+    {
+      "id": "b103",
+      "type": "paragraph",
+      "text": "Vision Transformer  Layer x L",
+      "page": 4,
+      "bbox": [
+        114.47,
+        150.23,
+        173.46,
+        155.28
+      ],
+      "column": 0
+    },
+    {
+      "id": "b104",
+      "type": "heading",
+      "text": "Vision Encoder",
+      "page": 4,
+      "bbox": [
+        128.66,
+        159.54,
+        165.19,
+        165.16
+      ],
+      "column": 0,
+      "level": 3
+    },
+    {
+      "id": "b105",
+      "type": "paragraph",
+      "text": "“<image>[Picture 1] \n<video>[Video 1]\n<image>[Picture 2]\nCompare these visual \ncontents.”",
+      "page": 4,
+      "bbox": [
+        247.96,
+        184.15,
+        297.96,
+        213.9
+      ],
+      "column": 0
+    },
+    {
+      "id": "b106",
+      "type": "paragraph",
+      "text": "Picture 2",
+      "page": 4,
+      "bbox": [
+        194.04,
+        186.84,
+        199.09,
+        204.69
+      ],
+      "column": 0
+    },
+    {
+      "id": "b107",
+      "type": "paragraph",
+      "text": "Picture 1",
+      "page": 4,
+      "bbox": [
+        81.45,
+        189.92,
+        86.51,
+        207.77
+      ],
+      "column": 0
+    },
+    {
+      "id": "b108",
+      "type": "paragraph",
+      "text": "Video 1",
+      "page": 4,
+      "bbox": [
+        134.93,
+        190.1,
+        139.98,
+        205.35
+      ],
+      "column": 0
+    },
+    {
+      "id": "b109",
+      "type": "paragraph",
+      "text": "320x512",
+      "page": 4,
+      "bbox": [
+        98.23,
+        214.05,
+        115.58,
+        219.1
+      ],
+      "column": 0
+    },
+    {
+      "id": "b110",
+      "type": "paragraph",
+      "text": "320x512",
+      "page": 4,
+      "bbox": [
+        157.43,
+        214.05,
+        174.78,
+        219.1
+      ],
+      "column": 0
+    },
+    {
+      "id": "b111",
+      "type": "paragraph",
+      "text": "384x384",
+      "page": 4,
+      "bbox": [
+        209.57,
+        214.35,
+        226.92,
+        219.4
+      ],
+      "column": 0
+    },
+    {
+      "id": "b112",
+      "type": "paragraph",
+      "text": "Multi-modal Input\nText Input\nLLM Decoder\nTokens",
+      "page": 4,
+      "bbox": [
+        143.46,
+        221.92,
+        407.4,
+        227.53
+      ],
+      "column": 0
+    },
+    {
+      "id": "b113",
+      "type": "paragraph",
+      "text": "2.1\nComponents and Parameter Accounting",
+      "page": 4,
+      "bbox": [
+        70.87,
+        362.4,
+        294.13,
+        373.36
+      ],
+      "column": 0
+    },
+    {
+      "id": "b114",
+      "type": "paragraph",
+      "text": "2.2\nGated Cross-Attention",
+      "page": 4,
+      "bbox": [
+        70.87,
+        468.85,
+        208.1,
+        479.81
+      ],
+      "column": 0
+    },
+    {
+      "id": "b115",
+      "type": "paragraph",
+      "text": "2.3\nXRoPE",
+      "page": 4,
+      "bbox": [
+        70.87,
+        561.64,
+        130.12,
+        572.6
+      ],
+      "column": 0
+    },
+    {
+      "id": "b116",
+      "type": "heading",
+      "text": "Output",
+      "page": 4,
+      "bbox": [
+        486.78,
+        79.07,
+        503.26,
+        84.69
+      ],
+      "column": 1,
+      "level": 3
+    },
+    {
+      "id": "b117",
+      "type": "paragraph",
+      "text": "The following media lists three \noutdoor activities:\nPicture 1 indicates a cycling \nsport.\nVideo 1 shows a man is skiing.\nPicture 2 visualizes a man \nhiking on a mountain.",
+      "page": 4,
+      "bbox": [
+        458.37,
+        91.98,
+        527.82,
+        133.79
+      ],
+      "column": 1
+    },
+    {
+      "id": "b118",
+      "type": "heading",
+      "text": "Gated-XAttention Layer",
+      "page": 4,
+      "bbox": [
+        363.72,
+        97.99,
+        415.49,
+        103.04
+      ],
+      "column": 1,
+      "level": 3
+    },
+    {
+      "id": "b119",
+      "type": "paragraph",
+      "text": "Self-Attention Layers",
+      "page": 4,
+      "bbox": [
+        368.67,
+        116.87,
+        410.65,
+        121.92
+      ],
+      "column": 1
+    },
+    {
+      "id": "b120",
+      "type": "heading",
+      "text": "…",
+      "page": 4,
+      "bbox": [
+        385.23,
+        130.19,
+        396.46,
+        140.25
+      ],
+      "column": 1,
+      "level": 2
+    },
+    {
+      "id": "b121",
+      "type": "heading",
+      "text": "Gated-XAttention Layer",
+      "page": 4,
+      "bbox": [
+        363.43,
+        149.02,
+        413.94,
+        154.07
+      ],
+      "column": 1,
+      "level": 3
+    },
+    {
+      "id": "b122",
+      "type": "paragraph",
+      "text": "Gate\n⊗",
+      "page": 4,
+      "bbox": [
+        480.41,
+        150.59,
+        509.07,
+        155.93
+      ],
+      "column": 1
+    },
+    {
+      "id": "b123",
+      "type": "paragraph",
+      "text": "…",
+      "page": 4,
+      "bbox": [
+        322.73,
+        150.64,
+        331.71,
+        158.68
+      ],
+      "column": 1
+    },
+    {
+      "id": "b124",
+      "type": "paragraph",
+      "text": "Residual\nResidual",
+      "page": 4,
+      "bbox": [
+        521.18,
+        154.68,
+        526.53,
+        208.35
+      ],
+      "column": 1
+    },
+    {
+      "id": "b125",
+      "type": "paragraph",
+      "text": "FFN",
+      "page": 4,
+      "bbox": [
+        481.12,
+        166.63,
+        489.92,
+        171.69
+      ],
+      "column": 1
+    },
+    {
+      "id": "b126",
+      "type": "paragraph",
+      "text": "Self-Attention Layers",
+      "page": 4,
+      "bbox": [
+        366.55,
+        167.3,
+        408.53,
+        172.35
+      ],
+      "column": 1
+    },
+    {
+      "id": "b127",
+      "type": "paragraph",
+      "text": "⊗",
+      "page": 4,
+      "bbox": [
+        504.68,
+        186.34,
+        509.18,
+        191.64
+      ],
+      "column": 1
+    },
+    {
+      "id": "b128",
+      "type": "paragraph",
+      "text": "Gate",
+      "page": 4,
+      "bbox": [
+        480.41,
+        186.48,
+        490.21,
+        191.53
+      ],
+      "column": 1
+    },
+    {
+      "id": "b129",
+      "type": "heading",
+      "text": "Gated-XAttention Layer",
+      "page": 4,
+      "bbox": [
+        363.85,
+        187.93,
+        414.36,
+        192.98
+      ],
+      "column": 1,
+      "level": 3
+    },
+    {
+      "id": "b130",
+      "type": "paragraph",
+      "text": "…",
+      "page": 4,
+      "bbox": [
+        322.67,
+        193.35,
+        331.66,
+        201.39
+      ],
+      "column": 1
+    },
+    {
+      "id": "b131",
+      "type": "paragraph",
+      "text": "Cross Attention\nROPE",
+      "page": 4,
+      "bbox": [
+        465.57,
+        201.47,
+        511.84,
+        209.15
+      ],
+      "column": 1
+    },
+    {
+      "id": "b132",
+      "type": "paragraph",
+      "text": "Self-Attention Layers p𝑎,𝑏= (𝑡, 𝑡+ 𝑎, 𝑡+ 𝑏),\n0 ≤𝑎< ℎ′, 0 ≤𝑏< 𝑤′,\n(1)",
+      "page": 4,
+      "bbox": [
+        367.77,
+        206.87,
+        409.75,
+        211.92
+      ],
+      "column": 1
+    },
+    {
+      "id": "b136",
+      "type": "paragraph",
+      "text": "rotary frequency pairs are split (24, 20, 20) across (𝑡, ℎ, 𝑤), and rotations are applied to text-side queries and\nvision-side keys before they meet in cross-attention. The 𝑡axis is a relative sequence coordinate, not wall-clock\ntime; real timing enters through the timestamp tokens of §2.4.",
+      "page": 5,
+      "bbox": [
+        70.59,
+        403.42,
+        541.42,
+        440.13
+      ],
+      "column": 1
+    },
+    {
+      "id": "b137",
+      "type": "paragraph",
+      "text": "Positions alone say nothing about wall-clock time, and frame rates vary: MOSS-VL samples video at\n1–16 fps, motion-adaptive (Table 2). Each frame is therefore preceded in the text stream by an absolute\ntimestamp, <|time_start|>X.X seconds<|time_end|>, so the model reads real time from tokens rather\nthan inferring it from positions, and timing stays explicit under any sampling rate.",
+      "page": 5,
+      "bbox": [
+        70.37,
+        474.58,
+        541.33,
+        521.84
+      ],
+      "column": 0
+    },
+    {
+      "id": "b138",
+      "type": "paragraph",
+      "text": "When a new frame arrives, only that frame is encoded; its keys and values are appended to the cross-attention\ncache, and earlier frames are neither re-encoded nor their keys and values recomputed. The decoded sequence\ngrows by the frame’s timestamp tokens and a single placeholder token—patch tokens stay on the vision\nside—so an arriving stream leaves the decoding state intact, and the next generated token already attends to\nthe updated cache through the gated layers. §6 quantifies the efficiency this yields at inference time (Figure 4).",
+      "page": 5,
+      "bbox": [
+        70.37,
+        556.29,
+        542.88,
+        615.98
+      ],
+      "column": 1
+    },
+    {
+      "id": "fig6",
+      "type": "figure",
+      "page": 10,
+      "bbox": [
+        66.87,
+        73.95,
+        545.16,
+        366.03
+      ],
+      "column": 1,
+      "image_path": "images/fig_06.png",
+      "caption": "Figure 4 Measured serving latency of MOSS-VL vs. Qwen3-VL-8B — the same Qwen3-8B language backbone, isolating\nthe vision-integration architecture. Both models serve offline with SGLang on a single H200 (TP=1, BF16, identical engine\nversion) with an identical generation-length cap, which every run reaches; every point is the mean of five independent\ncold starts (error bars: sample std). (a, c) With ViT output matched, the time-to-first-token (TTFT) gap widens from 2.8×\nto 5.1× as visual context grows, and end-to-end latency from 1.9× to 4.3×. (b, d) On the same video at the same resolution\nand frame count: Qwen3-VL compresses the temporal axis 2×, whereas MOSS-VL forgoes temporal compression so\nthat each arriving frame can be encoded immediately — carrying about twice the vision tokens on the same input —\nyet it never falls behind, and its lead grows with stream length. Slower latency growth follows from the append-only\ncross-attention design: visual tokens never enter the decoded sequence (§2).",
+      "figure_label": "Figure 4"
+    },
+    {
+      "id": "b139",
+      "type": "paragraph",
+      "text": "We release five checkpoints of one architecture (Table 3). The 0708 run—MOSS-VL-Base, MOSS-VL-Instruct,\nMOSS-VL-Realtime—is the subject of this report; the 0408 pair is an earlier, independently trained run of the\nsame architecture, released for research continuity.",
+      "page": 5,
+      "bbox": [
+        70.37,
+        650.43,
+        542.38,
+        685.26
+      ],
+      "column": 1
+    },
+    {
+      "id": "fig4",
+      "type": "figure",
+      "page": 7,
+      "bbox": [
+        134.99,
+        132.98,
+        474.77,
+        222.95
+      ],
+      "column": 0,
+      "image_path": "images/fig_04.png",
+      "caption": "Table 3 Released MOSS-VL checkpoints. The 0708 run is the subject of this report: MOSS-VL-Base is the pre-trained model,\nMOSS-VL-Instruct is its instruction-tuned successor, and MOSS-VL-Realtime continues training from MOSS-VL-Instruct\nwith Realtime-SFT. The 0408 checkpoints are an earlier, independently trained run of the same architecture, released\nalongside for research continuity. All five are available under the OpenMOSS-Team organization on HuggingFace.",
+      "figure_label": "Table 3"
+    },
+    {
+      "id": "b140",
+      "type": "paragraph",
+      "text": "…\n…",
+      "page": 5,
+      "bbox": [
+        160.47,
+        146.9,
+        359.38,
+        157.81
+      ],
+      "column": 0
+    },
+    {
+      "id": "b141",
+      "type": "paragraph",
+      "text": "…",
+      "page": 5,
+      "bbox": [
+        256.06,
+        146.9,
+        263.37,
+        157.81
+      ],
+      "column": 0
+    },
+    {
+      "id": "b142",
+      "type": "paragraph",
+      "text": "PATCH\nSEP\nPATCH",
+      "page": 5,
+      "bbox": [
+        134.25,
+        165.44,
+        246.8,
+        172.45
+      ],
+      "column": 0
+    },
+    {
+      "id": "b143",
+      "type": "heading",
+      "text": "Vision Encoder",
+      "page": 5,
+      "bbox": [
+        201.59,
+        180.13,
+        288.43,
+        195.72
+      ],
+      "column": 0,
+      "level": 1
+    },
+    {
+      "id": "b144",
+      "type": "paragraph",
+      "text": "(1,1,1)\n(1,1,2)\n(1,1,3)\n(1,1,4)",
+      "page": 5,
+      "bbox": [
+        109.65,
+        228.97,
+        188.01,
+        234.42
+      ],
+      "column": 0
+    },
+    {
+      "id": "b145",
+      "type": "paragraph",
+      "text": "(6,6,6)\n(6,6,7)\n(6,6,8)\n(6,6,9)",
+      "page": 5,
+      "bbox": [
+        207.37,
+        228.97,
+        285.73,
+        234.42
+      ],
+      "column": 0
+    },
+    {
+      "id": "b146",
+      "type": "paragraph",
+      "text": "Height",
+      "page": 5,
+      "bbox": [
+        74.54,
+        248.59,
+        99.79,
+        259.49
+      ],
+      "column": 0
+    },
+    {
+      "id": "b147",
+      "type": "paragraph",
+      "text": "(1,2,1)\n(1,2,2)\n(1,2,3)\n(1,2,4)",
+      "page": 5,
+      "bbox": [
+        109.5,
+        250.64,
+        187.86,
+        256.09
+      ],
+      "column": 0
+    },
+    {
+      "id": "b148",
+      "type": "paragraph",
+      "text": "(6,7,6)\n(6,7,7)\n(6,7,8)\n(6,7,9)",
+      "page": 5,
+      "bbox": [
+        207.37,
+        250.64,
+        285.73,
+        256.09
+      ],
+      "column": 0
+    },
+    {
+      "id": "b149",
+      "type": "paragraph",
+      "text": "(1,3,1)\n(1,3,2)\n(1,3,3)\n(1,3,4)",
+      "page": 5,
+      "bbox": [
+        109.7,
+        273.07,
+        188.07,
+        278.53
+      ],
+      "column": 0
+    },
+    {
+      "id": "b150",
+      "type": "paragraph",
+      "text": "(6,8,6)\n(6,8,7)\n(6,8,8)\n(6,8,9)",
+      "page": 5,
+      "bbox": [
+        207.51,
+        273.07,
+        285.87,
+        278.53
+      ],
+      "column": 0
+    },
+    {
+      "id": "b151",
+      "type": "paragraph",
+      "text": "Width",
+      "page": 5,
+      "bbox": [
+        141.2,
+        290.78,
+        164.11,
+        301.68
+      ],
+      "column": 0
+    },
+    {
+      "id": "b152",
+      "type": "paragraph",
+      "text": "2.4\nAbsolute Timestamps",
+      "page": 5,
+      "bbox": [
+        70.87,
+        455.67,
+        205.12,
+        466.63
+      ],
+      "column": 0
+    },
+    {
+      "id": "b153",
+      "type": "paragraph",
+      "text": "2.5\nReal-Time by Construction",
+      "page": 5,
+      "bbox": [
+        70.87,
+        537.38,
+        230.45,
+        548.34
+      ],
+      "column": 0
+    },
+    {
+      "id": "b154",
+      "type": "paragraph",
+      "text": "2.6\nReleased Models",
+      "page": 5,
+      "bbox": [
+        70.87,
+        631.53,
+        180.94,
+        642.49
+      ],
+      "column": 0
+    },
+    {
+      "id": "b155",
+      "type": "heading",
+      "text": "Cross Attention",
+      "page": 5,
+      "bbox": [
+        273.27,
+        87.71,
+        363.93,
+        103.29
+      ],
+      "column": 1,
+      "level": 1
+    },
+    {
+      "id": "b156",
+      "type": "paragraph",
+      "text": "Query ( Q )\nValue ( V )\nKey ( K )",
+      "page": 5,
+      "bbox": [
+        171.54,
+        112.82,
+        487.22,
+        123.73
+      ],
+      "column": 1
+    },
+    {
+      "id": "b157",
+      "type": "paragraph",
+      "text": "XRoPE\nXRoPE",
+      "page": 5,
+      "bbox": [
+        325.15,
+        130.82,
+        501.67,
+        141.73
+      ],
+      "column": 1
+    },
+    {
+      "id": "b158",
+      "type": "paragraph",
+      "text": "SEP\nPATCH",
+      "page": 5,
+      "bbox": [
+        282.13,
+        165.44,
+        343.43,
+        172.45
+      ],
+      "column": 1
+    },
+    {
+      "id": "b159",
+      "type": "paragraph",
+      "text": "TEXT",
+      "page": 5,
+      "bbox": [
+        460.5,
+        165.44,
+        472.38,
+        172.45
+      ],
+      "column": 1
+    },
+    {
+      "id": "b160",
+      "type": "paragraph",
+      "text": "SEP",
+      "page": 5,
+      "bbox": [
+        376.18,
+        165.44,
+        385.91,
+        172.45
+      ],
+      "column": 1
+    },
+    {
+      "id": "b161",
+      "type": "heading",
+      "text": "LLM Decoder",
+      "page": 5,
+      "bbox": [
+        429.03,
+        180.13,
+        504.94,
+        195.72
+      ],
+      "column": 1,
+      "level": 1
+    },
+    {
+      "id": "b162",
+      "type": "paragraph",
+      "text": "cats\nruns\n<img_pad><img_pad><img_pad>",
+      "page": 5,
+      "bbox": [
+        405.72,
+        225.55,
+        525.61,
+        232.71
+      ],
+      "column": 1
+    },
+    {
+      "id": "b163",
+      "type": "paragraph",
+      "text": "(11,11,11) (11,11,12) (11,11,13) (11,11,14)",
+      "page": 5,
+      "bbox": [
+        300.8,
+        228.97,
+        386.54,
+        234.42
+      ],
+      "column": 1
+    },
+    {
+      "id": "b164",
+      "type": "paragraph",
+      "text": "(11,12,11)\n(11,12,12) (11,12,13) (11,12,14)",
+      "page": 5,
+      "bbox": [
+        300.64,
+        250.64,
+        387.29,
+        256.09
+      ],
+      "column": 1
+    },
+    {
+      "id": "b165",
+      "type": "paragraph",
+      "text": "[0,0,0]\n[5,5,5]\n[10,10,10]",
+      "page": 5,
+      "bbox": [
+        403.09,
+        252.04,
+        475.99,
+        259.05
+      ],
+      "column": 1
+    },
+    {
+      "id": "b166",
+      "type": "paragraph",
+      "text": "[15,15,15] [16,16,16]",
+      "page": 5,
+      "bbox": [
+        479.32,
+        252.04,
+        532.01,
+        259.05
+      ],
+      "column": 1
+    },
+    {
+      "id": "b167",
+      "type": "paragraph",
+      "text": "(11,13,11)\n(11,13,12) (11,13,13) (11,13,14)",
+      "page": 5,
+      "bbox": [
+        300.47,
+        273.07,
+        387.11,
+        278.53
+      ],
+      "column": 1
+    },
+    {
+      "id": "b168",
+      "type": "paragraph",
+      "text": "“Cats                         runs”",
+      "page": 5,
+      "bbox": [
+        428.72,
+        279.11,
+        506.39,
+        288.46
+      ],
+      "column": 1
+    },
+    {
+      "id": "b169",
+      "type": "paragraph",
+      "text": "Input Video Frames (t, h, w)\nInput Sequence",
+      "page": 5,
+      "bbox": [
+        183.68,
+        294.25,
+        503.24,
+        307.56
+      ],
+      "column": 1
+    },
+    {
+      "id": "b170",
+      "type": "caption",
+      "text": "Table 2 MOSS-VL configuration, identical across all released checkpoints. Video-input ranges reflect the native training\nsetup; the released processor defaults to 1 fps and 256 frames, and our evaluations keep 1 fps with the cap raised to 768\nframes (§6).",
+      "page": 6,
+      "bbox": [
+        70.57,
+        78.45,
+        541.13,
+        109.34
+      ],
+      "column": 0
+    },
+    {
+      "id": "b171",
+      "type": "paragraph",
+      "text": "MOSS-VL is pre-trained with a four-stage curriculum: vision–language alignment, large-scale multimodal\npre-training, high-quality multimodal pre-training, and a final stage of annealing and long-context training.\nTable 4 lists the token budget, sample count, maximum sequence length, trainable modules, and peak learning\nrate of every stage, including the two post-training stages of §4. The table shows the shape of the curriculum:\nthe maximum sequence length grows from 8K to 256K tokens, and the token budget shifts toward the later\nstages while sample counts fall by orders of magnitude—many short samples early, far fewer but much longer\nand denser ones late. Throughout, the data is decontaminated against our evaluation suites.",
+      "page": 6,
+      "bbox": [
+        70.56,
+        465.77,
+        542.88,
+        550.34
+      ],
+      "column": 1
+    },
+    {
+      "id": "fig5",
+      "type": "figure",
+      "page": 7,
+      "bbox": [
+        66.87,
+        279.48,
+        510.42,
+        444.61
+      ],
+      "column": 0,
+      "image_path": "images/fig_05.png",
+      "caption": "Table 4 The MOSS-VL training curriculum: four pre-training stages followed by SFT and Realtime-SFT (§4). The data of\neach stage is described in the corresponding subsection. Token counts are the tokens fed to the language model, with\nvision tokens counted after the 2×2 token compression of the projection module (§2); sequence lengths are in tokens.",
+      "figure_label": "Table 4"
+    },
+    {
+      "id": "b172",
+      "type": "paragraph",
+      "text": "A defining trait of this training run is the scale of our data synthesis. Alongside data collected and reorganized\nfrom existing corpora, we synthesize high-quality caption, OCR, grounding, and temporal-grounding\ndata at large scale throughout the curriculum. These four types cover the perceptual fundamentals of a\nvision–language model—describing scenes, reading embedded text, localizing objects, and anchoring events\nin time—and this synthesized core underpins the strong perception and temporal-understanding foundations\nof the released models.",
+      "page": 6,
+      "bbox": [
+        70.48,
+        559.02,
+        541.14,
+        631.15
+      ],
+      "column": 0
+    },
+    {
+      "id": "b173",
+      "type": "paragraph",
+      "text": "Stage 1 connects the two pre-trained components. Only the newly introduced parameters—the projection\nmodule and the cross-attention layers—are updated, while the vision encoder and the language model remain\nfrozen; the high peak learning rate in Table 4 applies to these fresh modules alone. The data comprises two\ncategories, image captioning and OCR, and sequences stay short at 8K tokens.",
+      "page": 6,
+      "bbox": [
+        70.87,
+        664.36,
+        541.14,
+        711.62
+      ],
+      "column": 1
+    },
+    {
+      "id": "b174",
+      "type": "paragraph",
+      "text": "Language decoder (initialized from Qwen3-8B)",
+      "page": 6,
+      "bbox": [
+        113.92,
+        126.69,
+        283.41,
+        135.66
+      ],
+      "column": 0
+    },
+    {
+      "id": "b175",
+      "type": "paragraph",
+      "text": "Layers\n48 = 36 self-attention + 12 gated cross-attention\nCross-attention placement\nevery 4th layer (indices 2, 6, . . . , 46)\nHidden size / FFN size\n4096 / 12288\nAttention heads\n32 query / 8 key–value (GQA), head dim. 128\nPosition encoding\nXRoPE: interleaved 3-axis RoPE (𝑡, ℎ, 𝑤),\nsections (24, 20, 20), base 5 × 106",
+      "page": 6,
+      "bbox": [
+        113.92,
+        143.63,
+        416.25,
+        215.61
+      ],
+      "column": 0
+    },
+    {
+      "id": "b176",
+      "type": "paragraph",
+      "text": "Context window\n262,144 tokens\nVocabulary\n151,936",
+      "page": 6,
+      "bbox": [
+        113.92,
+        219.25,
+        287.42,
+        240.82
+      ],
+      "column": 0
+    },
+    {
+      "id": "b177",
+      "type": "paragraph",
+      "text": "Vision encoder (initialized from Qwen3-VL)",
+      "page": 6,
+      "bbox": [
+        113.92,
+        250.12,
+        273.5,
+        259.08
+      ],
+      "column": 0
+    },
+    {
+      "id": "b178",
+      "type": "paragraph",
+      "text": "Layers\n27\nHidden size / FFN size\n1152 / 4304\nAttention heads\n16\nPatch size\n16 × 16 spatial, 1 frame temporal\nFeature levels\nlayers {8, 16, 24} + final layer\nProjection\n2 × 2 spatial merge + MLP →4096\nInput resolution\nnative dynamic, 4096–16.8M pixels",
+      "page": 6,
+      "bbox": [
+        113.92,
+        267.06,
+        367.67,
+        351.64
+      ],
+      "column": 0
+    },
+    {
+      "id": "b179",
+      "type": "paragraph",
+      "text": "Video input",
+      "page": 6,
+      "bbox": [
+        113.92,
+        360.94,
+        156.52,
+        369.91
+      ],
+      "column": 0
+    },
+    {
+      "id": "b180",
+      "type": "paragraph",
+      "text": "Frame sampling\ndynamic 1–16 fps, motion-adaptive (1–2 fps typical)\nFrames per video\nup to 2,048 in training; 768 in our evaluations (released default 256)",
+      "page": 6,
+      "bbox": [
+        113.92,
+        377.88,
+        495.84,
+        399.45
+      ],
+      "column": 0
+    },
+    {
+      "id": "b181",
+      "type": "paragraph",
+      "text": "Total parameters\n11.3B (BF16)",
+      "page": 6,
+      "bbox": [
+        113.92,
+        408.09,
+        278.91,
+        417.06
+      ],
+      "column": 0
+    },
+    {
+      "id": "b182",
+      "type": "paragraph",
+      "text": "3\nPre-Training",
+      "page": 6,
+      "bbox": [
+        70.87,
+        442.71,
+        157.1,
+        454.66
+      ],
+      "column": 0
+    },
+    {
+      "id": "b183",
+      "type": "paragraph",
+      "text": "3.1\nStage 1: Vision–Language Alignment",
+      "page": 6,
+      "bbox": [
+        70.87,
+        645.45,
+        282.04,
+        656.41
+      ],
+      "column": 0
+    },
+    {
+      "id": "b188",
+      "type": "paragraph",
+      "text": "With the connectors aligned, Stage 2 unfreezes the full model and supplies breadth. The mixture spans\nimage and video captioning, OCR, grounding, interleaved image–text documents, and text-only pre-training\ncorpora, together with multimodal understanding data over single images, multi-image sets, videos, and\nplain text across diverse domains, and reasoning data. The context window extends to 64K tokens, which\nadmits long interleaved documents and video.",
+      "page": 7,
+      "bbox": [
+        70.37,
+        448.55,
+        541.14,
+        508.25
+      ],
+      "column": 0
+    },
+    {
+      "id": "b189",
+      "type": "paragraph",
+      "text": "Stage 3 spends the largest token budget of the curriculum (Table 4) on its highest-quality data. The mixture\nkeeps the Stage-2 categories but rebalances them: captioning recedes, multimodal understanding and\nreasoning data take a larger share, and mathematics, knowledge-intensive data, and temporal grounding\nenter the mixture. Sequences extend to 128K tokens.",
+      "page": 7,
+      "bbox": [
+        70.87,
+        542.7,
+        541.14,
+        589.96
+      ],
+      "column": 1
+    },
+    {
+      "id": "b190",
+      "type": "paragraph",
+      "text": "The final stage combines long-context training with high-quality annealing. One data strand consists of\nlong-video captioning, long-video QA, and long-video temporal grounding, together with long-document\nand long-text data, mixed with a small share of the regular categories, and stretches sequences to 256K\ntokens. The other is an annealing mixture that re-weights toward mathematics, knowledge-intensive data,\nand instruction-tuning and QA data, and includes identity data. The curriculum yields MOSS-VL-Base, the\nstarting point for post-training (§4).",
+      "page": 7,
+      "bbox": [
+        70.56,
+        624.41,
+        542.38,
+        696.54
+      ],
+      "column": 1
+    },
+    {
+      "id": "b191",
+      "type": "paragraph",
+      "text": "Checkpoint\nInitialized from\nTraining\nEvaluated in",
+      "page": 7,
+      "bbox": [
+        138.99,
+        136.98,
+        445.09,
+        145.95
+      ],
+      "column": 0
+    },
+    {
+      "id": "b192",
+      "type": "paragraph",
+      "text": "MOSS-VL-Base-0708\n—\npre-training (§3)\n—\nMOSS-VL-Instruct-0708\nBase-0708\nSFT (§4)\noffline (Table 5)\nMOSS-VL-Realtime\nInstruct-0708\nRealtime-SFT (§4)\nstreaming (Table 6)",
+      "page": 7,
+      "bbox": [
+        138.99,
+        154.59,
+        470.77,
+        188.76
+      ],
+      "column": 0
+    },
+    {
+      "id": "fig7",
+      "type": "figure",
+      "page": 11,
+      "bbox": [
+        132.94,
+        120.63,
+        477.07,
+        637.69
+      ],
+      "column": 0,
+      "image_path": "images/fig_07.png",
+      "caption": "Table 5 Offline results: MOSS-VL-Instruct (0708 release) against open-source models of comparable scale, blocked by\ncapability domain. Bold = best, underline = second best, “–” = not reported; LLaVA-OV-2 = LLaVA-OneVision-2-8B.\nEvaluation protocol and baseline provenance are spelled out in §6.1.",
+      "figure_label": "Table 5"
+    },
+    {
+      "id": "fig8",
+      "type": "figure",
+      "page": 13,
+      "bbox": [
+        98.4,
+        122.01,
+        511.61,
+        459.16
+      ],
+      "column": 0,
+      "image_path": "images/fig_08.png",
+      "caption": "Table 6 Streaming benchmark results: MOSS-VL-Realtime against open-source streaming baselines at subset level. Bold\n= best, underline = second best; “–” = subset not reported in that model’s official report. Subset abbreviations, each\nbenchmark’s Avg convention, and data provenance are spelled out in §6.2.",
+      "figure_label": "Table 6"
+    },
+    {
+      "id": "b193",
+      "type": "paragraph",
+      "text": "MOSS-VL-Base-0408\n—\npre-training\n—\nMOSS-VL-Instruct-0408\nBase-0408\nSFT\n—",
+      "page": 7,
+      "bbox": [
+        138.99,
+        197.38,
+        404.03,
+        218.95
+      ],
+      "column": 0
+    },
+    {
+      "id": "b194",
+      "type": "paragraph",
+      "text": "Stage\nTokens\nSamples\nMax seq.\nTrainable\nPeak LR",
+      "page": 7,
+      "bbox": [
+        103.34,
+        283.48,
+        506.42,
+        292.44
+      ],
+      "column": 0
+    },
+    {
+      "id": "b195",
+      "type": "paragraph",
+      "text": "Pre-training\n1 Vision–language alignment\n150.3B\n219.4M\n8K\nProjection + cross-attn\n2×10−4",
+      "page": 7,
+      "bbox": [
+        103.34,
+        301.74,
+        503.92,
+        322.65
+      ],
+      "column": 0
+    },
+    {
+      "id": "b196",
+      "type": "paragraph",
+      "text": "Post-training (§4)\nSFT\n102.8B\n7.6M\n128K\nFull model\n1×10−5",
+      "page": 7,
+      "bbox": [
+        103.34,
+        369.76,
+        503.92,
+        390.67
+      ],
+      "column": 0
+    },
+    {
+      "id": "b197",
+      "type": "paragraph",
+      "text": "3.2\nStage 2: Large-Scale Multimodal Pre-Training",
+      "page": 7,
+      "bbox": [
+        70.87,
+        429.65,
+        323.74,
+        440.61
+      ],
+      "column": 0
+    },
+    {
+      "id": "b198",
+      "type": "paragraph",
+      "text": "3.3\nStage 3: High-Quality Multimodal Pre-Training",
+      "page": 7,
+      "bbox": [
+        70.87,
+        523.79,
+        333.53,
+        534.75
+      ],
+      "column": 0
+    },
+    {
+      "id": "b199",
+      "type": "paragraph",
+      "text": "3.4\nStage 4: Annealing and Long-Context Training",
+      "page": 7,
+      "bbox": [
+        70.87,
+        605.5,
+        329.04,
+        616.46
+      ],
+      "column": 0
+    },
+    {
+      "id": "b200",
+      "type": "paragraph",
+      "text": "2 Large-scale multimodal\n203.0B\n139.3M\n64K\nFull model\n5×10−5",
+      "page": 7,
+      "bbox": [
+        112.31,
+        323.02,
+        503.92,
+        335.25
+      ],
+      "column": 1
+    },
+    {
+      "id": "b201",
+      "type": "paragraph",
+      "text": "3 High-quality multimodal\n459.0B\n14.7M\n128K\nFull model\n1×10−5",
+      "page": 7,
+      "bbox": [
+        112.31,
+        335.62,
+        503.92,
+        347.86
+      ],
+      "column": 1
+    },
+    {
+      "id": "b202",
+      "type": "paragraph",
+      "text": "4 Annealing & long-context\n450.1B\n9.3M\n256K\nFull model\n1×10−5",
+      "page": 7,
+      "bbox": [
+        112.31,
+        348.22,
+        503.92,
+        360.46
+      ],
+      "column": 1
+    },
+    {
+      "id": "b203",
+      "type": "paragraph",
+      "text": "Realtime-SFT\n34.8B\n0.56M\n256K\nFull model\n4×10−5",
+      "page": 7,
+      "bbox": [
+        112.31,
+        391.03,
+        503.92,
+        403.27
+      ],
+      "column": 1
+    },
+    {
+      "id": "b204",
+      "type": "paragraph",
+      "text": "Post-training proceeds in two supervised stages (Table 4); neither uses reinforcement learning or a thinking\nmode. Standard supervised fine-tuning (SFT) turns MOSS-VL-Base into MOSS-VL-Instruct, an offline\ninstruction follower. Realtime-SFT then continues from MOSS-VL-Instruct (Table 3) and installs the real-time\ninteraction paradigm: deciding at every frame whether to speak, staying silent while nothing needs saying,\nand revising an answer when the scene overturns it. Every real-time-specific design choice in MOSS-VL lives\nin this final stage, which accounts for under 3% of the total training tokens.",
+      "page": 8,
+      "bbox": [
+        70.87,
+        102.24,
+        542.38,
+        174.37
+      ],
+      "column": 1
+    },
+    {
+      "id": "b205",
+      "type": "paragraph",
+      "text": "We fine-tune MOSS-VL-Base on 7.6M instruction samples (102.8B tokens) with the standard next-token\ncross-entropy loss over assistant responses, with sequences up to 128K tokens (Table 4). The samples\ncombine data collected and reorganized from existing corpora with data synthesized in house, and all\nof it passes filtering, deduplication, decontamination against our evaluation suites, and quality screening\nbefore entering the mixture. The mixture covers general question answering over single images, multi-image\nsets, videos, and plain text; perception-centric tasks including OCR, document understanding, and spatial\nand temporal grounding; image and video captioning; and reasoning-centric tasks spanning multimodal\nreasoning, mathematics and other academic disciplines, code, and knowledge-intensive QA, together with\nidentity data.",
+      "page": 8,
+      "bbox": [
+        70.37,
+        208.04,
+        541.14,
+        317.47
+      ],
+      "column": 0
+    },
+    {
+      "id": "b206",
+      "type": "paragraph",
+      "text": "Realtime-SFT teaches the model to treat incoming video as a stream of decisions rather than a finished artifact.\nTraining samples interleave text with frames in arrival order: every frame is followed by a decision slot,\nand each slot takes one of three forms—<|silence|> (keep watching), <|response|> followed by text\n(speak now), or a reply that ends with <|silence|> (finish speaking). A reply is spread over consecutive\nslots frame by frame, emulating rate-limited real-time output, and a single user turn may contain several\nseparate emissions. Supporting this costs exactly two new vocabulary entries—the two state tokens, initialized\nfrom the embeddings of semantically related existing tokens. The speak-or-wait decision itself is ordinary\nnext-token prediction: whenever the most probable next token is <|silence|>, the model waits for the next\nframe; otherwise it decodes a reply. No dedicated decision head is attached.",
+      "page": 8,
+      "bbox": [
+        70.54,
+        351.14,
+        542.88,
+        460.57
+      ],
+      "column": 1
+    },
+    {
+      "id": "b207",
+      "type": "paragraph",
+      "text": "Data characteristics.\nWhat sets the Realtime-SFT corpus (0.56M samples, ≈34.8B tokens; Table 4) apart is that\nevery sample casts the model in an explicit interaction role rather than a plain QA role: standing instructions\nthat must fire exactly once when their condition is met; resident questions whose answers must update\nas evidence accumulates; continuous real-time commentary; counting that accumulates across a stream;\nprobes of whether this is the right moment to speak; and video-independent dialogue that maintains identity\nconsistency. A further share of offline QA and general multimodal data preserves offline ability.",
+      "page": 8,
+      "bbox": [
+        70.57,
+        474.33,
+        542.38,
+        548.33
+      ],
+      "column": 1
+    },
+    {
+      "id": "b208",
+      "type": "paragraph",
+      "text": "Data construction.\nThe corpus draws on two sources. We first collect open-source datasets for streaming video\nunderstanding and subject them to strict filtering and re-annotation. More important, however, is the data we\nsynthesize ourselves, targeting the behaviors that existing datasets provide scarcely or not at all: staying silent\nuntil evidence appears, revising an answer as the scene evolves, and recovering when a new event interrupts\na reply midway. Synthesis follows the caption-driven pipeline introduced in MOSS-Video-Preview [39]:\nhierarchical, densely time-anchored captions are mined for state transitions of a focal object; each transition\nyields a question, an immediately answerable reply, and a trajectory of updates; replies are anchored to visual\nmoments, laid out over frames with silence in between, and filtered for quality. This round upgrades three of\nthe pipeline’s four stages. Temporal anchoring is now verified frame by frame against the actual footage: each\nreply is assigned the moment its evidence becomes visible and the moment it stops being valid. Hand-offs\nare more natural: a reply overtaken by a new event is rewritten as a plain-language self-correction instead of\nbeing marked with a dedicated interrupt token. Finally, a quality gate checks every sample against its frames\nand keeps only those whose replies are grounded in what is visible at emission time.",
+      "page": 8,
+      "bbox": [
+        70.59,
+        563.96,
+        542.38,
+        723.13
+      ],
+      "column": 1
+    },
+    {
+      "id": "b209",
+      "type": "paragraph",
+      "text": "4\nPost-Training",
+      "page": 8,
+      "bbox": [
+        70.87,
+        79.18,
+        161.99,
+        91.13
+      ],
+      "column": 0
+    },
+    {
+      "id": "b210",
+      "type": "paragraph",
+      "text": "4.1\nSupervised Fine-Tuning",
+      "page": 8,
+      "bbox": [
+        70.87,
+        189.14,
+        216.21,
+        200.1
+      ],
+      "column": 0
+    },
+    {
+      "id": "b211",
+      "type": "paragraph",
+      "text": "4.2\nRealtime-SFT: Learning When to Speak",
+      "page": 8,
+      "bbox": [
+        70.87,
+        332.24,
+        293.13,
+        343.19
+      ],
+      "column": 0
+    },
+    {
+      "id": "b212",
+      "type": "paragraph",
+      "text": "Corpus statistics.\nThe interaction-first emphasis is visible in the numbers. Across the corpus the model is\nsupervised on 2.2M emission decisions, 58.7% of which are self-timed rather than prompted by a fresh user\nquestion; in 5.1% of samples the target event never occurs, and the correct behavior is to stay silent throughout.\nStreams run at 1 fps for up to 768 frames (≈12.8 minutes) per window. The corpus is decontaminated against\nour evaluation suites: benchmark videos are excluded via held-out lists.",
+      "page": 9,
+      "bbox": [
+        70.59,
+        79.94,
+        542.88,
+        139.64
+      ],
+      "column": 1
+    },
+    {
+      "id": "b213",
+      "type": "paragraph",
+      "text": "Mode control in MOSS-VL amounts to a single system prompt. The streaming and real-time modes share\none prompt—real-time operation is a special case of streaming—and offline inference uses none. One set of\nweights thus operates in three inference modes with zero architecture change. The prompt is reproduced\nbelow; the full dialogue template, including frame and timestamp interleaving, is given in Appendix A.1.",
+      "page": 9,
+      "bbox": [
+        70.45,
+        172.85,
+        541.14,
+        220.11
+      ],
+      "column": 0
+    },
+    {
+      "id": "b214",
+      "type": "paragraph",
+      "text": "Supervision covers only what the assistant controls: reply text and the two state tokens. System and user\nturns and the expanded visual tokens are excluded from the loss. The central difficulty is imbalance: silence\nslots vastly outnumber emission decisions, and under uniform weights the model simply learns to stay\nsilent. We therefore reweight the two state tokens with a focal factor and inverse-frequency class coefficients,\ncomputing the class statistics over the global batch at every step, which keeps the class coefficients identical\nacross data-parallel ranks:",
+      "page": 9,
+      "bbox": [
+        70.87,
+        307.53,
+        542.38,
+        379.66
+      ],
+      "column": 1
+    },
+    {
+      "id": "b215",
+      "type": "paragraph",
+      "text": "where ℓ𝑖is the token-level cross-entropy, 𝑚𝑖the supervision mask, 𝑝𝑖the predicted probability of the target\ntoken, and 𝛾= 2. The coefficient 𝛼𝑘= (𝑛𝑠+ 𝑛𝑟)/(2 𝑛𝑘), with 𝑛𝑠and 𝑛𝑟counting silence and response targets\nin the current global batch, equalizes the nominal, pre-focal weight of the two classes; reply text keeps\nunit weight. Before focal modulation, the decision to speak and the decision to stay silent thus carry equal\naggregate weight in the state-token loss, no matter how rare speaking is.",
+      "page": 9,
+      "bbox": [
+        70.45,
+        434.06,
+        541.14,
+        493.76
+      ],
+      "column": 0
+    },
+    {
+      "id": "b216",
+      "type": "paragraph",
+      "text": "One further masking choice matters specifically in streams. In offline chat, the token closing an assistant turn\nmarks the end of an exchange; in a stream, a turn boundary usually means the user interjected while the\nworld—and the conversation—continue. We therefore also exclude the assistant’s turn-final end token from\nsupervision, so the model never learns to wrap up merely because a new user turn appears. In a controlled\nsingle-variable comparison, this masking raised emission frequency by 39% and mean reply length by 68%.",
+      "page": 9,
+      "bbox": [
+        70.45,
+        502.44,
+        541.71,
+        562.14
+      ],
+      "column": 1
+    },
+    {
+      "id": "b217",
+      "type": "paragraph",
+      "text": "The behaviors installed here are evaluated quantitatively on four streaming benchmarks in §6 and qualitatively\nin Figure 5.",
+      "page": 9,
+      "bbox": [
+        70.56,
+        570.83,
+        541.52,
+        593.22
+      ],
+      "column": 1
+    },
+    {
+      "id": "fig9",
+      "type": "figure",
+      "page": 14,
+      "bbox": [
+        66.87,
+        73.95,
+        545.17,
+        398.31
+      ],
+      "column": 1,
+      "image_path": "images/fig_09.png",
+      "caption": "Figure 5 MOSS-VL-Realtime in the wild: two screen-captured sessions from the released live demo, running on a single\nH200, shown as frame strips with excerpts of the model’s outputs on a shared timeline (long outputs truncated with\n“. . . ”; 𝑡= 0 at the user instruction). (a) Under a standing conditional instruction (“say great! whenever the cat touches\nthe carrot, otherwise stay silent”), the model stays silent throughout and fires exactly at each of the four contacts; the\nhollow marker samples one of the silent spans, where the per-frame output is the silence token. (b) Under a single\ninstruction (“commentate the video live”), commentary begins within a second and tracks a free-kick sequence — set-up,\nthe referee’s whistle, the strike, the celebration, and the updated scoreline — in a professional broadcast register. Outputs\nare in Chinese, the demo language; English translations of both sessions are given in Appendix A.2, and these and further\nlive cases can be viewed on the official blog (https://openmoss.ai/MOSS-VL/).",
+      "figure_label": "Figure 5"
+    },
+    {
+      "id": "b218",
+      "type": "paragraph",
+      "text": "MOSS-VL is trained on a Megatron-LM stack [35] that combines data, tensor, sequence, and context parallelism\nto carry the curriculum from 8K- to 256K-token sequences (Table 4). Variable-length multimodal samples are\npacked into full sequences, keeping batches dense across mixed image, video, and text data.",
+      "page": 9,
+      "bbox": [
+        70.57,
+        632.88,
+        541.14,
+        667.71
+      ],
+      "column": 0
+    },
+    {
+      "id": "b219",
+      "type": "paragraph",
+      "text": "FlashAttention for cross-attention.\nThe gated cross-attention of §2.2 has a visibility pattern that off-the-shelf\nattention kernels do not serve: each text query attends to the visual tokens of every frame that precedes it in\nthe stream (§2.5). Visibility is thus a per-query prefix of the key–value sequence, growing frame by frame.",
+      "page": 9,
+      "bbox": [
+        70.87,
+        684.12,
+        542.88,
+        718.95
+      ],
+      "column": 1
+    },
+    {
+      "id": "b220",
+      "type": "paragraph",
+      "text": "4.3\nMode Control and Training Objective",
+      "page": 9,
+      "bbox": [
+        70.87,
+        153.94,
+        284.53,
+        164.9
+      ],
+      "column": 0
+    },
+    {
+      "id": "b221",
+      "type": "heading",
+      "text": "The shared streaming / real-time system prompt",
+      "page": 9,
+      "bbox": [
+        83.83,
+        231.21,
+        301.26,
+        241.17
+      ],
+      "column": 0,
+      "level": 2
+    },
+    {
+      "id": "b222",
+      "type": "paragraph",
+      "text": "ℒ=\nÍ\n𝑖𝑚𝑖𝑤𝑖ℓ𝑖\nÍ\n𝑖𝑚𝑖\n,\n𝑤𝑖=",
+      "page": 9,
+      "bbox": [
+        174.11,
+        394.95,
+        287.14,
+        420.91
+      ],
+      "column": 0
+    },
+    {
+      "id": "b223",
+      "type": "paragraph",
+      "text": "5\nInfrastructure",
+      "page": 9,
+      "bbox": [
+        70.87,
+        609.82,
+        164.8,
+        621.77
+      ],
+      "column": 0
+    },
+    {
+      "id": "b224",
+      "type": "paragraph",
+      "text": "You are a helpful AI assistant specializing in real-time video analysis. The video streams to you frame\nby frame. At every frame, you decide independently whether to respond or stay silent — output\n<|silence|> when nothing relevant has happened, and respond when the visual content warrants it.",
+      "page": 9,
+      "bbox": [
+        83.01,
+        254.59,
+        529.58,
+        289.43
+      ],
+      "column": 1
+    },
+    {
+      "id": "b225",
+      "type": "paragraph",
+      "text": "(\n𝛼𝑦𝑖(1 −𝑝𝑖)𝛾\n𝑦𝑖is a state token,\n1\notherwise,\n(2)",
+      "page": 9,
+      "bbox": [
+        290.44,
+        391.54,
+        542.13,
+        420.05
+      ],
+      "column": 1
+    },
+    {
+      "id": "b228",
+      "type": "paragraph",
+      "text": "FlashAttention exposes causal or windowed masks, and materializing the pattern as a dense cross-attention\nmask instead costs memory and bandwidth proportional to the product of the text and visual sequence\nlengths. We therefore extend FlashAttention-3 [33] with a compact interface, cross_kv_boundary, which\nencodes the visible prefix of each query row as one 32-bit integer and carries it through the operator schema,\nthe scheduler, and the CUDA forward and backward kernels. Key–value tiles beyond a row’s boundary are\npruned rather than computed and masked, so kernel cost tracks visibility. The backend covers the dense,\nvariable-length, and KV-cache execution paths—which keeps it compatible with packed training—and is\nreleased with the model as a derivative of the upstream implementation.",
+      "page": 10,
+      "bbox": [
+        70.57,
+        492.05,
+        542.38,
+        589.04
+      ],
+      "column": 1
+    },
+    {
+      "id": "b229",
+      "type": "paragraph",
+      "text": "Serving and release.\nOur SGLang [56] integration of MOSS-VL is merged upstream, and the offline-serving\nmeasurements of §6 (Figure 4) run on this stack. Real-time interaction ships separately as a Transformers\nreference implementation, released with the model weights on GitHub and HuggingFace.",
+      "page": 10,
+      "bbox": [
+        70.87,
+        605.45,
+        541.14,
+        640.28
+      ],
+      "column": 1
+    },
+    {
+      "id": "b230",
+      "type": "paragraph",
+      "text": "We evaluate each model in the regime it is built for: MOSS-VL-Instruct on an offline suite of 39 benchmarks\nacross five capability domains (Table 5), and MOSS-VL-Realtime on four streaming benchmarks—OVO-Bench\n[20], OmniMMI [44], StreamingBench [21], and ProactiveVideoQA [43]—which together cover levels L2–L4",
+      "page": 10,
+      "bbox": [
+        70.37,
+        679.94,
+        541.14,
+        714.77
+      ],
+      "column": 0
+    },
+    {
+      "id": "b231",
+      "type": "paragraph",
+      "text": "(a) TTFT, matched vision tokens",
+      "page": 10,
+      "bbox": [
+        146.94,
+        76.88,
+        253.13,
+        89.03
+      ],
+      "column": 0
+    },
+    {
+      "id": "b232",
+      "type": "paragraph",
+      "text": "MOSS-VL\nQwen3-VL-8B",
+      "page": 10,
+      "bbox": [
+        120.41,
+        93.65,
+        165.89,
+        115.63
+      ],
+      "column": 0
+    },
+    {
+      "id": "b233",
+      "type": "paragraph",
+      "text": "Time to first token (s)",
+      "page": 10,
+      "bbox": [
+        69.24,
+        105.74,
+        82.2,
+        181.09
+      ],
+      "column": 0
+    },
+    {
+      "id": "b234",
+      "type": "paragraph",
+      "text": "60",
+      "page": 10,
+      "bbox": [
+        84.45,
+        105.74,
+        91.96,
+        117.09
+      ],
+      "column": 0
+    },
+    {
+      "id": "b235",
+      "type": "paragraph",
+      "text": "5.1£",
+      "page": 10,
+      "bbox": [
+        269.31,
+        133.08,
+        283.45,
+        147.21
+      ],
+      "column": 0
+    },
+    {
+      "id": "b236",
+      "type": "paragraph",
+      "text": "40",
+      "page": 10,
+      "bbox": [
+        84.45,
+        133.59,
+        91.96,
+        144.94
+      ],
+      "column": 0
+    },
+    {
+      "id": "b237",
+      "type": "paragraph",
+      "text": "2.8£",
+      "page": 10,
+      "bbox": [
+        114.72,
+        165.77,
+        128.86,
+        179.9
+      ],
+      "column": 0
+    },
+    {
+      "id": "b238",
+      "type": "paragraph",
+      "text": "20\n40\n60\n80\n100\n0",
+      "page": 10,
+      "bbox": [
+        87.67,
+        189.39,
+        301.29,
+        207.11
+      ],
+      "column": 0
+    },
+    {
+      "id": "b239",
+      "type": "paragraph",
+      "text": "(c) End-to-end, matched vision tokens",
+      "page": 10,
+      "bbox": [
+        138.44,
+        219.29,
+        261.62,
+        231.44
+      ],
+      "column": 0
+    },
+    {
+      "id": "b240",
+      "type": "paragraph",
+      "text": "End-to-end latency (s)",
+      "page": 10,
+      "bbox": [
+        69.22,
+        247.45,
+        82.19,
+        324.22
+      ],
+      "column": 0
+    },
+    {
+      "id": "b241",
+      "type": "paragraph",
+      "text": "60",
+      "page": 10,
+      "bbox": [
+        84.45,
+        251.42,
+        91.96,
+        262.76
+      ],
+      "column": 0
+    },
+    {
+      "id": "b242",
+      "type": "paragraph",
+      "text": "4.3£",
+      "page": 10,
+      "bbox": [
+        269.31,
+        273.37,
+        283.45,
+        287.5
+      ],
+      "column": 0
+    },
+    {
+      "id": "b243",
+      "type": "paragraph",
+      "text": "40",
+      "page": 10,
+      "bbox": [
+        84.45,
+        278.18,
+        91.96,
+        289.52
+      ],
+      "column": 0
+    },
+    {
+      "id": "b244",
+      "type": "paragraph",
+      "text": "1.9£",
+      "page": 10,
+      "bbox": [
+        114.72,
+        309.7,
+        128.86,
+        323.82
+      ],
+      "column": 0
+    },
+    {
+      "id": "b245",
+      "type": "paragraph",
+      "text": "0",
+      "page": 10,
+      "bbox": [
+        87.67,
+        331.81,
+        91.43,
+        343.15
+      ],
+      "column": 0
+    },
+    {
+      "id": "b246",
+      "type": "paragraph",
+      "text": "20\n40\n60\n80\n100\nVision tokens (K)",
+      "page": 10,
+      "bbox": [
+        123.61,
+        338.13,
+        301.29,
+        362.03
+      ],
+      "column": 0
+    },
+    {
+      "id": "b247",
+      "type": "paragraph",
+      "text": "6\nEvaluation",
+      "page": 10,
+      "bbox": [
+        70.87,
+        656.88,
+        147.67,
+        668.83
+      ],
+      "column": 0
+    },
+    {
+      "id": "b248",
+      "type": "paragraph",
+      "text": "(b) TTFT, same video & frames no temporal compression:",
+      "page": 10,
+      "bbox": [
+        385.76,
+        76.88,
+        489.04,
+        89.03
+      ],
+      "column": 1
+    },
+    {
+      "id": "b250",
+      "type": "paragraph",
+      "text": "60",
+      "page": 10,
+      "bbox": [
+        321.82,
+        95.6,
+        329.33,
+        106.94
+      ],
+      "column": 1
+    },
+    {
+      "id": "b251",
+      "type": "paragraph",
+      "text": "¼ 2£ vision tokens",
+      "page": 10,
+      "bbox": [
+        342.49,
+        101.06,
+        391.91,
+        114.1
+      ],
+      "column": 1
+    },
+    {
+      "id": "b252",
+      "type": "paragraph",
+      "text": "2.1£",
+      "page": 10,
+      "bbox": [
+        508.32,
+        120.64,
+        522.46,
+        134.76
+      ],
+      "column": 1
+    },
+    {
+      "id": "b253",
+      "type": "paragraph",
+      "text": "40",
+      "page": 10,
+      "bbox": [
+        321.82,
+        126.83,
+        329.33,
+        138.17
+      ],
+      "column": 1
+    },
+    {
+      "id": "b254",
+      "type": "paragraph",
+      "text": "1.5£",
+      "page": 10,
+      "bbox": [
+        353.09,
+        172.62,
+        367.23,
+        186.74
+      ],
+      "column": 1
+    },
+    {
+      "id": "b255",
+      "type": "paragraph",
+      "text": "128\n256\n384\n512\n640\n768\n896\n1024\n0",
+      "page": 10,
+      "bbox": [
+        325.04,
+        189.39,
+        534.03,
+        207.14
+      ],
+      "column": 1
+    },
+    {
+      "id": "b256",
+      "type": "paragraph",
+      "text": "(d) End-to-end, same video & frames",
+      "page": 10,
+      "bbox": [
+        377.26,
+        219.29,
+        497.53,
+        231.44
+      ],
+      "column": 1
+    },
+    {
+      "id": "b257",
+      "type": "paragraph",
+      "text": "60",
+      "page": 10,
+      "bbox": [
+        321.82,
+        242.09,
+        329.33,
+        253.43
+      ],
+      "column": 1
+    },
+    {
+      "id": "b258",
+      "type": "paragraph",
+      "text": "2.0£",
+      "page": 10,
+      "bbox": [
+        508.32,
+        261.09,
+        522.46,
+        275.22
+      ],
+      "column": 1
+    },
+    {
+      "id": "b259",
+      "type": "paragraph",
+      "text": "40",
+      "page": 10,
+      "bbox": [
+        321.82,
+        271.96,
+        329.33,
+        283.31
+      ],
+      "column": 1
+    },
+    {
+      "id": "b260",
+      "type": "paragraph",
+      "text": "0",
+      "page": 10,
+      "bbox": [
+        325.04,
+        331.81,
+        328.79,
+        343.15
+      ],
+      "column": 1
+    },
+    {
+      "id": "b261",
+      "type": "paragraph",
+      "text": "128\n256\n384\n512\n640\n768\n896\n1024\nVideo frames",
+      "page": 10,
+      "bbox": [
+        342.82,
+        338.13,
+        534.03,
+        362.03
+      ],
+      "column": 1
+    },
+    {
+      "id": "b264",
+      "type": "paragraph",
+      "text": "of the capability hierarchy in Table 1. All streaming evaluation is carried out in streaming fashion: frames\nare fed as they would arrive, and every model runs under its own streaming protocol. Measured serving\nefficiency (§6.3) and qualitative real-time sessions (§6.4) complete the picture.",
+      "page": 11,
+      "bbox": [
+        70.87,
+        659.15,
+        541.14,
+        693.98
+      ],
+      "column": 1
+    },
+    {
+      "id": "b265",
+      "type": "paragraph",
+      "text": "Benchmark\nMOSS-VL\n(ours)\nQwen3-VL\n8B\nQwen2.5-VL\n7B\nLLaVA-OV-2\n8B\nGemma-4\n12B-IT",
+      "page": 11,
+      "bbox": [
+        136.94,
+        124.63,
+        473.07,
+        142.61
+      ],
+      "column": 0
+    },
+    {
+      "id": "b266",
+      "type": "paragraph",
+      "text": "Multimodal perception\nMMBench-EN (v1.1) [22]\n88.1\n84.8\n83.2\n85.8\n82.7\nMMStar [6]\n66.0\n70.9\n63.9\n64.8\n74.9\nRealWorldQA\n68.0\n71.5\n68.5\n69.7\n65.6\nMME-RealWorld [55]\n66.3\n–\n57.4\n–\n46.9\nBLINK [12]\n78.0\n69.1\n56.4\n63.5\n65.6\nPOPE [19]\n89.4\n–\n87.4\n–\n81.4\nMMMU (val) [53]\n51.1\n69.6\n58.6\n–\n69.7\nCountBench [31]\n85.9\n80.5\n–\n89.0\n90.2\nCVBench [37]\n85.7\n86.7\n–\n87.7\n84.6\nV* [46]\n89.0\n85.3\n–\n85.9\n51.8\nMuirBench [38]\n39.9\n64.4\n59.6\n–\n61.6\nAI2D [15]\n81.9\n85.7\n83.9\n84.3\n84.8",
+      "page": 11,
+      "bbox": [
+        136.94,
+        149.94,
+        462.75,
+        285.08
+      ],
+      "column": 0
+    },
+    {
+      "id": "b267",
+      "type": "paragraph",
+      "text": "Video understanding\nVideoMME [8]\n68.1\n71.4\n65.1\n71.9\n60.5\nVideoMME-v2 [9]\n12.7\n12.4\n10.3\n–\n–\nVideoMME-v2 (sub) [9]\n16.5\n18.2\n–\n–\n–\nVideoMME-Logical [16]\n17.1\n11.9\n7.4\n–\n10.8\nMLVU (dev) [57]\n76.8\n78.1\n70.2\n76.6\n–\nLongVideoBench [45]\n65.9\n68.0\n56.0\n66.9\n58.2\nLVBench [40]\n51.1\n58.0\n45.3\n55.5\n37.3\nEgoSchema (sub) [25]\n67.0\n–\n65.0\n–\n62.2\nMVBench [17]\n66.7\n68.7\n69.6\n66.2\n–\nVSI-Bench [50]\n62.2\n59.4\n28.3\n70.9\n25.9\nMinerva [29]\n40.5\n–\n–\n–\n32.3\nTimeLens-Charades [54]\n51.5\n56.0\n43.6\n53.5\n–\nTimeLens-ANet [54]\n49.1\n46.8\n31.4\n53.8\n–\nTimeLens-QVH [54]\n60.0\n59.4\n31.6\n66.4\n–\nTOMATO [34]\n39.5\n34.6\n–\n–\n31.9",
+      "page": 11,
+      "bbox": [
+        136.94,
+        292.75,
+        462.75,
+        459.68
+      ],
+      "column": 0
+    },
+    {
+      "id": "b268",
+      "type": "paragraph",
+      "text": "Grounding\nRefCOCO-REC [52]\n84.4\n91.6\n90.0\n–\n–\nRef-Adv [1]\n57.0\n47.2\n49.3\n–\n–",
+      "page": 11,
+      "bbox": [
+        136.94,
+        467.35,
+        457.76,
+        496.48
+      ],
+      "column": 0
+    },
+    {
+      "id": "b269",
+      "type": "paragraph",
+      "text": "Document / OCR\nDocVQA (val) [27]\n89.6\n96.1\n95.7\n95.2\n80.8\nChartQA [26]\n87.8\n89.6\n87.3\n85.9\n51.2\nInfoVQA (val) [28]\n68.9\n83.4\n82.6\n74.4\n52.0\nOCRBench [23]\n86.1\n89.6\n86.4\n78.2\n76.9\nOCRBench-v2 [10]\n57.4\n63.3\n56.8\n–\n39.6\nOmniDocBench (v1.6) [30]\n88.9\n84.9\n–\n–\n–",
+      "page": 11,
+      "bbox": [
+        136.94,
+        504.15,
+        462.74,
+        575.69
+      ],
+      "column": 0
+    },
+    {
+      "id": "b270",
+      "type": "paragraph",
+      "text": "Reasoning\nVLMsAreBlind [32]\n63.5\n74.0\n–\n–\n75.9\nVisuLogic [48]\n27.5\n22.5\n26.0\n–\n–\nERQA [13]\n45.8\n45.8\n–\n43.3\n40.8\nEmbSpatial [7]\n70.7\n78.5\n–\n78.1\n72.5",
+      "page": 11,
+      "bbox": [
+        136.94,
+        583.36,
+        462.75,
+        633.69
+      ],
+      "column": 0
+    },
+    {
+      "id": "b271",
+      "type": "paragraph",
+      "text": "Table 5 compares MOSS-VL-Instruct with open models of comparable scale—Qwen3-VL-8B [4], Qwen2.5-\nVL-7B [5], LLaVA-OneVision-2-8B [3], and Gemma-4-12B-IT [14]—over multimodal perception, video\nunderstanding, grounding, document/OCR, and reasoning. MOSS-VL results sample video at 1 fps with at\nmost 768 frames, following a benchmark’s official protocol wherever one is prescribed; DocVQA and InfoVQA\nuse the validation split. Baseline numbers are taken from the respective official reports and reflect their\nauthors’ inference settings, which may differ from ours, particularly in video frame count. The exceptions\nare the Gemma-4-12B-IT column, which we evaluated ourselves under the same protocol as MOSS-VL, and\nthe Qwen3-VL entry on OmniDocBench (v1.6), evaluated with the Markdown prompt from the official\nQwen3-VL cookbook; the remaining OmniDocBench baselines are omitted, as their official numbers are not\nmetric-comparable.",
+      "page": 12,
+      "bbox": [
+        69.86,
+        98.81,
+        542.8,
+        220.68
+      ],
+      "column": 1
+    },
+    {
+      "id": "b272",
+      "type": "paragraph",
+      "text": "Perception is the strongest block: MOSS-VL-Instruct takes five of the twelve rows—MMBench-EN (88.1),\nPOPE (89.4), V* (89.0), and both MME-RealWorld (66.3) and BLINK (78.0) by 8.9-point margins. On video, it\nleads the temporal-reasoning sets—Minerva (40.5), TOMATO (39.5), and VideoMME-Logical (17.1), each\nby 4.9 points or more—plus EgoSchema (67.0), consistent with the perception and temporal-understanding\nfoundations built in §3. The wins extend across the remaining domains: the adversarial Ref-Adv grounding\nset goes to MOSS-VL-Instruct by 7.7 points (57.0), OmniDocBench document parsing by 4.0 (88.9), and on\nreasoning it takes VisuLogic (27.5) and shares the top ERQA score (45.8). The main gaps sit in MMMU,\ndocument understanding, and standard grounding, both referring (RefCOCO-REC) and temporal (TimeLens);\nthe first two we return to in §7.",
+      "page": 12,
+      "bbox": [
+        70.87,
+        229.36,
+        542.38,
+        338.79
+      ],
+      "column": 1
+    },
+    {
+      "id": "b273",
+      "type": "paragraph",
+      "text": "Table 6 reports subset-level results on the four streaming benchmarks. Baselines are open-source streaming\nmodels—AURA [24], M4 (released with OmniMMI itself) [44], ROMA [36], JoyAI-VL-Interaction [51],\nVideoChat3-4B [18], ViSpeak-7B [11], and the MMDuet family [41–43]; the panel follows each benchmark’s\npublished coverage and therefore differs across the four. Baseline numbers are taken from the respective\nofficial reports, except MMDuet’s OmniMMI entry, which its own report does not cover and is taken from the\nROMA report; MOSS-VL-Realtime numbers are from our own evaluation under each benchmark’s official\nprotocol. MOSS-VL-Realtime runs an 8.2B language backbone, comparable to the 7–8B-class baselines; its\nadditional parameters lie outside the decoded sequence, in the vision encoder and the cross-attention stack\n(§2).",
+      "page": 12,
+      "bbox": [
+        70.51,
+        372.0,
+        542.38,
+        481.43
+      ],
+      "column": 1
+    },
+    {
+      "id": "b274",
+      "type": "paragraph",
+      "text": "Each benchmark reports at subset level. OVO-Bench separates forward active responding (FAR), backward\ntracing (BT), and real-time visual perception (RTVP). OmniMMI covers proactive alerting (PA), dynamic state\ngrounding (SG), multi-turn dependency (MD), action prediction (AP), and speaker identification (SI); its\nAvg is the mean of the five subsets, shown only for models with all five reported. StreamingBench groups\nreal-time visual understanding (RT) and contextual understanding (CTX), with proactive output (PO) and\nsequential QA (SQA), subsets of CTX, listed separately for the proactive analysis; Avg (visual) is the mean of\nthe RT and CTX group scores—MOSS-VL takes no audio input, so the audio-dependent Omni-Source group\nis not evaluated and no official overall score is reported. ProactiveVideoQA splits by video source into web\n(WEB), egocentric (EGO), and TV-series (TV) video QA, plus video anomaly detection (VAD).",
+      "page": 12,
+      "bbox": [
+        70.48,
+        490.11,
+        541.43,
+        599.54
+      ],
+      "column": 0
+    },
+    {
+      "id": "b275",
+      "type": "paragraph",
+      "text": "MOSS-VL-Realtime posts the best average on three of the four benchmarks—OVO-Bench (70.2 vs. 65.3\nfor the runner-up), OmniMMI (32.7 vs. 25.4), and ProactiveVideoQA (47.2 vs. 42.7)—and is second on\nStreamingBench’s visual average (69.7 vs. AURA’s 71.1).",
+      "page": 12,
+      "bbox": [
+        70.87,
+        608.23,
+        541.14,
+        643.06
+      ],
+      "column": 1
+    },
+    {
+      "id": "b276",
+      "type": "paragraph",
+      "text": "The subset pattern says more than the averages. The three subsets that squarely test proactive behavior—\nspeaking unprompted, at the right moment—all go to MOSS-VL-Realtime: Proactive Alerting on OmniMMI\n(66.0 vs. 37.5), Proactive Output on StreamingBench (60.0 vs. 53.2), and Forward Active Responding on\nOVO-Bench (62.1 vs. 55.8). ProactiveVideoQA, proactive in every subset, follows in aggregate, and Backward\nTracing on OVO-Bench (72.6 vs. 60.4) shows the accumulated stream history staying usable. The wins",
+      "page": 12,
+      "bbox": [
+        70.54,
+        651.75,
+        543.12,
+        711.44
+      ],
+      "column": 1
+    },
+    {
+      "id": "b277",
+      "type": "paragraph",
+      "text": "6.1\nOffline Results",
+      "page": 12,
+      "bbox": [
+        70.87,
+        79.91,
+        170.68,
+        90.87
+      ],
+      "column": 0
+    },
+    {
+      "id": "b278",
+      "type": "paragraph",
+      "text": "6.2\nStreaming Benchmarks",
+      "page": 12,
+      "bbox": [
+        70.87,
+        353.09,
+        212.1,
+        364.05
+      ],
+      "column": 0
+    },
+    {
+      "id": "b281",
+      "type": "paragraph",
+      "text": "concentrate where response timing is the skill under test—the behavior Realtime-SFT supervises directly\n(§4.2); where a subset reduces to perception QA over the current scene, AURA keeps the edge.",
+      "page": 13,
+      "bbox": [
+        70.54,
+        480.63,
+        541.52,
+        503.02
+      ],
+      "column": 1
+    },
+    {
+      "id": "b282",
+      "type": "paragraph",
+      "text": "Figure 4 measures serving latency against Qwen3-VL-8B, which shares the Qwen3-8B language backbone\n[49]; the comparison therefore isolates the vision-integration architecture. Both models run offline SGLang\nserving on a single H200 (§5). With ViT output matched, the time-to-first-token gap widens from 2.8× to 5.1×\nas visual context grows, and end-to-end latency from 1.9× to 4.3×. The same-video comparison is stricter for\nus: MOSS-VL forgoes temporal compression so that each arriving frame can be encoded immediately (§2.5),\nand thus carries about twice the vision tokens of Qwen3-VL on identical input—yet it never falls behind at\nany measured point. The advantage widens with visual context, which is exactly the regime a real-time\nassistant occupies: visual history accumulates by the minute while replies must keep arriving on time.",
+      "page": 13,
+      "bbox": [
+        70.87,
+        537.47,
+        542.38,
+        634.47
+      ],
+      "column": 1
+    },
+    {
+      "id": "b283",
+      "type": "paragraph",
+      "text": "Figure 5 shows the installed behaviors in live operation, with two sessions from the released demo. Under a\nstanding conditional instruction, the model holds silence over the full stream and fires at each of the four\ntarget contacts, and only there; under a single commentary instruction, it opens within a second and tracks a\nfree-kick sequence through the whistle, the strike, the celebration, and the updated scoreline. Between them,",
+      "page": 13,
+      "bbox": [
+        70.87,
+        668.92,
+        542.38,
+        716.18
+      ],
+      "column": 1
+    },
+    {
+      "id": "b284",
+      "type": "paragraph",
+      "text": "OVO-Bench [20]\nSubset\nMOSS-VL-Realtime\nAURA\nJoyAI-VL-Interaction\nVideoChat3-4B\nViSpeak-7B",
+      "page": 13,
+      "bbox": [
+        102.4,
+        126.01,
+        501.0,
+        144.54
+      ],
+      "column": 0
+    },
+    {
+      "id": "b285",
+      "type": "paragraph",
+      "text": "FAR\n62.1\n55.8\n–\n–\n54.2\nBT\n72.6\n60.4\n–\n–\n57.5\nRTVP\n75.9\n79.8\n–\n–\n66.3\nAvg\n70.2\n65.3\n59.2\n57.8\n59.3",
+      "page": 13,
+      "bbox": [
+        102.4,
+        151.62,
+        487.95,
+        191.95
+      ],
+      "column": 0
+    },
+    {
+      "id": "b286",
+      "type": "paragraph",
+      "text": "OmniMMI [44]\nSubset\nMOSS-VL-Realtime\nAURA\nM4\nROMA\nMMDuet",
+      "page": 13,
+      "bbox": [
+        102.4,
+        199.62,
+        497.2,
+        218.15
+      ],
+      "column": 0
+    },
+    {
+      "id": "b287",
+      "type": "paragraph",
+      "text": "PA\n66.0\n37.5\n25.5\n37.5\n22.0\nSG\n21.7\n24.0\n5.7\n–\n–\nMD\n10.7\n7.7\n1.7\n–\n–\nAP\n33.5\n32.0\n33.5\n–\n–\nSI\n31.5\n26.0\n9.0\n–\n–\nAvg\n32.7\n25.4\n15.1\n–\n–",
+      "page": 13,
+      "bbox": [
+        102.4,
+        225.23,
+        487.95,
+        286.75
+      ],
+      "column": 0
+    },
+    {
+      "id": "b288",
+      "type": "paragraph",
+      "text": "StreamingBench [21]\nSubset\nMOSS-VL-Realtime\nAURA\nVideoChat3-4B\nViSpeak-7B",
+      "page": 13,
+      "bbox": [
+        102.4,
+        294.42,
+        435.77,
+        312.95
+      ],
+      "column": 0
+    },
+    {
+      "id": "b289",
+      "type": "paragraph",
+      "text": "PO\n60.0\n53.2\n–\n50.8\nRT\n82.9\n83.2\n83.0\n70.4\nCTX\n56.4\n59.0\n–\n43.9\nSQA\n50.4\n57.2\n–\n39.2\nAvg (visual)\n69.7\n71.1\n–\n57.2",
+      "page": 13,
+      "bbox": [
+        102.4,
+        320.03,
+        422.71,
+        370.96
+      ],
+      "column": 0
+    },
+    {
+      "id": "b290",
+      "type": "paragraph",
+      "text": "ProactiveVideoQA [43]\nSubset\nMOSS-VL-Realtime\nMMDuet2-RL\nMMDuet+rm\nMMDuet\nVideoChat3-4B",
+      "page": 13,
+      "bbox": [
+        102.4,
+        378.63,
+        507.61,
+        397.16
+      ],
+      "column": 0
+    },
+    {
+      "id": "b291",
+      "type": "paragraph",
+      "text": "WEB\n55.4\n53.3\n43.5\n38.9\n38.4\nEGO\n47.8\n33.6\n52.2\n46.0\n28.1\nTV\n50.2\n43.4\n32.6\n21.1\n34.7\nVAD\n35.3\n28.9\n42.5\n27.4\n25.1\nAvg\n47.2\n39.8\n42.7\n33.4\n31.6",
+      "page": 13,
+      "bbox": [
+        102.4,
+        404.24,
+        487.95,
+        455.16
+      ],
+      "column": 0
+    },
+    {
+      "id": "b292",
+      "type": "paragraph",
+      "text": "6.3\nInference Efficiency",
+      "page": 13,
+      "bbox": [
+        70.87,
+        518.57,
+        194.57,
+        529.52
+      ],
+      "column": 0
+    },
+    {
+      "id": "b293",
+      "type": "paragraph",
+      "text": "6.4\nQualitative Results",
+      "page": 13,
+      "bbox": [
+        70.87,
+        650.01,
+        191.71,
+        660.97
+      ],
+      "column": 0
+    },
+    {
+      "id": "b296",
+      "type": "paragraph",
+      "text": "the sessions exercise the core interaction roles of the Realtime-SFT corpus (§4.2)—a standing instruction that\nmust fire exactly when its condition is met, and continuous real-time commentary—under real-world timing.",
+      "page": 14,
+      "bbox": [
+        70.87,
+        524.82,
+        541.13,
+        547.22
+      ],
+      "column": 0
+    },
+    {
+      "id": "b297",
+      "type": "paragraph",
+      "text": "Read as a whole, the evaluation shows a pattern rather than a score. The streaming wins concentrate in the\nsubsets that test when to speak; the serving advantage widens exactly where visual history accumulates; the\noffline strengths cluster on temporal-reasoning video sets. No single component explains this shape. It is\nwhat co-design looks like from the outside: an architecture in which perception runs naturally alongside\ngeneration, a corpus that supervises the response timing, and a curriculum that builds the foundation before\none light final stage makes it interactive. We treat the full system, not just the weights, as the release: alongside\nall five checkpoints come the staged training curriculum (Table 4), the complete Realtime-SFT dialogue\ntemplate (Appendix A.1), the real-time inference implementation, the extended FlashAttention-3 backend\n(§5), and the recorded live sessions of §6.4.",
+      "page": 14,
+      "bbox": [
+        70.45,
+        586.88,
+        541.14,
+        696.31
+      ],
+      "column": 0
+    },
+    {
+      "id": "b298",
+      "type": "heading",
+      "text": "The limits are equally visible. MOSS-VL-Instruct trails the strongest open models of its scale on reasoning-",
+      "page": 14,
+      "bbox": [
+        70.56,
+        705.0,
+        542.79,
+        714.96
+      ],
+      "column": 1,
+      "level": 2
+    },
+    {
+      "id": "b299",
+      "type": "paragraph",
+      "text": "(a) Conditional alert — speak only when the cat touches the carrot; otherwise stay silent",
+      "page": 14,
+      "bbox": [
+        129.64,
+        76.64,
+        476.29,
+        91.48
+      ],
+      "column": 0
+    },
+    {
+      "id": "b300",
+      "type": "paragraph",
+      "text": "User (t=0s)  请实时判断猫咪是否触碰萝卜；\n触碰萝卜时输出“真棒！”，否则静默。",
+      "page": 14,
+      "bbox": [
+        88.64,
+        186.72,
+        238.75,
+        207.52
+      ],
+      "column": 0
+    },
+    {
+      "id": "b301",
+      "type": "paragraph",
+      "text": "(b) Real-time commentary — a single standing instruction, continuous TV-style narration",
+      "page": 14,
+      "bbox": [
+        126.47,
+        241.66,
+        479.43,
+        256.5
+      ],
+      "column": 0
+    },
+    {
+      "id": "b302",
+      "type": "paragraph",
+      "text": "裁判哨声一响，\n全场屏息凝神。",
+      "page": 14,
+      "bbox": [
+        258.05,
+        324.21,
+        309.42,
+        344.28
+      ],
+      "column": 0
+    },
+    {
+      "id": "b303",
+      "type": "paragraph",
+      "text": "User (t=0s)  实时解说视频内容",
+      "page": 14,
+      "bbox": [
+        85.67,
+        328.83,
+        190.18,
+        339.75
+      ],
+      "column": 0
+    },
+    {
+      "id": "b304",
+      "type": "paragraph",
+      "text": "葡萄牙队获得了一个关键的\n任意球机会，C罗站在球前…",
+      "page": 14,
+      "bbox": [
+        185.54,
+        356.69,
+        278.67,
+        376.76
+      ],
+      "column": 0
+    },
+    {
+      "id": "b305",
+      "type": "paragraph",
+      "text": "7\nDiscussion",
+      "page": 14,
+      "bbox": [
+        70.87,
+        563.82,
+        149.21,
+        575.77
+      ],
+      "column": 0
+    },
+    {
+      "id": "b306",
+      "type": "paragraph",
+      "text": "真棒！\n真棒！\n真棒！\n真棒！\n<|silence|>",
+      "page": 14,
+      "bbox": [
+        129.42,
+        218.19,
+        492.67,
+        229.86
+      ],
+      "column": 1
+    },
+    {
+      "id": "b307",
+      "type": "paragraph",
+      "text": "0\n10\n20\n30\n40\ns",
+      "page": 14,
+      "bbox": [
+        86.84,
+        233.13,
+        534.1,
+        244.01
+      ],
+      "column": 1
+    },
+    {
+      "id": "b308",
+      "type": "paragraph",
+      "text": "C罗张开双臂，脸上写满",
+      "page": 14,
+      "bbox": [
+        382.3,
+        324.21,
+        460.75,
+        334.76
+      ],
+      "column": 1
+    },
+    {
+      "id": "b309",
+      "type": "paragraph",
+      "text": "激动与自豪…",
+      "page": 14,
+      "bbox": [
+        399.49,
+        333.74,
+        443.51,
+        344.28
+      ],
+      "column": 1
+    },
+    {
+      "id": "b310",
+      "type": "paragraph",
+      "text": "比分已经扳平，葡萄牙队",
+      "page": 14,
+      "bbox": [
+        458.65,
+        355.15,
+        539.37,
+        365.69
+      ],
+      "column": 1
+    },
+    {
+      "id": "b311",
+      "type": "paragraph",
+      "text": "C罗缓缓助跑，起脚射门，",
+      "page": 14,
+      "bbox": [
+        292.53,
+        356.69,
+        378.32,
+        367.24
+      ],
+      "column": 1
+    },
+    {
+      "id": "b312",
+      "type": "paragraph",
+      "text": "以3比3追平西班牙队…",
+      "page": 14,
+      "bbox": [
+        461.91,
+        364.67,
+        536.13,
+        375.21
+      ],
+      "column": 1
+    },
+    {
+      "id": "b313",
+      "type": "paragraph",
+      "text": "足球直奔球门死角。",
+      "page": 14,
+      "bbox": [
+        302.39,
+        366.22,
+        368.43,
+        376.76
+      ],
+      "column": 1
+    },
+    {
+      "id": "b314",
+      "type": "paragraph",
+      "text": "0\n10\n20\n30\n40\n50\ns heavy suites such as MMMU and on document-centric benchmarks (Table 5): MOSS-VL ships without a\nthinking mode, and its training optimizes for real-time video rather than exam-style reasoning. The capability\nthis report is built around is, at its highest level, still qualitatively attested: quantitative validation stops at\nL2–L4 because public streaming benchmarks stop there, and no existing benchmark measures perception\nduring generation—whether a model revises or cuts short a reply the moment the scene overturns it.",
+      "page": 14,
+      "bbox": [
+        83.87,
+        381.68,
+        534.49,
+        392.56
+      ],
+      "column": 1
+    },
+    {
+      "id": "b316",
+      "type": "paragraph",
+      "text": "Both limits mark the near-term agenda: reinforcement-learning post-training for the MOSS-VL series, already\non our public roadmap, and a dedicated benchmark for L5 behavior, which the field still lacks.",
+      "page": 15,
+      "bbox": [
+        70.87,
+        148.33,
+        541.52,
+        170.72
+      ],
+      "column": 1
+    },
+    {
+      "id": "b317",
+      "type": "paragraph",
+      "text": "MOSS-VL makes real-time interaction a first-class capability of an open vision–language model family. It is\nbuilt in, not bolted on: gated cross-attention with XRoPE lets frames arrive while text is being generated,\nsynthesized interaction data teaches the model when to speak, when to wait, and when to revise, and a staged\ncurriculum confines every real-time-specific choice to one light final stage. In evaluation, MOSS-VL-Instruct\nholds strong offline ground, especially on temporal-reasoning tasks, MOSS-VL-Realtime leads streaming\nbenchmarks wherever response timing is tested, and serving latency grows more slowly with visual context\nthan an interleaved peer’s. Weights, curriculum, and code are open.",
+      "page": 15,
+      "bbox": [
+        70.87,
+        210.39,
+        542.38,
+        294.95
+      ],
+      "column": 1
+    },
+    {
+      "id": "b318",
+      "type": "paragraph",
+      "text": "Pengyu Wang∗, Chenkun Tan, Shaojun Zhou, Qirui Zhou, Yanxin Chen, Xingyang He, Huazheng Zeng, Jĳun\nCheng, Chenghao Wang, Xiaomeng Qian, Pengfei Wang, Zhan Huang, Shanqing Gao, Wei Huang, Longjun\nCao, Wu Ran, Jie Liu, Changtai Zhu",
+      "page": 15,
+      "bbox": [
+        70.87,
+        350.43,
+        541.13,
+        388.09
+      ],
+      "column": 1
+    },
+    {
+      "id": "b319",
+      "type": "paragraph",
+      "text": "Hongkai Wang, Yixian Tian, Chenghao Liu, Zhen Ye, Xinghao Wang, Botian Jiang, Guoguo Feng, Zhaoye Fei,\nRuixiao Li, Mingshu Chen, Yang Gao, Qinyuan Cheng, Shimin Li, Xipeng Qiu§",
+      "page": 15,
+      "bbox": [
+        70.87,
+        421.4,
+        542.38,
+        443.8
+      ],
+      "column": 1
+    },
+    {
+      "id": "b320",
+      "type": "paragraph",
+      "text": "8\nConclusion",
+      "page": 15,
+      "bbox": [
+        70.87,
+        187.32,
+        151.22,
+        199.28
+      ],
+      "column": 0
+    },
+    {
+      "id": "b321",
+      "type": "heading",
+      "text": "Contributors",
+      "page": 15,
+      "bbox": [
+        70.87,
+        311.54,
+        141.68,
+        323.5
+      ],
+      "column": 0,
+      "level": 1
+    },
+    {
+      "id": "b322",
+      "type": "heading",
+      "text": "Core Contributors",
+      "page": 15,
+      "bbox": [
+        70.54,
+        335.35,
+        143.51,
+        345.31
+      ],
+      "column": 0,
+      "level": 2
+    },
+    {
+      "id": "b323",
+      "type": "heading",
+      "text": "Contributors",
+      "page": 15,
+      "bbox": [
+        70.54,
+        403.49,
+        122.45,
+        413.45
+      ],
+      "column": 0,
+      "level": 2
+    },
+    {
+      "id": "b324",
+      "type": "heading",
+      "text": "Affiliations",
+      "page": 15,
+      "bbox": [
+        70.51,
+        459.2,
+        115.12,
+        469.16
+      ],
+      "column": 0,
+      "level": 2
+    },
+    {
+      "id": "b325",
+      "type": "paragraph",
+      "text": "Fudan University\nShanghai Innovation Institute\nMOSI Intelligence",
+      "page": 15,
+      "bbox": [
+        70.87,
+        477.11,
+        201.37,
+        511.94
+      ],
+      "column": 0
+    },
+    {
+      "id": "b326",
+      "type": "paragraph",
+      "text": "∗Project Lead.\n§Corresponding Author.",
+      "page": 15,
+      "bbox": [
+        85.21,
+        712.12,
+        227.88,
+        722.71
+      ],
+      "column": 0
+    },
+    {
+      "id": "b327",
+      "type": "paragraph",
+      "text": "[1] Arjun Akula, Spandana Gella, Yaser Al-Onaizan, Song-Chun Zhu, and Siva Reddy. Words aren’t enough, their order\nmatters: On the robustness of grounding visual referring expressions. In Proceedings of the 58th Annual Meeting of the\nAssociation for Computational Linguistics, pages 6555–6565, Online, 2020. Association for Computational Linguistics.\ndoi: 10.18653/v1/2020.acl-main.586. URL https://aclanthology.org/2020.acl-main.586.",
+      "page": 16,
+      "bbox": [
+        75.35,
+        102.0,
+        542.7,
+        146.03
+      ],
+      "column": 1
+    },
+    {
+      "id": "b328",
+      "type": "paragraph",
+      "text": "[2] Jean-Baptiste Alayrac, Jeff Donahue, Pauline Luc, Antoine Miech, Iain Barr, Yana Hasson, Karel Lenc, Arthur\nMensch, Katie Millican, Malcolm Reynolds, Roman Ring, Eliza Rutherford, Serkan Cabi, Tengda Han, Zhitao\nGong, Sina Samangooei, Marianne Monteiro, Jacob Menick, Sebastian Borgeaud, Andrew Brock, Aida Nematzadeh,\nSahand Sharifzadeh, Mikolaj Binkowski, Ricardo Barreira, Oriol Vinyals, Andrew Zisserman, and Karen Simonyan.\nFlamingo: a visual language model for few-shot learning. ArXiv preprint, abs/2204.14198, 2022. URL https:\n//arxiv.org/abs/2204.14198.",
+      "page": 16,
+      "bbox": [
+        75.35,
+        153.81,
+        543.72,
+        220.63
+      ],
+      "column": 1
+    },
+    {
+      "id": "b329",
+      "type": "paragraph",
+      "text": "[3] Xiang An, Yin Xie, Feilong Tang, Yunyao Yan, Huajie Tan, Didi Zhu, Changrui Chen, Xiuwei Zhao, Bin Qin, Kaicheng\nYang, Yifei Shen, Yuanhan Zhang, Kaichen Zhang, Wenkang Zhang, Zheng Cheng, Nansen Zhang, Chunsheng\nWu, Chunjiang Ge, Zimin Ran, Dehua Song, Chunyuan Li, Shikun Feng, Ming Hu, Zhangquan Chen, Junbo Niu,\nBo Li, Ziyong Feng, Ziwei Liu, Zongyuan Ge, and Jiankang Deng. LLaVA-OneVision-2: Towards next-generation\nperceptual intelligence. ArXiv preprint, abs/2605.25979, 2026. URL https://arxiv.org/abs/2605.25979.",
+      "page": 16,
+      "bbox": [
+        75.35,
+        228.41,
+        542.25,
+        283.84
+      ],
+      "column": 1
+    },
+    {
+      "id": "b330",
+      "type": "paragraph",
+      "text": "[4] Shuai Bai, Yuxuan Cai, Ruizhe Chen, Keqin Chen, Xionghui Chen, Zesen Cheng, Lianghao Deng, Wei Ding, Chang\nGao, Chunjiang Ge, Wenbin Ge, Zhifang Guo, Qidong Huang, Jie Huang, Fei Huang, Binyuan Hui, Shutong Jiang,\nZhaohai Li, Mingsheng Li, Mei Li, Kaixin Li, Zicheng Lin, Junyang Lin, Xuejing Liu, Jiawei Liu, Chenglong Liu,\nYang Liu, Dayiheng Liu, Shixuan Liu, Dunjie Lu, Ruilin Luo, Chenxu Lv, Rui Men, Lingchen Meng, Xuancheng\nRen, Xingzhang Ren, Sibo Song, Yuchong Sun, Jun Tang, Jianhong Tu, Jianqiang Wan, Peng Wang, Pengfei Wang,\nQiuyue Wang, Yuxuan Wang, Tianbao Xie, Yiheng Xu, Haiyang Xu, Jin Xu, Zhibo Yang, Mingkun Yang, Jianxin\nYang, An Yang, Bowen Yu, Fei Zhang, Hang Zhang, Xi Zhang, Bo Zheng, Humen Zhong, Jingren Zhou, Fan Zhou,\nJing Zhou, Yuanzhi Zhu, and Ke Zhu. Qwen3-VL technical report. ArXiv preprint, abs/2511.21631, 2025. URL\nhttps://arxiv.org/abs/2511.21631.",
+      "page": 16,
+      "bbox": [
+        75.35,
+        291.61,
+        542.26,
+        392.63
+      ],
+      "column": 1
+    },
+    {
+      "id": "b331",
+      "type": "paragraph",
+      "text": "[5] Shuai Bai, Keqin Chen, Xuejing Liu, Jialin Wang, Wenbin Ge, Sibo Song, Kai Dang, Peng Wang, Shĳie Wang, Jun\nTang, Humen Zhong, Yuanzhi Zhu, Mingkun Yang, Zhaohai Li, Jianqiang Wan, Pengfei Wang, Wei Ding, Zheren Fu,\nYiheng Xu, Jiabo Ye, Xi Zhang, Tianbao Xie, Zesen Cheng, Hang Zhang, Zhibo Yang, Haiyang Xu, and Junyang Lin.\nQwen2.5-VL technical report. ArXiv preprint, abs/2502.13923, 2025. URL https://arxiv.org/abs/2502.13923.",
+      "page": 16,
+      "bbox": [
+        75.35,
+        400.4,
+        542.7,
+        444.43
+      ],
+      "column": 1
+    },
+    {
+      "id": "b332",
+      "type": "paragraph",
+      "text": "[6] Lin Chen, Jinsong Li, Xiaoyi Dong, Pan Zhang, Yuhang Zang, Zehui Chen, Haodong Duan, Jiaqi Wang, Yu Qiao,\nDahua Lin, and Feng Zhao. Are we on the right way for evaluating large vision-language models? ArXiv preprint,\nabs/2403.20330, 2024. URL https://arxiv.org/abs/2403.20330.",
+      "page": 16,
+      "bbox": [
+        75.35,
+        452.21,
+        542.26,
+        484.84
+      ],
+      "column": 1
+    },
+    {
+      "id": "b333",
+      "type": "paragraph",
+      "text": "[7] Mengfei Du, Binhao Wu, Zejun Li, Xuanjing Huang, and Zhongyu Wei. EmbSpatial-Bench: Benchmarking spatial\nunderstanding for embodied tasks with large vision-language models. ArXiv preprint, abs/2406.05756, 2024. URL\nhttps://arxiv.org/abs/2406.05756.",
+      "page": 16,
+      "bbox": [
+        75.35,
+        492.62,
+        541.41,
+        525.25
+      ],
+      "column": 1
+    },
+    {
+      "id": "b334",
+      "type": "paragraph",
+      "text": "[8] Chaoyou Fu, Yuhan Dai, Yongdong Luo, Lei Li, Shuhuai Ren, Renrui Zhang, Zihan Wang, Chenyu Zhou, Yunhang\nShen, Mengdan Zhang, Peixian Chen, Yanwei Li, Shaohui Lin, Sirui Zhao, Ke Li, Tong Xu, Xiawu Zheng, Enhong Chen,\nCaifeng Shan, Ran He, and Xing Sun. Video-MME: The first-ever comprehensive evaluation benchmark of multi-\nmodal LLMs in video analysis. ArXiv preprint, abs/2405.21075, 2024. URL https://arxiv.org/abs/2405.21075.",
+      "page": 16,
+      "bbox": [
+        75.35,
+        533.03,
+        542.7,
+        577.05
+      ],
+      "column": 1
+    },
+    {
+      "id": "b335",
+      "type": "paragraph",
+      "text": "[9] Chaoyou Fu, Haozhi Yuan, Yuhao Dong, Yi-Fan Zhang, Yunhang Shen, Xiaoxing Hu, Xueying Li, Jinsen Su, Chengwu\nLong, Xiaoyao Xie, Yongkang Xie, Xiawu Zheng, Xue Yang, Haoyu Cao, Yunsheng Wu, Ziwei Liu, Xing Sun, Caifeng\nShan, and Ran He. Video-MME-v2: Towards the next stage in benchmarks for comprehensive video understanding.\nArXiv preprint, abs/2604.05015, 2026. URL https://arxiv.org/abs/2604.05015.",
+      "page": 16,
+      "bbox": [
+        75.35,
+        584.83,
+        542.7,
+        628.86
+      ],
+      "column": 1
+    },
+    {
+      "id": "b336",
+      "type": "paragraph",
+      "text": "[10] Ling Fu, Zhebin Kuang, Jiajun Song, Mingxin Huang, Biao Yang, Yuzhe Li, Linghao Zhu, Qidi Luo, Xinyu Wang,\nHao Lu, Zhang Li, Guozhi Tang, Bin Shan, Chunhui Lin, Qi Liu, Binghong Wu, Hao Feng, Hao Liu, Can Huang,\nJingqun Tang, Wei Chen, Lianwen Jin, Yuliang Liu, and Xiang Bai. OCRBench v2: An improved benchmark for\nevaluating large multimodal models on visual text localization and reasoning. ArXiv preprint, abs/2501.00321, 2025.\nURL https://arxiv.org/abs/2501.00321.",
+      "page": 16,
+      "bbox": [
+        70.87,
+        636.64,
+        542.7,
+        692.06
+      ],
+      "column": 1
+    },
+    {
+      "id": "b337",
+      "type": "paragraph",
+      "text": "[11] Shenghao Fu, Qize Yang, Yuan-Ming Li, Yi-Xing Peng, Kun-Yu Lin, Xihan Wei, Jian-Fang Hu, Xiaohua Xie, and",
+      "page": 16,
+      "bbox": [
+        70.87,
+        699.84,
+        541.13,
+        708.81
+      ],
+      "column": 0
+    },
+    {
+      "id": "b338",
+      "type": "heading",
+      "text": "References",
+      "page": 16,
+      "bbox": [
+        70.87,
+        79.18,
+        130.33,
+        91.13
+      ],
+      "column": 0,
+      "level": 1
+    },
+    {
+      "id": "b339",
+      "type": "paragraph",
+      "text": "Wei-Shi Zheng. ViSpeak: Visual instruction feedback in streaming videos. ArXiv preprint, abs/2503.12769, 2025.\nURL https://arxiv.org/abs/2503.12769.",
+      "page": 17,
+      "bbox": [
+        90.34,
+        80.74,
+        542.7,
+        101.98
+      ],
+      "column": 1
+    },
+    {
+      "id": "b340",
+      "type": "paragraph",
+      "text": "https://arxiv.org/abs/2606.14777.",
+      "page": 19,
+      "bbox": [
+        90.79,
+        512.77,
+        258.73,
+        522.64
+      ],
+      "column": 0
+    },
+    {
+      "id": "b341",
+      "type": "paragraph",
+      "text": "All three inference modes share the released ChatML-style chat template. Offline inference is standard:\nthe full video is encoded as one vision block and the model replies as an ordinary chat assistant, with no\ndedicated system prompt. The streaming and real-time modes prepend the shared system prompt of §4.3\nand lay every assistant turn out as an alternating stream of decision slots 𝑡𝑖and frame placeholders, so 𝑁frames leave the model 𝑁+1 decisions. Each slot takes one of three forms: <|silence|>—nothing to\nsay at this frame; <|response|> followed by a text chunk—speaking, not yet finished; or a chunk closed by\n<|silence|>—the reply ends here. The session below shows the layout end to end. Line breaks in the actual\nbyte stream occur only after each role header and after each <|im_end|>; every other break is wrapping,\nand the italic annotations are not part of the stream.",
+      "page": 21,
+      "bbox": [
+        70.48,
+        120.58,
+        542.37,
+        168.8
+      ],
+      "column": 1
+    },
+    {
+      "id": "b343",
+      "type": "paragraph",
+      "text": "A\nReal-Time Interaction Details",
+      "page": 21,
+      "bbox": [
+        70.87,
+        79.18,
+        253.3,
+        91.13
+      ],
+      "column": 0
+    },
+    {
+      "id": "b344",
+      "type": "paragraph",
+      "text": "A.1\nReal-Time Dialogue Template",
+      "page": 21,
+      "bbox": [
+        70.87,
+        101.67,
+        248.13,
+        112.63
+      ],
+      "column": 0
+    },
+    {
+      "id": "b345",
+      "type": "heading",
+      "text": "Real-time session layout (template level)",
+      "page": 21,
+      "bbox": [
+        84.16,
+        265.97,
+        267.88,
+        275.93
+      ],
+      "column": 0,
+      "level": 2
+    },
+    {
+      "id": "b346",
+      "type": "paragraph",
+      "text": "<|im_start|>system\nthe shared streaming / real-time system prompt (§4.3)<|im_end|>\n— warm-up: the stream is already flowing, nobody has spoken —\n<|im_start|>user\n<|im_end|>\n<|im_start|>assistant\n<|silence|><|video|><|silence|><|video|><|silence|> . . . nothing happens, the model keeps silent . . . <|im_end|>\n— a reply spread over consecutive frames; later the instruction fires a second time —\n<|im_start|>user\nTell me when the door opens.<|im_end|>\n<|im_start|>assistant\n<|silence|><|video|><|silence|><|video|><|silence|><|video|><|response|>The door is opening,\n<|video|><|response|>and a man in a red jacket steps in.<|silence|><|video|><|silence|>\n<|video|><|response|>The door opens again,<|video|><|response|>another man, in a white shirt,\nsteps in.<|silence|><|im_end|>\n— leading-slot dropout variant: the frame arrives first —\n<|im_start|>user\nWhat is the second man up to?<|im_end|>\n<|im_start|>assistant\n<|video|><|response|>He is sneaking around,<|video|><|response|>and has not noticed the first\nman staring at him.<|silence|><|im_end|>",
+      "page": 21,
+      "bbox": [
+        82.57,
+        289.64,
+        520.86,
+        487.7
+      ],
+      "column": 0
+    },
+    {
+      "id": "b347",
+      "type": "heading",
+      "text": "Five details of this layout carry the design:",
+      "page": 21,
+      "bbox": [
+        70.87,
+        505.53,
+        256.84,
+        515.5
+      ],
+      "column": 0,
+      "level": 2
+    },
+    {
+      "id": "b348",
+      "type": "paragraph",
+      "text": "𝑡0 <|video|> 𝑡1 <|video|> 𝑡2 · · · <|video|> 𝑡𝑁,",
+      "page": 21,
+      "bbox": [
+        198.83,
+        174.65,
+        414.51,
+        188.96
+      ],
+      "column": 1
+    },
+    {
+      "id": "b349",
+      "type": "paragraph",
+      "text": "The template keeps each frame as a single <|video|> placeholder; the processor—the same code path at\ntraining and inference time—expands it into a timestamped vision block:",
+      "page": 22,
+      "bbox": [
+        70.56,
+        79.92,
+        541.14,
+        102.34
+      ],
+      "column": 0
+    },
+    {
+      "id": "b350",
+      "type": "heading",
+      "text": "<|vision_start|><|time_start|>7.0 seconds<|time_end|><|image_pad|><|vision_end|>",
+      "page": 22,
+      "bbox": [
+        75.86,
+        111.0,
+        536.14,
+        121.96
+      ],
+      "column": 1,
+      "level": 2
+    },
+    {
+      "id": "b351",
+      "type": "paragraph",
+      "text": "The timestamp is plain text carrying the frame’s arrival time, so the model reads the current stream time\ndirectly from its input; <|image_pad|> is then replaced by the frame’s visual tokens according to its\nresolution. Training and inference must agree on this expansion byte for byte—any deviation shifts the model\noff its training distribution and suppresses emission.",
+      "page": 22,
+      "bbox": [
+        70.56,
+        129.68,
+        541.14,
+        176.94
+      ],
+      "column": 0
+    },
+    {
+      "id": "b352",
+      "type": "paragraph",
+      "text": "At inference the runtime reproduces the training-time alternation with a strict handshake: it pushes one\nframe, waits for the model to emit a fresh <|silence|>, and only then pushes the next. While a long reply\nis still unfolding, a length budget releases the next frame instead, so the stream never stalls behind the reply.\nReplies therefore unfold across consecutive slots, one chunk per frame, exactly as in training (§4.2).",
+      "page": 22,
+      "bbox": [
+        70.48,
+        185.63,
+        542.87,
+        232.89
+      ],
+      "column": 1
+    },
+    {
+      "id": "b353",
+      "type": "paragraph",
+      "text": "Figure 5 shows excerpts of the model’s Chinese outputs; Table 7 gives our English translations of both sessions,\nin output order.",
+      "page": 22,
+      "bbox": [
+        70.87,
+        267.34,
+        542.38,
+        289.74
+      ],
+      "column": 1
+    },
+    {
+      "id": "fig10",
+      "type": "figure",
+      "page": 22,
+      "bbox": [
+        116.82,
+        336.39,
+        252.43,
+        372.72
+      ],
+      "column": 0,
+      "image_path": "images/fig_10.png",
+      "caption": "Table 7 English translations (ours) of the two live-demo sessions in Figure 5. The figure carries the Chinese excerpts;\ntimestamps and the placement of each output on the stream are read off the figure’s timeline.",
+      "figure_label": "Table 7"
+    },
+    {
+      "id": "b356",
+      "type": "paragraph",
+      "text": "A.2\nLive-Demo Session Transcripts",
+      "page": 22,
+      "bbox": [
+        70.87,
+        248.43,
+        254.41,
+        259.39
+      ],
+      "column": 0
+    },
+    {
+      "id": "b357",
+      "type": "paragraph",
+      "text": "Turn\nEnglish translation",
+      "page": 22,
+      "bbox": [
+        120.82,
+        340.39,
+        248.43,
+        349.36
+      ],
+      "column": 0
+    },
+    {
+      "id": "b358",
+      "type": "paragraph",
+      "text": "(a) Conditional alert",
+      "page": 22,
+      "bbox": [
+        120.82,
+        359.75,
+        194.53,
+        368.72
+      ],
+      "column": 0
+    },
+    {
+      "id": "b359",
+      "type": "paragraph",
+      "text": "Model\n“Great!”, emitted at each of the four contacts; every other frame yields the silence\ntoken.",
+      "page": 22,
+      "bbox": [
+        120.82,
+        397.45,
+        491.18,
+        417.37
+      ],
+      "column": 0
+    },
+    {
+      "id": "b360",
+      "type": "paragraph",
+      "text": "(b) Real-time commentary",
+      "page": 22,
+      "bbox": [
+        120.82,
+        427.77,
+        215.29,
+        436.73
+      ],
+      "column": 0
+    },
+    {
+      "id": "b361",
+      "type": "paragraph",
+      "text": "User (𝑡=0)\nCommentate on the video live.",
+      "page": 22,
+      "bbox": [
+        120.82,
+        440.67,
+        295.38,
+        449.77
+      ],
+      "column": 0
+    },
+    {
+      "id": "b362",
+      "type": "paragraph",
+      "text": "Model\nPortugal win a crucial free-kick chance; Ronaldo stands over the ball. . .",
+      "page": 22,
+      "bbox": [
+        120.82,
+        454.5,
+        453.99,
+        463.47
+      ],
+      "column": 0
+    },
+    {
+      "id": "b363",
+      "type": "paragraph",
+      "text": "Model\nThe referee’s whistle sounds, and the whole stadium holds its breath.",
+      "page": 22,
+      "bbox": [
+        120.82,
+        468.2,
+        447.82,
+        477.17
+      ],
+      "column": 0
+    },
+    {
+      "id": "b364",
+      "type": "paragraph",
+      "text": "Model\nRonaldo spreads his arms wide, his face full of excitement and pride. . .",
+      "page": 22,
+      "bbox": [
+        120.82,
+        506.56,
+        454.5,
+        515.52
+      ],
+      "column": 0
+    },
+    {
+      "id": "b365",
+      "type": "paragraph",
+      "text": "Model\nThe score is level—Portugal have pulled back to 3–3 against Spain. . .",
+      "page": 22,
+      "bbox": [
+        120.82,
+        520.26,
+        443.79,
+        529.22
+      ],
+      "column": 0
+    },
+    {
+      "id": "b366",
+      "type": "paragraph",
+      "text": "User (𝑡=0)\nWatch in real time and judge whether the cat touches the carrot; output “Great!”\nwhenever it does, and stay silent otherwise.",
+      "page": 22,
+      "bbox": [
+        120.82,
+        372.66,
+        492.97,
+        392.71
+      ],
+      "column": 1
+    },
+    {
+      "id": "b367",
+      "type": "paragraph",
+      "text": "Model\nRonaldo takes a measured run-up and strikes—the ball flies straight for the corner\nof the goal.",
+      "page": 22,
+      "bbox": [
+        120.82,
+        481.9,
+        491.36,
+        501.83
+      ],
+      "column": 1
+    }
+  ]
+}

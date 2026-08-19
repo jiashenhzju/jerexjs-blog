@@ -27,6 +27,7 @@ const canonical = new URL(Astro.url.pathname, Astro.site ?? "http://localhost:43
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="generator" content={Astro.generator} />
+    <meta name="theme-color" content="#f7f7f4" />
     <link rel="icon" type="image/svg+xml" href={`${import.meta.env.BASE_URL}favicon.svg`} />
     <link rel="canonical" href={canonical.toString()} />
     {noIndex && <meta name="robots" content="noindex" />}
@@ -39,17 +40,6 @@ const canonical = new URL(Astro.url.pathname, Astro.site ?? "http://localhost:43
     <meta property="og:type" content="website" />
     <meta property="og:url" content={canonical.toString()} />
     {ogImage && <meta property="og:image" content={ogImage} />}
-
-    <link
-      rel="preconnect"
-      href="https://fonts.googleapis.com"
-      crossorigin="anonymous"
-    />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="anonymous" />
-    <link
-      rel="stylesheet"
-      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap"
-    />
 
     <slot name="head" />
   </head>

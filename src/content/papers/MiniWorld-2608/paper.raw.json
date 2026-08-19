@@ -1,0 +1,2291 @@
+{
+  "meta": {
+    "pdf_path": "/Users/xnnxax/projects/jerexjs-blog/example/MiniWorld-2608.pdf",
+    "pdf_name": "MiniWorld-2608.pdf",
+    "pdf_stem": "MiniWorld-2608",
+    "num_pages": 20,
+    "columns": 2,
+    "body_font_size": 11.15,
+    "num_figures": 5
+  },
+  "blocks": [
+    {
+      "id": "b1",
+      "type": "heading",
+      "text": "Yian Zhao1, Ruochong Zheng1, Hongcan Guo, Yu Yan1, Jian Zhang1, Jie Chen1",
+      "page": 1,
+      "bbox": [
+        76.97,
+        172.37,
+        534.95,
+        186.72
+      ],
+      "column": 0,
+      "level": 3
+    },
+    {
+      "id": "b2",
+      "type": "paragraph",
+      "text": "1Peking University",
+      "page": 1,
+      "bbox": [
+        261.37,
+        197.01,
+        350.53,
+        208.97
+      ],
+      "column": 0
+    },
+    {
+      "id": "b3",
+      "type": "title",
+      "text": "arXiv:2608.01127v1  [cs.CV]  2 Aug 2026",
+      "page": 1,
+      "bbox": [
+        14.94,
+        285.5,
+        41.62,
+        628.8
+      ],
+      "column": 0,
+      "level": 0
+    },
+    {
+      "id": "b4",
+      "type": "paragraph",
+      "text": "Code: https://github.com/zhao-yian/MiniWorld",
+      "page": 1,
+      "bbox": [
+        103.06,
+        590.77,
+        344.78,
+        601.68
+      ],
+      "column": 0
+    },
+    {
+      "id": "b5",
+      "type": "paragraph",
+      "text": "Models: https://huggingface.co/zhaoyian01/MiniWorld",
+      "page": 1,
+      "bbox": [
+        103.5,
+        605.51,
+        380.88,
+        616.42
+      ],
+      "column": 0
+    },
+    {
+      "id": "b6",
+      "type": "paragraph",
+      "text": "Project Page: https://zhao-yian.github.io/MiniWorld",
+      "page": 1,
+      "bbox": [
+        102.84,
+        620.24,
+        369.42,
+        631.15
+      ],
+      "column": 0
+    },
+    {
+      "id": "b7",
+      "type": "paragraph",
+      "text": "MiniWorld: Democratizing the Training of Video World\nModels from Scratch",
+      "page": 1,
+      "bbox": [
+        79.01,
+        103.0,
+        532.99,
+        143.65
+      ],
+      "column": 1
+    },
+    {
+      "id": "b8",
+      "type": "heading",
+      "text": "Abstract",
+      "page": 1,
+      "bbox": [
+        280.42,
+        246.13,
+        333.08,
+        260.47
+      ],
+      "column": 1,
+      "level": 3
+    },
+    {
+      "id": "b9",
+      "type": "paragraph",
+      "text": "Video world models predict future observations conditioned on historical observations and control\nsignals, enabling long-horizon generation through autoregressive state transitions. Unlike conventional\nvideo generation models that primarily capture visual appearance and motion, video world models\nlearn the underlying dynamics governing environment evolution under agent actions. By modeling\nhow the world responds to interactions, they provide a fundamental building block for embodied\nAI and interactive simulation. Recent progress has largely relied on adapting pretrained video\ngeneration models through post-training or distillation. Although effective, these approaches often\nrequire complex training pipelines, substantial computational resources, and inevitably suffer from\nthe mismatch between bidirectional pretraining and causal streaming inference. Recent studies have\nshown that training autoregressive video world models from scratch is both feasible and scalable.\nHowever, the community still lacks a lightweight, transparent, and fully reproducible baseline that\ncan be trained end-to-end with modest computational resources. We present MiniWorld, an accessible\nand reproducible framework for training streaming video world models from scratch. MiniWorld\nemploys a block-causal Video Diffusion Transformer trained with Flow Matching in the latent space\nof a pretrained Video VAE. Building on Diffusion Forcing, it adopts a chunk-wise non-decreasing\nnoise schedule together with two-stage continued training to improve temporal modeling and training\nstability. During inference, MiniWorld combines a rolling KV cache with pipelined asynchronous\ndenoising for efficient streaming generation under bounded computation. The entire model can\nbe trained within several days on a single 8-GPU server. By releasing the complete training and\ninference codebase, pretrained model checkpoints, and implementation details, we hope MiniWorld\nwill facilitate future research on video world modeling.",
+      "page": 1,
+      "bbox": [
+        90.63,
+        273.02,
+        524.4,
+        577.73
+      ],
+      "column": 1
+    },
+    {
+      "id": "b10",
+      "type": "paragraph",
+      "text": "Video world models have recently emerged as a promising paradigm for interactive visual sim-\nulation, where future observations are generated autoregressively from historical observations\nand control signals. Unlike conventional video generators that primarily synthesize realistic\nappearance and motion, video world models aim to capture the dynamics governing world\nevolution, enabling persistent state prediction over long horizons. Such capabilities are becom-\ning increasingly important for embodied AI, interactive environment simulation, and general\nphysical intelligence. Recent systems, including Genie [3], Cosmos [21], LingBot-World [17],\nDreamx-world 1.0, Matrix-game 3.0, HappyOyster [1], DreamDojo [7], MAGI-1 [24], and\nSkyReels-V2 [26], have demonstrated the remarkable potential of large-scale video world\nmodels across these applications.",
+      "page": 2,
+      "bbox": [
+        70.43,
+        106.92,
+        543.26,
+        251.49
+      ],
+      "column": 1
+    },
+    {
+      "id": "b11",
+      "type": "paragraph",
+      "text": "Despite this rapid progress, training a video world model from scratch remains prohibitively\nexpensive for most researchers. The prevailing paradigm adapts pretrained bidirectional video\ndiffusion models, such as Wan [30], into autoregressive world models through post-training\ntechniques including fine-tuning, distillation, and reinforcement learning. While this approach\neffectively transfers the strong visual generation capability of large video foundation models, it\nrequires complex multi-stage optimization pipelines and substantial computational resources.\nMore fundamentally, bidirectional pretraining is intrinsically inconsistent with causal streaming\ninference, resulting in a structural mismatch between training and deployment.",
+      "page": 2,
+      "bbox": [
+        70.87,
+        261.49,
+        543.57,
+        376.59
+      ],
+      "column": 1
+    },
+    {
+      "id": "b12",
+      "type": "paragraph",
+      "text": "Existing work has demonstrated the feasibility of end-to-end autoregressive pretraining for\nvideo world models. MAGI-1 [24] demonstrates the scalability of chunk-wise autoregressive\nvideo pretraining, while SkyReels-V2 [26] further shows that Diffusion Forcing [4] provides\nan effective formulation for long-horizon video generation and world modeling. These ad-\nvances suggest that training streaming video world models directly from scratch is becoming\nincreasingly practical. Nevertheless, the community still lacks a lightweight and fully repro-\nducible baseline that prioritizes simplicity, transparency, and accessibility over the continuous\nexpansion of model scale and improvement of in-house data quality.",
+      "page": 2,
+      "bbox": [
+        70.56,
+        386.59,
+        543.27,
+        501.69
+      ],
+      "column": 1
+    },
+    {
+      "id": "b13",
+      "type": "paragraph",
+      "text": "In this work, we present MiniWorld, an accessible recipe for training streaming video world\nmodels from scratch under modest computational budgets. MiniWorld adopts a block-causal\nVideo Diffusion Transformer trained with Flow Matching in latent space. Building upon\nDiffusion Forcing, we introduce a chunk-wise non-decreasing noise scheduling strategy and a\ntwo-stage continued training paradigm, enabling efficient and stable world modeling while\npreserving a simple training procedure.",
+      "page": 2,
+      "bbox": [
+        70.43,
+        511.69,
+        541.32,
+        597.32
+      ],
+      "column": 0
+    },
+    {
+      "id": "b14",
+      "type": "paragraph",
+      "text": "During inference, MiniWorld employs a rolling KV cache with pipelined asynchronous de-\nnoising, allowing long-horizon world generation under bounded computation and a flexible\ntrade-off between generation quality and inference throughput. Unlike many recently released\nsystems, MiniWorld deliberately avoids introducing proprietary datasets or sophisticated\npost-training. Instead, it delivers an essential minimal end-to-end pipeline covering data\npreprocessing, model training, streaming inference, and evaluation. The complete model can\nbe trained in several days on a single 8-GPU server, making streaming world model research\nsubstantially more accessible.",
+      "page": 2,
+      "bbox": [
+        70.87,
+        607.32,
+        543.24,
+        722.42
+      ],
+      "column": 1
+    },
+    {
+      "id": "b15",
+      "type": "paragraph",
+      "text": "1\nIntroduction",
+      "page": 2,
+      "bbox": [
+        70.87,
+        78.43,
+        159.72,
+        92.78
+      ],
+      "column": 0
+    },
+    {
+      "id": "b16",
+      "type": "list",
+      "text": "• We introduce MiniWorld, a lightweight and fully reproducible framework that makes training\nstreaming video world models from scratch feasible under modest computational budgets.",
+      "page": 3,
+      "bbox": [
+        70.87,
+        102.3,
+        542.48,
+        128.99
+      ],
+      "column": 1
+    },
+    {
+      "id": "b17",
+      "type": "list",
+      "text": "• We develop a practical streaming world modeling recipe that integrates block-causal Video\nDiT, chunk-wise non-decreasing noise scheduling, two-stage continued training, and rolling-\nKV streaming inference.",
+      "page": 3,
+      "bbox": [
+        70.87,
+        138.99,
+        543.24,
+        180.42
+      ],
+      "column": 1
+    },
+    {
+      "id": "b18",
+      "type": "list",
+      "text": "• We release the full data processing, training, inference, and evaluation pipeline, offering a\ntransparent and extensible open-source baseline for future research.",
+      "page": 3,
+      "bbox": [
+        70.87,
+        190.42,
+        541.3,
+        217.11
+      ],
+      "column": 1
+    },
+    {
+      "id": "b19",
+      "type": "paragraph",
+      "text": "We hope MiniWorld demonstrates that stable long-horizon, action-conditioned streaming\nworld modeling does not require prohibitive compute, and can instead be studied through a\ncompact, open, and reproducible experimental platform.",
+      "page": 3,
+      "bbox": [
+        70.27,
+        227.11,
+        541.31,
+        268.54
+      ],
+      "column": 0
+    },
+    {
+      "id": "b20",
+      "type": "paragraph",
+      "text": "MiniWorld is built upon Rectified Flow [20], a simple formulation of Flow Matching [18].\nFollowing modern latent video generation frameworks, all modeling is performed in the latent\nspace of a pretrained video VAE. Given a latent video sample x and Gaussian noise ϵ, Rectified\nFlow constructs a linear interpolation",
+      "page": 3,
+      "bbox": [
+        70.87,
+        313.21,
+        543.41,
+        369.37
+      ],
+      "column": 1
+    },
+    {
+      "id": "b21",
+      "type": "paragraph",
+      "text": "During inference, generation starts from Gaussian noise and progressively integrates the\nlearned velocity field to recover the target latent sequence. Throughout this paper, we use\nthe pretrained Wan2.2 VAE to encode videos into latent representations, and all training and\nstreaming inference are conducted in this latent space.",
+      "page": 3,
+      "bbox": [
+        70.87,
+        433.23,
+        541.33,
+        489.39
+      ],
+      "column": 1
+    },
+    {
+      "id": "b22",
+      "type": "paragraph",
+      "text": "In this section, we present the proposed MiniWorld framework. We first formulate streaming\nvideo world modeling as a next-state prediction problem, and then describe the block-causal\nVideo DiT architecture, conditioning mechanism, training strategy, and streaming inference\npipeline.",
+      "page": 3,
+      "bbox": [
+        70.43,
+        533.85,
+        541.3,
+        590.02
+      ],
+      "column": 0
+    },
+    {
+      "id": "b23",
+      "type": "paragraph",
+      "text": "The objective of a video world model is to predict future observations conditioned on historical\nobservations and control signals. Formally, given a sequence of observed frames x1:h and\nfuture actions ch+1:T, the model aims to generate the future video sequence xh+1:T.",
+      "page": 3,
+      "bbox": [
+        70.44,
+        628.55,
+        541.3,
+        671.12
+      ],
+      "column": 0
+    },
+    {
+      "id": "b24",
+      "type": "paragraph",
+      "text": "A straightforward solution is to formulate this task as conditional video generation within a\nfixed temporal window. During training, historical frames remain clean while future frames are\njointly perturbed by diffusion noise, allowing a bidirectional Video DiT to denoise all future",
+      "page": 3,
+      "bbox": [
+        70.43,
+        679.98,
+        541.34,
+        721.41
+      ],
+      "column": 0
+    },
+    {
+      "id": "b25",
+      "type": "paragraph",
+      "text": "Our contributions are summarized as follows:",
+      "page": 3,
+      "bbox": [
+        70.87,
+        80.34,
+        302.99,
+        92.3
+      ],
+      "column": 0
+    },
+    {
+      "id": "b26",
+      "type": "paragraph",
+      "text": "2\nPreliminaries: Rectified Flow and trains the model to predict the corresponding velocity field v∗(x, ϵ) = x −ϵ.",
+      "page": 3,
+      "bbox": [
+        70.87,
+        284.72,
+        257.79,
+        299.07
+      ],
+      "column": 0
+    },
+    {
+      "id": "b28",
+      "type": "paragraph",
+      "text": "3\nMethod",
+      "page": 3,
+      "bbox": [
+        70.87,
+        505.37,
+        134.34,
+        519.72
+      ],
+      "column": 0
+    },
+    {
+      "id": "b29",
+      "type": "paragraph",
+      "text": "3.1\nProblem Formulation zτ = (1 −τ)x + τϵ,\nτ ∈[0, 1],\n(1)",
+      "page": 3,
+      "bbox": [
+        70.87,
+        605.14,
+        209.32,
+        618.29
+      ],
+      "column": 0
+    },
+    {
+      "id": "b33",
+      "type": "paragraph",
+      "text": "frames in parallel. Since every predicted frame can attend to all other future frames, this\nformulation fully exploits future temporal context and has demonstrated strong performance\non short-video generation and video completion.",
+      "page": 4,
+      "bbox": [
+        70.87,
+        477.82,
+        541.33,
+        519.25
+      ],
+      "column": 1
+    },
+    {
+      "id": "b34",
+      "type": "paragraph",
+      "text": "However, long-horizon deployment typically requires autoregressive streaming inference. A\ncommon strategy is to repeatedly generate a fixed-length video segment, append the generated\nframes to the history, and slide the temporal window forward. This introduces a fundamental\nmismatch between training and inference. During training, the historical context always comes\nfrom ground-truth videos, whereas during inference it is replaced by previously generated\npredictions. Consequently, prediction errors accumulate over time and continuously propagate\nto future generations, resulting in the well-known exposure bias. Furthermore, because\nthe temporal window has a fixed length, early observations are progressively discarded as\ngeneration proceeds. Without an explicit mechanism for maintaining long-term world states\nacross windows, the model gradually loses historical information, leading to temporal drift\nand degraded long-range consistency.",
+      "page": 4,
+      "bbox": [
+        70.87,
+        529.25,
+        541.72,
+        688.55
+      ],
+      "column": 1
+    },
+    {
+      "id": "b35",
+      "type": "paragraph",
+      "text": "Despite these limitations, the continuation paradigm remains attractive because it can directly",
+      "page": 4,
+      "bbox": [
+        70.87,
+        698.55,
+        541.75,
+        710.51
+      ],
+      "column": 1
+    },
+    {
+      "id": "b36",
+      "type": "heading",
+      "text": "Training",
+      "page": 4,
+      "bbox": [
+        76.91,
+        105.02,
+        103.5,
+        114.6
+      ],
+      "column": 0,
+      "level": 3
+    },
+    {
+      "id": "b37",
+      "type": "paragraph",
+      "text": "...",
+      "page": 4,
+      "bbox": [
+        226.57,
+        107.18,
+        231.86,
+        113.53
+      ],
+      "column": 0
+    },
+    {
+      "id": "b38",
+      "type": "paragraph",
+      "text": "MiniWorld",
+      "page": 4,
+      "bbox": [
+        162.92,
+        136.52,
+        206.7,
+        149.04
+      ],
+      "column": 0
+    },
+    {
+      "id": "b39",
+      "type": "paragraph",
+      "text": "...",
+      "page": 4,
+      "bbox": [
+        226.57,
+        167.44,
+        231.86,
+        173.78
+      ],
+      "column": 0
+    },
+    {
+      "id": "b40",
+      "type": "paragraph",
+      "text": "Action\nEncoder",
+      "page": 4,
+      "bbox": [
+        127.51,
+        171.73,
+        149.62,
+        187.23
+      ],
+      "column": 0
+    },
+    {
+      "id": "b41",
+      "type": "paragraph",
+      "text": "Embedder",
+      "page": 4,
+      "bbox": [
+        87.24,
+        175.43,
+        114.83,
+        183.53
+      ],
+      "column": 0
+    },
+    {
+      "id": "b42",
+      "type": "paragraph",
+      "text": "+ noise",
+      "page": 4,
+      "bbox": [
+        246.2,
+        180.13,
+        266.13,
+        188.97
+      ],
+      "column": 0
+    },
+    {
+      "id": "b43",
+      "type": "paragraph",
+      "text": "VAE\nEncoder",
+      "page": 4,
+      "bbox": [
+        218.42,
+        194.46,
+        240.53,
+        209.96
+      ],
+      "column": 0
+    },
+    {
+      "id": "b44",
+      "type": "paragraph",
+      "text": "Timesteps",
+      "page": 4,
+      "bbox": [
+        84.46,
+        209.73,
+        114.99,
+        218.57
+      ],
+      "column": 0
+    },
+    {
+      "id": "b45",
+      "type": "paragraph",
+      "text": "Actions",
+      "page": 4,
+      "bbox": [
+        127.1,
+        209.73,
+        149.5,
+        218.57
+      ],
+      "column": 0
+    },
+    {
+      "id": "b46",
+      "type": "paragraph",
+      "text": "...",
+      "page": 4,
+      "bbox": [
+        226.57,
+        227.69,
+        231.86,
+        234.04
+      ],
+      "column": 0
+    },
+    {
+      "id": "b47",
+      "type": "paragraph",
+      "text": "Chunk 1\nChunk 2\nChunk i-2\nChunk i-1",
+      "page": 4,
+      "bbox": [
+        181.61,
+        240.08,
+        277.76,
+        245.97
+      ],
+      "column": 0
+    },
+    {
+      "id": "b48",
+      "type": "heading",
+      "text": "Streaming Inference",
+      "page": 4,
+      "bbox": [
+        74.08,
+        260.95,
+        143.31,
+        270.52
+      ],
+      "column": 0,
+      "level": 3
+    },
+    {
+      "id": "b49",
+      "type": "paragraph",
+      "text": "In-flight window\nRMSNorm",
+      "page": 4,
+      "bbox": [
+        208.98,
+        276.91,
+        367.33,
+        286.23
+      ],
+      "column": 0
+    },
+    {
+      "id": "b50",
+      "type": "paragraph",
+      "text": "Rolling KV cache",
+      "page": 4,
+      "bbox": [
+        128.6,
+        279.5,
+        176.56,
+        288.34
+      ],
+      "column": 0
+    },
+    {
+      "id": "b51",
+      "type": "paragraph",
+      "text": "Clean",
+      "page": 4,
+      "bbox": [
+        185.47,
+        320.2,
+        201.07,
+        329.04
+      ],
+      "column": 0
+    },
+    {
+      "id": "b52",
+      "type": "paragraph",
+      "text": "VAE\nDecoder",
+      "page": 4,
+      "bbox": [
+        134.57,
+        330.77,
+        159.47,
+        347.54
+      ],
+      "column": 0
+    },
+    {
+      "id": "b53",
+      "type": "paragraph",
+      "text": "Streaming Decode output tokens\ndenoised chunks unpatchify scale & shift",
+      "page": 4,
+      "bbox": [
+        178.29,
+        338.7,
+        232.57,
+        347.54
+      ],
+      "column": 0
+    },
+    {
+      "id": "b57",
+      "type": "paragraph",
+      "text": "MLP",
+      "page": 4,
+      "bbox": [
+        347.75,
+        143.19,
+        359.11,
+        151.29
+      ],
+      "column": 1
+    },
+    {
+      "id": "b58",
+      "type": "paragraph",
+      "text": "RMSNorm scale & shift",
+      "page": 4,
+      "bbox": [
+        471.65,
+        145.3,
+        499.47,
+        153.4
+      ],
+      "column": 1
+    },
+    {
+      "id": "b60",
+      "type": "paragraph",
+      "text": "RMSNorm x N linear attention mod\nemb linear shared_mod scale & shift mod",
+      "page": 4,
+      "bbox": [
+        339.51,
+        171.73,
+        367.33,
+        179.83
+      ],
+      "column": 1
+    },
+    {
+      "id": "b69",
+      "type": "paragraph",
+      "text": "MLP lora_mod",
+      "page": 4,
+      "bbox": [
+        469.58,
+        271.1,
+        480.95,
+        279.2
+      ],
+      "column": 1
+    },
+    {
+      "id": "b71",
+      "type": "paragraph",
+      "text": "RMSNorm",
+      "page": 4,
+      "bbox": [
+        461.61,
+        288.01,
+        489.43,
+        296.11
+      ],
+      "column": 1
+    },
+    {
+      "id": "b72",
+      "type": "paragraph",
+      "text": "LoRA\nconditioning input tokens a_emb\na_mod\nt_emb",
+      "page": 4,
+      "bbox": [
+        385.61,
+        292.77,
+        417.96,
+        308.27
+      ],
+      "column": 1
+    },
+    {
+      "id": "b75",
+      "type": "paragraph",
+      "text": "PatchEmbed3D emb",
+      "page": 4,
+      "bbox": [
+        332.91,
+        324.48,
+        373.95,
+        332.59
+      ],
+      "column": 1
+    },
+    {
+      "id": "b77",
+      "type": "paragraph",
+      "text": "Embedder\nAction Encoder t1 ... tn\na1 ... an latent chunks\ntimestep\naction leverage the strong visual generation capability of existing bidirectional video diffusion\nmodels. Accordingly, recent studies have sought to improve this framework from different\nperspectives, including reducing the training–inference mismatch, introducing causal modeling,\nand maintaining rolling historical states through KV caching [12, 19, 39].",
+      "page": 4,
+      "bbox": [
+        443.49,
+        331.35,
+        532.23,
+        339.46
+      ],
+      "column": 1
+    },
+    {
+      "id": "b81",
+      "type": "paragraph",
+      "text": "The above analysis suggests that the primary bottleneck of fixed-window video diffusion lies\nnot in visual generation quality itself, but in the inherent discrepancy between the training\nobjective and the streaming inference process. Rather than adapting a bidirectional video\ndiffusion model through post hoc modifications, MiniWorld is built directly upon an action-\nconditioned next-state prediction formulation. This formulation substantially reduces the\nmismatch between training and inference while naturally supporting long-horizon streaming\ngeneration and persistent world-state transitions.",
+      "page": 5,
+      "bbox": [
+        70.44,
+        146.51,
+        543.27,
+        246.87
+      ],
+      "column": 1
+    },
+    {
+      "id": "b82",
+      "type": "paragraph",
+      "text": "MiniWorld is built upon a single-stream Video Diffusion Transformer (Video DiT) trained\nwith Rectified Flow [20]. Given a noisy latent video, a 3D patch embedding layer converts\nthe latent volume into visual tokens. Diffusion timesteps, robot actions, and camera poses are\nincorporated as conditioning signals through a unified modulation framework.",
+      "page": 5,
+      "bbox": [
+        70.44,
+        285.41,
+        541.31,
+        341.57
+      ],
+      "column": 0
+    },
+    {
+      "id": "b83",
+      "type": "paragraph",
+      "text": "To enable streaming generation, MiniWorld employs block-causal self-attention, which parti-\ntions the video sequence into a series of temporally ordered chunks. Tokens within the same\nchunk attend bidirectionally to each other, while cross-chunk attention is strictly causal, such\nthat each chunk can only access preceding chunks. This attention pattern preserves rich\nspatial-temporal interactions within individual chunks while enforcing the causal dependency\nrequired for autoregressive streaming generation.",
+      "page": 5,
+      "bbox": [
+        70.44,
+        351.57,
+        543.25,
+        437.2
+      ],
+      "column": 1
+    },
+    {
+      "id": "b84",
+      "type": "paragraph",
+      "text": "Action Conditioning. Robot actions are incorporated through an AdaLN-based conditioning\nmechanism. For each latent frame, the action encoder transforms the action input at into an\naction embedding ea\nt and an action modulation vector ma\nt :",
+      "page": 5,
+      "bbox": [
+        70.42,
+        445.29,
+        541.29,
+        491.58
+      ],
+      "column": 0
+    },
+    {
+      "id": "b85",
+      "type": "paragraph",
+      "text": "The action embedding is added to the diffusion timestep embedding and passed through a\nshared modulation network to produce the base AdaLN parameters. The action modulation\nvector is then added residually to the generated parameters before being applied to all\nTransformer blocks.",
+      "page": 5,
+      "bbox": [
+        70.44,
+        530.53,
+        541.33,
+        586.69
+      ],
+      "column": 0
+    },
+    {
+      "id": "b86",
+      "type": "paragraph",
+      "text": "This design explicitly decouples semantic conditioning from feature modulation. The action\nembedding interacts with the diffusion timestep to capture the global denoising state, while\nthe modulation vector directly adjusts the AdaLN parameters, providing a more expressive\nand efficient mechanism for action conditioning.",
+      "page": 5,
+      "bbox": [
+        70.44,
+        596.69,
+        541.32,
+        652.85
+      ],
+      "column": 0
+    },
+    {
+      "id": "b87",
+      "type": "paragraph",
+      "text": "To further improve conditioning flexibility, we introduce an AdaLN-LoRA modulation network.\nInstead of learning an independent modulation network for every Transformer block, all layers\nshare a common modulation branch, while each block learns only a lightweight low-rank",
+      "page": 5,
+      "bbox": [
+        70.44,
+        662.85,
+        543.59,
+        704.28
+      ],
+      "column": 1
+    },
+    {
+      "id": "b88",
+      "type": "paragraph",
+      "text": "3.2\nBlock-Causal Video DiT",
+      "page": 5,
+      "bbox": [
+        70.87,
+        262.0,
+        225.0,
+        275.15
+      ],
+      "column": 0
+    },
+    {
+      "id": "b89",
+      "type": "paragraph",
+      "text": "(ea\nt , ma\nt ) = Eact(at).\n(2)",
+      "page": 5,
+      "bbox": [
+        256.87,
+        502.0,
+        542.52,
+        518.73
+      ],
+      "column": 1
+    },
+    {
+      "id": "b90",
+      "type": "paragraph",
+      "text": "residual,\nMℓ(e) = Mshared(e) + W ℓ\nup σ\n\u0000\nW ℓ\ndowne\n\u0001\n.\n(3)",
+      "page": 6,
+      "bbox": [
+        70.87,
+        80.34,
+        542.52,
+        110.21
+      ],
+      "column": 1
+    },
+    {
+      "id": "b91",
+      "type": "paragraph",
+      "text": "The low-rank residual is zero-initialized so that the model starts from a fully shared modula-\ntion network and progressively learns layer-specific adaptations during training, increasing\nconditioning capacity with only a marginal parameter overhead.",
+      "page": 6,
+      "bbox": [
+        70.44,
+        116.42,
+        543.25,
+        157.84
+      ],
+      "column": 1
+    },
+    {
+      "id": "b92",
+      "type": "paragraph",
+      "text": "During training, structured condition dropout is performed by replacing action inputs with\na null condition for classifier-free guidance. Since the initial observation has no preceding\naction, the first latent frame is always assigned the null action embedding.",
+      "page": 6,
+      "bbox": [
+        70.87,
+        167.85,
+        541.33,
+        209.27
+      ],
+      "column": 1
+    },
+    {
+      "id": "b93",
+      "type": "paragraph",
+      "text": "Model Scaling. MiniWorld adopts a unified architecture family with model sizes up to 3B\nparameters. All variants share the same block-causal Transformer architecture, conditioning\ninterface, and patch size, differing only in network width and hidden dimension. Unless\notherwise specified, we report results using two configurations: MiniWorld-0.5B (28 layers,\nhidden size 1152, 16 attention heads) and MiniWorld-1B (28 layers, hidden size 1536, 12\nattention heads).",
+      "page": 6,
+      "bbox": [
+        70.87,
+        217.36,
+        542.92,
+        304.9
+      ],
+      "column": 1
+    },
+    {
+      "id": "b94",
+      "type": "paragraph",
+      "text": "Following Diffusion Forcing [4], MiniWorld assigns independent diffusion timesteps to different\nlatent chunks within the same training sequence, rather than conditioning each prediction\non a fully denoised previous chunk as in teacher-forcing-based autoregressive diffusion. This\nformulation avoids explicitly unrolling next-chunk prediction during training and enables\nasynchronous denoising across chunks, allowing multiple future chunks to be processed\nconcurrently during streaming inference.",
+      "page": 6,
+      "bbox": [
+        70.87,
+        344.11,
+        541.55,
+        429.74
+      ],
+      "column": 1
+    },
+    {
+      "id": "b95",
+      "type": "paragraph",
+      "text": "where τ = 0 denotes the clean data and τ = 1 denotes pure noise. This constraint enforces a\ncausal denoising order in which earlier chunks are always cleaner than later ones, reflecting the\npractical inference state that past observations have largely converged while future contents\nremain uncertain. As discussed in AR-Diffusion [28], restricting timestep compositions to\nmonotonic schedules also substantially reduces the search space of asynchronous diffusion\ntrajectories, leading to more stable optimization and faster convergence.",
+      "page": 6,
+      "bbox": [
+        70.44,
+        493.59,
+        541.3,
+        579.22
+      ],
+      "column": 0
+    },
+    {
+      "id": "b96",
+      "type": "paragraph",
+      "text": "Following the probability propagation strategy in AR-Diffusion [28], we extend the frame-\nlevel FoPP scheduler to chunk-wise generation, resulting in a Chunk-oriented Probability\nPropagation (CoPP) scheduler. CoPP maintains the balanced sampling property of FoPP\nover both timestep compositions and individual diffusion timesteps while operating on latent\nchunks. Specifically, an anchor chunk is first randomly selected and assigned a timestep\nsampled from a logit-normal distribution. The timesteps of neighboring chunks are then\npropagated outward from the anchor under the non-decreasing constraint, producing a valid\nchunk-wise timestep composition.",
+      "page": 6,
+      "bbox": [
+        70.87,
+        589.23,
+        543.11,
+        704.33
+      ],
+      "column": 1
+    },
+    {
+      "id": "b97",
+      "type": "paragraph",
+      "text": "3.3\nChunk-wise Noise Scheduling",
+      "page": 6,
+      "bbox": [
+        70.87,
+        320.69,
+        257.54,
+        333.84
+      ],
+      "column": 0
+    },
+    {
+      "id": "b98",
+      "type": "paragraph",
+      "text": "We further impose a non-decreasing timestep constraint on chunk-wise noise levels, τ1 ≤τ2 ≤· · · ≤τM,\n(4)",
+      "page": 6,
+      "bbox": [
+        70.27,
+        439.74,
+        496.7,
+        451.69
+      ],
+      "column": 0
+    },
+    {
+      "id": "b100",
+      "type": "paragraph",
+      "text": "Compared with naively sampling monotonic timestep sequences, CoPP preserves the favorable\ntimestep distribution of FoPP while exposing the model to a diverse set of valid chunk-wise\ndiffusion trajectories, improving robustness across different streaming inference schedules.",
+      "page": 7,
+      "bbox": [
+        70.87,
+        80.34,
+        541.28,
+        121.77
+      ],
+      "column": 1
+    },
+    {
+      "id": "b101",
+      "type": "paragraph",
+      "text": "Given the sampled timestep sequence, flow matching is performed only on the prediction\nchunk set Ω, while observed history chunks are treated as conditions and excluded from the\noptimization:",
+      "page": 7,
+      "bbox": [
+        70.87,
+        131.77,
+        541.28,
+        173.2
+      ],
+      "column": 1
+    },
+    {
+      "id": "b102",
+      "type": "paragraph",
+      "text": "To support different streaming generation scenarios within a unified training framework,\nMiniWorld randomly adopts one of two in-context conditioning modes during training. In\nimage-to-video mode, only the first frame is kept clean, while the remaining frames in the\nfirst chunk are diffused. In video-to-video mode, the entire first chunk is treated as observed\ncontext and remains noise-free. Randomly mixing the two conditioning modes enables the\nmodel to seamlessly support both image-to-video and video-to-video generation at inference\ntime without changing the training objective.",
+      "page": 7,
+      "bbox": [
+        70.44,
+        219.12,
+        542.94,
+        319.49
+      ],
+      "column": 1
+    },
+    {
+      "id": "b103",
+      "type": "paragraph",
+      "text": "To improve long-horizon generation while maintaining training efficiency, MiniWorld adopts a\ntwo-stage training strategy. In the pre-training stage, the model is trained on short video\nclips of 21/46 frames, allowing it to efficiently learn local action-conditioned state transitions\nwith substantially reduced computational cost. The model is then continually trained on\nlonger sequences of 125/253 frames at the same spatial resolution. Rather than modifying\nthe training objective, the second stage simply exposes the model to longer causal contexts,\nlonger action trajectories, and longer camera-pose trajectories.",
+      "page": 7,
+      "bbox": [
+        70.44,
+        358.03,
+        542.92,
+        458.39
+      ],
+      "column": 1
+    },
+    {
+      "id": "b104",
+      "type": "paragraph",
+      "text": "We apply timestep shifting during the long-horizon training stage by reparameterizing the\ndiffusion timestep as\n˜τ =\nsτ\n1 + (s −1)τ ,\n(6)",
+      "page": 7,
+      "bbox": [
+        70.27,
+        468.39,
+        542.52,
+        520.06
+      ],
+      "column": 1
+    },
+    {
+      "id": "b105",
+      "type": "paragraph",
+      "text": "where s denotes the shift factor. Timestep shifting reallocates the sampling density over\ndiffusion timesteps and has been shown to improve optimization for large-scale diffusion\nmodels. The long-horizon training stage exposes the model to substantially longer temporal\ncontexts, enabling it to better exploit extended histories during inference.",
+      "page": 7,
+      "bbox": [
+        70.44,
+        526.71,
+        541.49,
+        582.87
+      ],
+      "column": 0
+    },
+    {
+      "id": "b106",
+      "type": "paragraph",
+      "text": "At inference time, MiniWorld performs streaming generation through asynchronous chunk-\nwise denoising. At any moment, the sequence consists of two parts: a committed history\nthat has already converged to the data manifold and a set of future chunks that are still\nundergoing denoising. During each denoising step, a future chunk is allowed to attend only\nto the committed history and to preceding chunks within the active window that satisfy the",
+      "page": 7,
+      "bbox": [
+        70.43,
+        621.41,
+        543.26,
+        692.3
+      ],
+      "column": 1
+    },
+    {
+      "id": "b107",
+      "type": "paragraph",
+      "text": "LFM = 1",
+      "page": 7,
+      "bbox": [
+        194.54,
+        172.49,
+        243.99,
+        194.32
+      ],
+      "column": 0
+    },
+    {
+      "id": "b108",
+      "type": "paragraph",
+      "text": "X",
+      "page": 7,
+      "bbox": [
+        251.79,
+        177.81,
+        269.05,
+        189.77
+      ],
+      "column": 0
+    },
+    {
+      "id": "b109",
+      "type": "paragraph",
+      "text": "|Ω|",
+      "page": 7,
+      "bbox": [
+        233.51,
+        188.62,
+        248.6,
+        200.73
+      ],
+      "column": 0
+    },
+    {
+      "id": "b110",
+      "type": "paragraph",
+      "text": "3.4\nTwo-stage Continued Training",
+      "page": 7,
+      "bbox": [
+        70.87,
+        334.61,
+        264.44,
+        347.77
+      ],
+      "column": 0
+    },
+    {
+      "id": "b111",
+      "type": "paragraph",
+      "text": "3.5\nStreaming Inference n∈Ω\n∥[vθ(zτ, τ, c)]n −(xn −ϵn)∥2\n2 .\n(5)",
+      "page": 7,
+      "bbox": [
+        70.87,
+        597.99,
+        207.82,
+        611.15
+      ],
+      "column": 0
+    },
+    {
+      "id": "b113",
+      "type": "paragraph",
+      "text": "Once a chunk reaches the data endpoint, its latent is finalized and its Transformer key-value\npairs are committed to a rolling KV cache. Owing to the chunk-wise causal attention structure,\ncommitted chunks will never be modified by subsequent denoising steps, allowing their cached\nrepresentations to be safely reused without recomputation. Consequently, MiniWorld supports\narbitrarily long video generation while maintaining a bounded active attention window.",
+      "page": 8,
+      "bbox": [
+        70.87,
+        141.42,
+        542.92,
+        212.32
+      ],
+      "column": 1
+    },
+    {
+      "id": "b114",
+      "type": "paragraph",
+      "text": "Structured Rolling KV Cache. MiniWorld partitions the inference state into committed\nhistory and an active denoising window. The committed history consists of a persistent sink\nanchor together with a fixed-length FIFO cache, while future chunks remain inside the active\nwindow and are progressively denoised according to the chunk-wise autoregressive schedule.",
+      "page": 8,
+      "bbox": [
+        70.44,
+        220.41,
+        541.59,
+        278.48
+      ],
+      "column": 1
+    },
+    {
+      "id": "b115",
+      "type": "paragraph",
+      "text": "As generation proceeds, newly completed chunks are committed to the cache, while newly\ninitialized noisy chunks continuously enter the active window. Once the cache exceeds its\npredefined capacity, the oldest cached chunks are discarded. The initial clean context is\npermanently retained as a sink anchor, whereas only subsequent history chunks participate in\nthe FIFO eviction process. Throughout inference, the active window therefore maintains a\nfixed computational cost independent of the generated sequence length.",
+      "page": 8,
+      "bbox": [
+        70.43,
+        288.48,
+        541.69,
+        374.11
+      ],
+      "column": 1
+    },
+    {
+      "id": "b116",
+      "type": "paragraph",
+      "text": "RoPE Re-shifting. Although the KV cache has a fixed capacity, newly generated chunks\ncontinuously advance the temporal positions. Directly appending new chunks would therefore\nrequire extrapolating Rotary Position Embeddings (RoPE) beyond the position range observed\nduring training. To avoid this issue, after each cache update we apply RoPE re-shifting to the\nretained keys by subtracting the temporal offset introduced by the evicted chunks, effectively\nre-indexing the sliding window from the beginning. Since values are independent of positional\nrotations, they remain unchanged. When a sink anchor is present, it always occupies the first\nposition and is excluded from the re-shifting operation, while the remaining cached chunks are\nshifted accordingly. This procedure keeps both queries and cached keys within the positional\nrange seen during training without altering their relative temporal relationships.",
+      "page": 8,
+      "bbox": [
+        70.87,
+        382.2,
+        541.72,
+        528.68
+      ],
+      "column": 1
+    },
+    {
+      "id": "b117",
+      "type": "paragraph",
+      "text": "Pipelined Denoising. MiniWorld allows multiple future chunks to remain at different\ndiffusion timesteps simultaneously. Consequently, several chunks can be denoised in parallel\nwithin the active window, forming a pipelined inference process. Since the number of denoising\nupdates available to each chunk depends on the autoregressive stride and the size of the active\nwindow, the sampler adaptively allocates the timestep interval ∆τ such that every chunk\nreaches the data endpoint before being committed to the cache.",
+      "page": 8,
+      "bbox": [
+        70.44,
+        536.77,
+        541.57,
+        624.32
+      ],
+      "column": 1
+    },
+    {
+      "id": "b118",
+      "type": "paragraph",
+      "text": "This asynchronous denoising strategy enables a flexible trade-off between inference throughput\nand generation quality by adjusting the pipeline depth, while requiring no modification to\nthe trained model parameters. Combined with chunk-wise causal attention, block-wise noise\nscheduling, and long-horizon training, it forms the complete streaming inference framework of\nMiniWorld.",
+      "page": 8,
+      "bbox": [
+        70.44,
+        634.32,
+        541.61,
+        705.21
+      ],
+      "column": 1
+    },
+    {
+      "id": "b119",
+      "type": "paragraph",
+      "text": "chunk-wise causal constraint. The latent state of chunk Gm is updated as zs+1\nGm = zs\nGm −∆τ s\nm [vθ(zs, τ s, c)]Gm ,\n∆τ s\nm ≤0.\n(7)",
+      "page": 8,
+      "bbox": [
+        70.87,
+        80.34,
+        448.05,
+        94.09
+      ],
+      "column": 0
+    },
+    {
+      "id": "b121",
+      "type": "paragraph",
+      "text": "Datasets. We evaluate MiniWorld on two real-world benchmarks with different control\nmodalities: DROID [14] and RealEstate10K (RE10K) [38]. DROID evaluates embodied\nworld modeling under low-level robot actions, while RE10K evaluates camera-controlled scene\nprediction under camera trajectories. All videos are resized to 240 × 320 and encoded into\nthe latent space of the pretrained Wan2.2 VAE, which has a temporal compression ratio of\n4×, a spatial compression ratio of 16×, and 48 latent channels.",
+      "page": 9,
+      "bbox": [
+        70.44,
+        124.76,
+        541.3,
+        212.52
+      ],
+      "column": 0
+    },
+    {
+      "id": "b122",
+      "type": "paragraph",
+      "text": "Condition Processing. MiniWorld uses the same latent-frame-aligned conditioning interface\nacross domains. For DROID, each video frame is paired with a 7-dimensional robot action\nconsisting of a 6-DoF Cartesian end-effector displacement and a gripper position. Each action\ndimension is normalized by percentile statistics, and clipped to [−1, 1]. Since one latent frame corresponds to four RGB frames, four consecutive\nrobot actions are concatenated into a 28-dimensional latent-frame action token.",
+      "page": 9,
+      "bbox": [
+        70.87,
+        220.39,
+        541.3,
+        278.46
+      ],
+      "column": 1
+    },
+    {
+      "id": "b124",
+      "type": "paragraph",
+      "text": "For RE10K, camera intrinsics and extrinsics are converted into per-pixel ray origins and\ndirections following the NeRF convention. Each scalar is encoded with 15 sinusoidal frequency\nbands, producing a 180-channel pose representation per RGB frame; four consecutive pose\nmaps are concatenated to obtain a 720-channel spatial condition aligned with each latent\nframe.",
+      "page": 9,
+      "bbox": [
+        70.87,
+        368.45,
+        541.71,
+        439.35
+      ],
+      "column": 1
+    },
+    {
+      "id": "b125",
+      "type": "paragraph",
+      "text": "Training Details. All models are trained from scratch using the recipe in Section 3. We use\na latent chunk size of 2, so each causal chunk contains two consecutive latent frames. Training\nproceeds in two stages. In the short-horizon stage, we first train on 21-frame clips and then\ncontinue on 46-frame clips, using a global batch size of 64 and a learning rate of 1 × 10−4 with\nthe Muon optimizer [13]. This stage encourages efficient learning of local action-conditioned\ndynamics while maximizing sample coverage.",
+      "page": 9,
+      "bbox": [
+        70.5,
+        447.44,
+        541.29,
+        534.98
+      ],
+      "column": 0
+    },
+    {
+      "id": "b126",
+      "type": "paragraph",
+      "text": "We then enter the long-video continued-training stage, where the model is trained on 125-frame\nsequences before being further continued on 253-frame rollouts. We adopt the Muon optimizer\nwith a global batch size of 8, and linearly warm up the learning rate from 0 to 2 × 10−5 at the\nstart of long-video continued training. This stage exposes the model to significantly longer\ncausal contexts, bringing the training distribution closer to that encountered during streaming\ninference.",
+      "page": 9,
+      "bbox": [
+        70.27,
+        544.98,
+        541.54,
+        630.61
+      ],
+      "column": 0
+    },
+    {
+      "id": "b127",
+      "type": "paragraph",
+      "text": "For the noise scheduler, we use 50 discretized training-time bins with monotonic CoPP\ntimestep compositions; timesteps are shifted using the SD3-style reparameterization, with the\nshift factor automatically determined by the number of latent tokens. For timestep sampling,\nwe use the default logit-normal distribution with Pmean = 0 and Pstd = 1. During training,\nthe action condition is randomly dropped with a probability of 10% to enable classifier-free",
+      "page": 9,
+      "bbox": [
+        70.44,
+        640.61,
+        542.94,
+        711.51
+      ],
+      "column": 1
+    },
+    {
+      "id": "b128",
+      "type": "paragraph",
+      "text": "4\nExperiments",
+      "page": 9,
+      "bbox": [
+        70.87,
+        78.43,
+        164.37,
+        92.78
+      ],
+      "column": 0
+    },
+    {
+      "id": "b129",
+      "type": "paragraph",
+      "text": "4.1\nExperimental Setup a ←2(a −q0.01)",
+      "page": 9,
+      "bbox": [
+        70.87,
+        103.26,
+        203.67,
+        116.41
+      ],
+      "column": 0
+    },
+    {
+      "id": "b131",
+      "type": "paragraph",
+      "text": "q0.99 −q0.01\n−1,\n(8)",
+      "page": 9,
+      "bbox": [
+        278.46,
+        299.08,
+        542.53,
+        321.09
+      ],
+      "column": 1
+    },
+    {
+      "id": "b134",
+      "type": "paragraph",
+      "text": "guidance at inference time. All experiments are conducted on a single server equipped with 8\nGPUs using bf16 mixed-precision training.",
+      "page": 10,
+      "bbox": [
+        70.87,
+        231.89,
+        541.56,
+        258.58
+      ],
+      "column": 1
+    },
+    {
+      "id": "b135",
+      "type": "paragraph",
+      "text": "Model Configuration. MiniWorld adopts a unified architecture family across model scales.\nAll variants use the same block-causal Transformer design, conditioning interface, patch size,\nand MLP ratio, and differ only in depth, width, number of attention heads, and parameter\ncount. Table 1 summarizes the model configurations used in this study.",
+      "page": 10,
+      "bbox": [
+        70.43,
+        266.67,
+        543.51,
+        324.75
+      ],
+      "column": 1
+    },
+    {
+      "id": "fig2",
+      "type": "figure",
+      "page": 10,
+      "bbox": [
+        148.02,
+        116.27,
+        463.92,
+        208.91
+      ],
+      "column": 0,
+      "image_path": "images/fig_02.png",
+      "caption": "Table 1 Model configurations. All variants use the same block-causal attention pattern, conditioning\ninterface, patch size, and MLP ratio.",
+      "figure_label": "Table 1"
+    },
+    {
+      "id": "b136",
+      "type": "paragraph",
+      "text": "Evaluation Protocol. We compare MiniWorld with a bidirectional short-video baseline,\nwhich performs sliding-window prediction using a fixed 29-frame window under the same\ncontrol sequence. All evaluations use a single observed frame as context. The main figures\nreport relative scores, with the bidirectional short-video baseline normalized to 1.\nFor\nerror metrics such as LPIPS and depth error, we invert the ratio so that larger values\nconsistently indicate better performance. In addition to PSNR, SSIM, and LPIPS [31, 36], we\nreport WorldArena-style metrics [25] covering appearance, dynamics, geometry, VLM-based\nfunctional quality, and fidelity. Unless otherwise specified, MiniWorld uses classifier-free\nguidance with scale 2 during quality evaluation. The main results use the largest evaluated\ncheckpoint in this study on 50 held-out videos with 253-frame streaming rollouts.",
+      "page": 10,
+      "bbox": [
+        70.44,
+        332.84,
+        542.88,
+        479.32
+      ],
+      "column": 1
+    },
+    {
+      "id": "b137",
+      "type": "paragraph",
+      "text": "Figure 2a reports the DROID comparison. MiniWorld improves nearly all displayed metrics\nover the bidirectional short-video baseline, with especially large gains in geometry and fidelity.\nTrajectory Accuracy improves by 249%, Depth Accuracy by 238%, LPIPS by 216%, and\nSSIM by 125%. Appearance metrics improve consistently by 26% to 82%, and VLM judge\nscores improve by 63% to 78%. These gains indicate that MiniWorld does not merely sharpen\nindividual frames: it better preserves robot-object geometry, maintains temporally coherent\nmanipulation dynamics, and produces behavior that is more consistent with the conditioning\nsignal.",
+      "page": 10,
+      "bbox": [
+        70.44,
+        517.85,
+        543.58,
+        632.95
+      ],
+      "column": 1
+    },
+    {
+      "id": "b138",
+      "type": "paragraph",
+      "text": "Figure 2b reports the corresponding RE10K results. The improvements are more moderate\nthan on DROID but remain broad across metric groups: Photometric Smoothness improves\nby 89%, Depth Accuracy by 55%, Subject Consistency by 50%, Background Consistency by\n46%, and Perspectivity by 46%. Standard fidelity metrics also improve, with PSNR, SSIM,\nand LPIPS gaining 34%, 19%, and 27%, respectively. This cross-domain trend is important",
+      "page": 10,
+      "bbox": [
+        70.46,
+        642.96,
+        542.92,
+        713.85
+      ],
+      "column": 1
+    },
+    {
+      "id": "b139",
+      "type": "paragraph",
+      "text": "Model\nDepth Width Heads MLP ratio Parameters",
+      "page": 10,
+      "bbox": [
+        152.02,
+        120.27,
+        459.92,
+        131.18
+      ],
+      "column": 0
+    },
+    {
+      "id": "b140",
+      "type": "paragraph",
+      "text": "MiniWorld-B\n12\n768\n12\n4.0\n0.12B\nMiniWorld-L\n24\n1024\n16\n4.0\n0.39B\nMiniWorld-0.5B\n28\n1152\n16\n4.0\n0.55B\nMiniWorld-1B\n28\n1536\n12\n4.0\n1B\nMiniWorld-3B\n32\n2560\n20\n4.0\n3B",
+      "page": 10,
+      "bbox": [
+        152.02,
+        139.81,
+        446.64,
+        204.91
+      ],
+      "column": 0
+    },
+    {
+      "id": "b141",
+      "type": "paragraph",
+      "text": "4.2\nMain Results",
+      "page": 10,
+      "bbox": [
+        70.87,
+        494.44,
+        165.98,
+        507.59
+      ],
+      "column": 0
+    },
+    {
+      "id": "b144",
+      "type": "paragraph",
+      "text": "because RE10K removes robot interaction and instead stresses camera-conditioned geometry.\nThe same streaming architecture therefore transfers from action-conditioned manipulation to\ncamera-controlled scene prediction without relying on a dataset-specific evaluation artifact.",
+      "page": 11,
+      "bbox": [
+        70.44,
+        441.64,
+        543.57,
+        483.07
+      ],
+      "column": 1
+    },
+    {
+      "id": "b145",
+      "type": "paragraph",
+      "text": "We next ablate the main inference choices on DROID. Figure 3 compares paired settings\nby normalizing the left setting in each column to 1, and groups metrics into Appearance,\nDynamics, Geometry, VLM, and Fidelity.",
+      "page": 11,
+      "bbox": [
+        70.27,
+        521.61,
+        542.93,
+        563.03
+      ],
+      "column": 1
+    },
+    {
+      "id": "fig4",
+      "type": "figure",
+      "page": 13,
+      "bbox": [
+        66.87,
+        73.95,
+        545.15,
+        334.73
+      ],
+      "column": 1,
+      "image_path": "images/fig_04.png",
+      "caption": "Figure 3 Quality ablations on DROID. Each column compares one inference factor while keeping the\nremaining settings fixed; the left setting in each column is normalized to 1.",
+      "figure_label": "Figure 3"
+    },
+    {
+      "id": "b146",
+      "type": "paragraph",
+      "text": "First, classifier-free guidance (CFG) improves quality without materially changing frame-level\nfidelity. Enabling CFG improves the average displayed metric by about 5.5%, with the\nclearest gains in Appearance (+9.9%) and Dynamics (+11.8%), while Fidelity remains nearly\nunchanged. This suggests that guidance acts as a clean quality knob rather than being\nresponsible for the efficiency results.",
+      "page": 11,
+      "bbox": [
+        70.87,
+        573.03,
+        541.74,
+        643.93
+      ],
+      "column": 1
+    },
+    {
+      "id": "b147",
+      "type": "paragraph",
+      "text": "Second, increasing the generated video length from 253 to 381 frames preserves the core visual\nand temporal behavior but exposes the remaining long-horizon failure modes. Appearance\nand Dynamics retain approximately 94% and 96% of the shorter-rollout score, respectively,\nwhereas Geometry, VLM quality, and Fidelity degrade more noticeably. Thus MiniWorld",
+      "page": 11,
+      "bbox": [
+        70.44,
+        653.93,
+        542.96,
+        710.09
+      ],
+      "column": 1
+    },
+    {
+      "id": "b148",
+      "type": "paragraph",
+      "text": "(a) DROID.",
+      "page": 11,
+      "bbox": [
+        157.09,
+        356.14,
+        214.76,
+        367.05
+      ],
+      "column": 0
+    },
+    {
+      "id": "b149",
+      "type": "paragraph",
+      "text": "4.3\nAblations",
+      "page": 11,
+      "bbox": [
+        70.87,
+        498.2,
+        149.27,
+        511.35
+      ],
+      "column": 0
+    },
+    {
+      "id": "b150",
+      "type": "paragraph",
+      "text": "(b) RealEstate10K.",
+      "page": 11,
+      "bbox": [
+        379.79,
+        356.14,
+        471.72,
+        367.05
+      ],
+      "column": 1
+    },
+    {
+      "id": "b151",
+      "type": "paragraph",
+      "text": "remains stable over substantially longer rollouts, but geometric accuracy and perceptual\nfidelity remain the most sensitive dimensions as prediction errors accumulate.",
+      "page": 12,
+      "bbox": [
+        70.87,
+        80.34,
+        541.32,
+        107.03
+      ],
+      "column": 1
+    },
+    {
+      "id": "b152",
+      "type": "paragraph",
+      "text": "Third, reducing the online denoising window from a 32-chunk full window to an 8 in-flight\nwindow with KV cache preserves nearly the same quality. The average relative score across\nall displayed categories is approximately unchanged: Appearance slightly improves, Dynamics\nremains effectively stable, and Geometry, VLM, and Fidelity stay within a few percent of\nthe full-window setting. This result demonstrates that a small online window can match the\nquality of full-window inference by committing completed chunks to the rolling KV cache.",
+      "page": 12,
+      "bbox": [
+        70.44,
+        117.04,
+        541.62,
+        202.67
+      ],
+      "column": 1
+    },
+    {
+      "id": "b153",
+      "type": "paragraph",
+      "text": "Fourth, we study whether the model requires a large retained history once the online denoising\nwindow is fixed. Using MiniWorld-1B on DROID with T = 64, eight in-flight chunks, and\none resident sink frame, we vary the KV-cache size from 24 chunks to 12 and 6 chunks. The\ntrend is largely flat: reducing the cache to 12 chunks is nearly indistinguishable from using\n24 chunks, while a 6-chunk cache introduces only small single-digit changes. Appearance\nand Dynamics remain within approximately 1% of the 24-chunk reference, and Geometry\nis similarly stable, with only minor changes in Depth Accuracy and comparable Trajectory\nAccuracy. These results suggest that, for this horizon, MiniWorld does not rely on retaining\nthe full 24-chunk history once the active denoising window and sink anchor are fixed.",
+      "page": 12,
+      "bbox": [
+        70.43,
+        212.67,
+        541.74,
+        342.5
+      ],
+      "column": 1
+    },
+    {
+      "id": "b154",
+      "type": "paragraph",
+      "text": "Finally, we ablate the number of resident sink frames using MiniWorld-1B on DROID with\nT = 64 and a 24-chunk KV cache. Compared with the no-sink setting, adding one or two sink\nframes is mostly neutral rather than uniformly beneficial. Appearance and Dynamics decrease\nslightly, while VLM-based and semantic-consistency metrics improve modestly; Trajectory\nAccuracy decreases mildly as the sink size increases. We therefore interpret sink anchors as a\nmemory-stabilization mechanism that can preserve global context without collapsing quality,\nrather than as the primary source of the DROID quality gains. The dominant improvement\ninstead comes from the KV-cache streaming design itself.",
+      "page": 12,
+      "bbox": [
+        70.43,
+        352.5,
+        542.96,
+        467.6
+      ],
+      "column": 1
+    },
+    {
+      "id": "b155",
+      "type": "paragraph",
+      "text": "Scaling Behavior. Figure 4a compares MiniWorld variants on RE10K under identical\ntraining and evaluation settings and a fixed inference horizon, with all scores normalized to\nthe 0.5B model. Performance improves monotonically from 0.5B to 1B and 3B across image\nquality, dynamic degree, depth accuracy, and flow score, indicating that the architecture\nbenefits consistently from increased capacity rather than trading one aspect of generation\nquality for another. At 3B parameters, MiniWorld improves dynamic degree by 22%, depth\naccuracy by 18%, image quality by 14%, and flow score by 12% over the 0.5B model. The larger\ngains in dynamics and geometry show that scaling primarily strengthens motion modeling\nand 3D consistency, while still delivering clear improvements in appearance and flow quality.",
+      "page": 12,
+      "bbox": [
+        70.87,
+        503.66,
+        543.57,
+        635.41
+      ],
+      "column": 1
+    },
+    {
+      "id": "b156",
+      "type": "paragraph",
+      "text": "Throughput Analysis. Finally, we measure streaming throughput using a dedicated DROID\nbenchmark on the 1B model. To isolate system throughput from guidance overhead, the\nbenchmark disables classifier-free guidance (cfg = 1), runs 3 warmup clips and 20 timed clips\nper setting, and reports steady-state timing after the first generated chunk.",
+      "page": 12,
+      "bbox": [
+        70.5,
+        643.49,
+        541.31,
+        701.57
+      ],
+      "column": 0
+    },
+    {
+      "id": "b157",
+      "type": "paragraph",
+      "text": "As shown in Figure 4b, replacing the 32-chunk full window with an 8 in-flight window plus",
+      "page": 12,
+      "bbox": [
+        70.43,
+        711.57,
+        541.29,
+        723.53
+      ],
+      "column": 0
+    },
+    {
+      "id": "b158",
+      "type": "paragraph",
+      "text": "4.4\nAnalysis",
+      "page": 12,
+      "bbox": [
+        70.87,
+        482.16,
+        143.86,
+        495.31
+      ],
+      "column": 0
+    },
+    {
+      "id": "b161",
+      "type": "paragraph",
+      "text": "KV cache increases steady output throughput from 3.31 FPS to 7.29 FPS, corresponding\nto a 2.20× speedup. The decomposition shows that this gain comes from reducing DiT\ncomputation: DiT throughput increases from 0.41 to 0.91 chunks/s, while VAE throughput\nremains around 15.2 chunks/s in both settings. Consistently, DiT accounts for 97.4% of\nper-chunk compute in the full-window setting and 94.3% with KV cache, whereas the VAE\ncontributes only 2.6% and 5.7%. Therefore, the VAE is not the inference bottleneck; the\nefficiency improvement is achieved by bounding the online DiT attention window and reusing\ncommitted history through the rolling KV cache.",
+      "page": 13,
+      "bbox": [
+        70.87,
+        390.11,
+        541.67,
+        505.21
+      ],
+      "column": 1
+    },
+    {
+      "id": "b162",
+      "type": "paragraph",
+      "text": "The same benchmark also shows a substantial improvement in streaming responsiveness. The\nfirst generated chunk latency decreases from 74.0 seconds to 4.86 seconds, a 15.2× reduction.\nTogether with the quality ablations, these results demonstrate that MiniWorld improves\nthroughput and latency without collapsing long-horizon generation quality.",
+      "page": 13,
+      "bbox": [
+        70.44,
+        515.21,
+        543.42,
+        571.37
+      ],
+      "column": 1
+    },
+    {
+      "id": "b163",
+      "type": "paragraph",
+      "text": "Positioning. MiniWorld demonstrates that a streaming video world model can be trained\nfrom scratch using an accessible and reproducible recipe under modest computational budgets.\nRather than adapting a large bidirectional video generator into a causal predictor, MiniWorld\ndirectly optimizes streaming autoregressive prediction through block-causal attention, chunk-\nwise diffusion forcing, and train-test-aligned inference. Despite its simplicity, this formulation\nproduces stable long-horizon rollouts across multiple domains while remaining practical for\nresearchers without large-scale infrastructure.",
+      "page": 13,
+      "bbox": [
+        70.44,
+        614.13,
+        543.56,
+        716.4
+      ],
+      "column": 1
+    },
+    {
+      "id": "b164",
+      "type": "paragraph",
+      "text": "5\nDiscussion",
+      "page": 13,
+      "bbox": [
+        70.87,
+        587.55,
+        151.6,
+        601.9
+      ],
+      "column": 0
+    },
+    {
+      "id": "b165",
+      "type": "paragraph",
+      "text": "Rather than pursuing state-of-the-art generation quality, MiniWorld is intended as a trans-\nparent baseline for video world modeling. While large bidirectional video generation models\nremain preferable when maximizing perceptual quality, MiniWorld emphasizes reproducibility\nand deployment consistency, making it well suited for studying streaming world models in\nacademic research.",
+      "page": 14,
+      "bbox": [
+        70.87,
+        291.26,
+        543.26,
+        362.16
+      ],
+      "column": 1
+    },
+    {
+      "id": "b166",
+      "type": "paragraph",
+      "text": "We hope MiniWorld provides a practical foundation for investigating problems specific to\nstreaming world models, including temporal memory, causal representation learning, long-\nhorizon error accumulation, and train-test-aligned optimization, while lowering the engineering\nbarrier to developing and evaluating new algorithmic ideas.",
+      "page": 14,
+      "bbox": [
+        70.27,
+        372.16,
+        543.27,
+        428.32
+      ],
+      "column": 1
+    },
+    {
+      "id": "b167",
+      "type": "paragraph",
+      "text": "Limitations. Despite these encouraging results, several limitations remain. Our experiments\nare conducted at relatively modest model and data scales compared with frontier video\nfoundation models, and the evaluated domains cover only a limited range of world dynamics.\nAlthough long-horizon drift is substantially reduced, prediction errors still accumulate over\nextended rollouts, particularly in complex interactive scenarios. Consequently, MiniWorld\nshould be viewed as a reproducible baseline rather than the performance ceiling of streaming\nworld models.",
+      "page": 14,
+      "bbox": [
+        70.43,
+        436.41,
+        543.59,
+        538.69
+      ],
+      "column": 1
+    },
+    {
+      "id": "b168",
+      "type": "paragraph",
+      "text": "Future Directions.\nFuture work includes scaling training to larger and more diverse\nvideo-action corpora, developing stronger train-test-aligned optimization strategies, such\nas supervised fine-tuning and reinforcement learning, and improving deployment efficiency\nthrough history compression, few-step distillation, and model quantization. We hope this\nbaseline serves as a foundation for future research on scalable and efficient streaming world\nmodels.",
+      "page": 14,
+      "bbox": [
+        70.56,
+        546.78,
+        541.73,
+        634.32
+      ],
+      "column": 1
+    },
+    {
+      "id": "b169",
+      "type": "paragraph",
+      "text": "Diffusion models have become the dominant paradigm for high-fidelity visual generation,\nbeginning with denoising diffusion probabilistic models [10], latent diffusion models [23], and",
+      "page": 14,
+      "bbox": [
+        70.87,
+        696.83,
+        542.94,
+        723.53
+      ],
+      "column": 1
+    },
+    {
+      "id": "b170",
+      "type": "paragraph",
+      "text": "(a) Model scaling on RE10K. Scores are normal-\nized to the 0.5B model, and higher is better.",
+      "page": 14,
+      "bbox": [
+        70.56,
+        205.87,
+        303.05,
+        230.36
+      ],
+      "column": 0
+    },
+    {
+      "id": "b173",
+      "type": "paragraph",
+      "text": "6\nRelated Work",
+      "page": 14,
+      "bbox": [
+        70.87,
+        648.59,
+        171.09,
+        662.94
+      ],
+      "column": 0
+    },
+    {
+      "id": "b174",
+      "type": "paragraph",
+      "text": "6.1\nVideo Generation",
+      "page": 14,
+      "bbox": [
+        70.87,
+        673.42,
+        190.53,
+        686.57
+      ],
+      "column": 0
+    },
+    {
+      "id": "b175",
+      "type": "paragraph",
+      "text": "(b) Streaming throughput on DROID. An 8 in-\nflight window with KV cache more than doubles\noutput FPS by reducing DiT computation.",
+      "page": 14,
+      "bbox": [
+        310.39,
+        205.81,
+        542.88,
+        243.91
+      ],
+      "column": 1
+    },
+    {
+      "id": "b176",
+      "type": "paragraph",
+      "text": "more recent flow-matching and rectified-flow formulations [18, 20]. The same principles have\nbeen extended to video generation through large spatio-temporal backbones and compact\nvideo latent spaces. Sora frames large-scale video generation as a step toward world simulation,\nshowing that sufficiently scaled video models can synthesize realistic motion and camera\ndynamics from text prompts [2]. Open-source systems such as Open-Sora [37], CogVideoX [34],\nHunyuanVideo [16], and Wan [30] further demonstrate that Diffusion Transformers, 3D video\nVAEs, progressive training, and large-scale data curation can produce strong open video\ngenerators. Autoregressive alternatives such as VideoPoet [15] model video, image, text, and\naudio as discrete token sequences with a decoder-only Transformer, highlighting the flexibility\nof language-model-style generation for multimodal video tasks.",
+      "page": 15,
+      "bbox": [
+        70.43,
+        80.34,
+        542.94,
+        224.91
+      ],
+      "column": 1
+    },
+    {
+      "id": "b177",
+      "type": "paragraph",
+      "text": "These video foundation models provide the visual modeling substrate for modern world models,\nbut most of them are trained as bidirectional or fixed-window generators. During denoising,\nfuture frames can attend to one another, which improves short-range visual quality but does\nnot directly match the causal, streaming setting required by interactive prediction. MiniWorld\ninherits the latent video modeling advantages of this line of work, including a pretrained video\nVAE and a DiT-style denoiser, but changes the training objective and attention structure to\ndirectly optimize action- or camera-conditioned next-state prediction.",
+      "page": 15,
+      "bbox": [
+        70.43,
+        234.91,
+        542.94,
+        335.28
+      ],
+      "column": 1
+    },
+    {
+      "id": "b178",
+      "type": "paragraph",
+      "text": "World models were originally studied as compact predictive dynamics models for model-based\nreinforcement learning. Early neural world models learned latent environment dynamics for\npolicy optimization [8], while DreamerV3 scaled recurrent latent dynamics to diverse control\ndomains with robust model-based learning [9]. Recent progress shifts the focus from low-\ndimensional latent dynamics toward visually realistic, controllable simulators. GAIA-1 models\nautonomous driving as unsupervised next-token prediction over video, text, and action tokens,\nproducing controllable driving scenarios with emergent scene and geometry understanding [11].\nUniSim learns an interactive real-world simulator by orchestrating heterogeneous image,\nrobotics, and navigation data, enabling both high-level language instructions and low-level\ncontrols to produce visual interaction outcomes [33]. Genie learns a latent action space from\nunlabelled internet videos and uses an autoregressive dynamics model to create controllable\ninteractive environments without ground-truth action labels [3]. More recent world foundation\nmodel efforts, including Cosmos [21], DreamDojo [7], and LingBot-World [17], push toward\ngeneral-purpose physical-AI simulators and robot world models built from large-scale video\nand embodied data.",
+      "page": 15,
+      "bbox": [
+        70.27,
+        373.82,
+        543.41,
+        592.06
+      ],
+      "column": 1
+    },
+    {
+      "id": "b179",
+      "type": "paragraph",
+      "text": "This line of work establishes the importance of learning future observations conditioned\non actions, instructions, or control trajectories. However, many frontier systems rely on\nvery large proprietary datasets, large pretrained video backbones, and complex post-training\npipelines. MiniWorld addresses a complementary problem: it is not intended to be the largest\nor most visually capable world simulator, but rather a transparent and reproducible recipe for\ntraining streaming video world models from scratch under modest compute. This positioning\nmakes MiniWorld suitable for studying causal memory, long-horizon error accumulation, and\ncontrol-conditioned dynamics without depending on closed training infrastructure.",
+      "page": 15,
+      "bbox": [
+        70.44,
+        602.06,
+        541.6,
+        717.16
+      ],
+      "column": 1
+    },
+    {
+      "id": "b180",
+      "type": "paragraph",
+      "text": "6.2\nWorld Models and Interactive Simulation",
+      "page": 15,
+      "bbox": [
+        70.87,
+        350.41,
+        318.6,
+        363.56
+      ],
+      "column": 0
+    },
+    {
+      "id": "b181",
+      "type": "paragraph",
+      "text": "A central challenge in video world modeling is reconciling the sample quality of diffusion\nmodels with the causality and unbounded horizon of autoregressive prediction. Diffusion\nForcing trains sequence models to denoise tokens with independent noise levels, combining\nvariable-length next-token prediction with the guidance and denoising flexibility of diffusion [4].\nDFoT extends this idea to video by enabling conditioning on arbitrary history frames and\nintroducing History Guidance, which improves temporal consistency and supports very\nlong rollouts [27]. AR-Diffusion further introduces non-decreasing frame-wise corruption\ntimesteps and specialized timestep schedulers, reducing the discrepancy between training\nand asynchronous autoregressive inference [28]. These works provide the conceptual basis for\ntreating video generation as a partially denoised causal sequence rather than as a fixed-window\ndenoising problem.",
+      "page": 16,
+      "bbox": [
+        70.43,
+        102.8,
+        543.41,
+        262.1
+      ],
+      "column": 1
+    },
+    {
+      "id": "b182",
+      "type": "paragraph",
+      "text": "Another family of methods adapts pretrained bidirectional video diffusion models into causal or\nstreaming generators. Ca2-VDM introduces causal feature computation and cache sharing to\navoid recomputing overlapping context frames during autoregressive generation [6]. CausVid\nconverts a pretrained bidirectional DiT into a few-step autoregressive generator via asymmetric\ndistillation and KV caching, achieving low-latency streaming generation [35]. Self Forcing\naddresses exposure bias by training autoregressive video diffusion models on their own\ngenerated histories with rolling KV caches [12], while Causal Forcing analyzes the architectural\ngap between bidirectional teachers and causal students and uses an autoregressive teacher\nfor ODE initialization before distillation [39]. Rolling Forcing reduces long-horizon drift\nthrough rolling-window joint denoising, attention sinks, and few-step distillation over extended\nwindows [19]. These methods are highly relevant to interactive video generation, but they\nare typically post-training or distillation procedures built on top of pretrained bidirectional\nmodels.",
+      "page": 16,
+      "bbox": [
+        70.43,
+        272.1,
+        541.72,
+        460.88
+      ],
+      "column": 1
+    },
+    {
+      "id": "b183",
+      "type": "paragraph",
+      "text": "Recent large-scale autoregressive video systems demonstrate that causal diffusion can scale.\nMAGI-1 generates videos by autoregressively predicting fixed-length chunks with monotonically\nincreasing per-chunk noise, supports streaming generation with constant peak inference cost,\nand scales to very large context lengths [24]. SkyReels-V2 combines MLLM-based video\nunderstanding, multi-stage pretraining, reinforcement learning, and diffusion forcing with non-\ndecreasing noise schedules to support infinite-length film generation [26]. Long-Context State-\nSpace Video World Models explore a different memory mechanism by combining local attention\nwith state-space temporal memory for efficient long-range causal prediction [22]. MiniWorld\nfollows the same broader direction of causal long-video modeling, but deliberately keeps\nthe recipe compact: a block-causal Video DiT, chunk-wise non-decreasing noise scheduling,\ntwo-stage continued training, and rolling-cache streaming inference are trained end-to-end\nfrom scratch rather than inherited through large-scale post-training.",
+      "page": 16,
+      "bbox": [
+        70.44,
+        470.88,
+        543.55,
+        644.92
+      ],
+      "column": 1
+    },
+    {
+      "id": "b184",
+      "type": "paragraph",
+      "text": "Embodied world models must preserve not only visual realism, but also control consistency,\ngeometry, and physical plausibility. DROID provides large-scale in-the-wild robot manipulation",
+      "page": 16,
+      "bbox": [
+        70.87,
+        683.46,
+        542.92,
+        710.15
+      ],
+      "column": 1
+    },
+    {
+      "id": "b185",
+      "type": "paragraph",
+      "text": "6.3\nAutoregressive Video Diffusion",
+      "page": 16,
+      "bbox": [
+        70.87,
+        79.39,
+        266.01,
+        92.54
+      ],
+      "column": 0
+    },
+    {
+      "id": "b186",
+      "type": "paragraph",
+      "text": "6.4\nControl, Geometry, and Evaluation for Embodied Video Prediction trajectories with real robot actions, making it a natural benchmark for action-conditioned\nvisual dynamics [14]. RealEstate10K provides camera trajectories and posed videos for\nevaluating camera-controlled scene prediction and long-horizon view synthesis [38]. Geometry\nForcing shows that aligning diffusion-model representations with features from a pretrained 3D\nfoundation model can improve visual quality and 3D consistency on camera-view-conditioned\nand action-conditioned video generation tasks [32].\nThese works motivate MiniWorld’s\ndual evaluation setting: robot-action-conditioned prediction on DROID and camera-pose-\nconditioned streaming generation on RealEstate10K.",
+      "page": 16,
+      "bbox": [
+        70.87,
+        660.05,
+        457.04,
+        673.2
+      ],
+      "column": 0
+    },
+    {
+      "id": "b188",
+      "type": "paragraph",
+      "text": "Evaluation remains an open problem. Standard metrics such as SSIM, LPIPS, and FVD [29,\n31, 36] measure frame fidelity and distributional video quality, but do not fully capture memory\npersistence, action controllability, 3D consistency, or utility for downstream embodied agents.\nRecent benchmarks such as WorldScore [5] and WorldArena [25] reflect this shift toward\nevaluating world generation as an interactive and functional capability. MiniWorld therefore\nreports conventional reconstruction and perceptual metrics while emphasizing long-horizon\nstreaming behavior, action consistency, and failure modes such as drift, identity switching,\nand geometry inconsistency.",
+      "page": 17,
+      "bbox": [
+        70.57,
+        205.44,
+        543.58,
+        320.54
+      ],
+      "column": 1
+    },
+    {
+      "id": "b189",
+      "type": "paragraph",
+      "text": "[2] Tim Brooks et al. Video generation models as world simulators, 2024. URL https://openai.\ncom/research/video-generation-models-as-world-simulators. OpenAI Technical Report.",
+      "page": 18,
+      "bbox": [
+        76.29,
+        128.06,
+        545.13,
+        153.34
+      ],
+      "column": 1
+    },
+    {
+      "id": "b190",
+      "type": "paragraph",
+      "text": "[3] Jake Bruce et al. Genie: Generative interactive environments. In International Conference on\nMachine Learning, 2024. URL https://arxiv.org/abs/2402.15391.",
+      "page": 18,
+      "bbox": [
+        76.29,
+        162.94,
+        541.05,
+        188.2
+      ],
+      "column": 1
+    },
+    {
+      "id": "b191",
+      "type": "paragraph",
+      "text": "[4] Boyuan Chen et al. Diffusion forcing: Next-token prediction meets full-sequence diffusion. In\nAdvances in Neural Information Processing Systems, 2024. URL https://arxiv.org/abs/2407.\n01392.",
+      "page": 18,
+      "bbox": [
+        76.29,
+        197.77,
+        545.17,
+        236.88
+      ],
+      "column": 1
+    },
+    {
+      "id": "b192",
+      "type": "paragraph",
+      "text": "[5] Haodong Duan et al. Worldscore: A unified evaluation benchmark for world generation. In\nProceedings of the IEEE/CVF International Conference on Computer Vision, 2025.",
+      "page": 18,
+      "bbox": [
+        76.29,
+        246.42,
+        540.99,
+        271.24
+      ],
+      "column": 1
+    },
+    {
+      "id": "b193",
+      "type": "paragraph",
+      "text": "[6] Peng Gao et al. Ca2-vdm: Efficient autoregressive video diffusion model with causal generation\nand cache sharing. In International Conference on Machine Learning, 2025. URL https:\n//arxiv.org/abs/2411.16375.",
+      "page": 18,
+      "bbox": [
+        76.29,
+        281.37,
+        543.97,
+        320.43
+      ],
+      "column": 1
+    },
+    {
+      "id": "b194",
+      "type": "paragraph",
+      "text": "[7] Sheng Gao et al. Dreamdojo: A generalist robot world model from large-scale human videos,\n2026. URL https://arxiv.org/abs/2602.06949.",
+      "page": 18,
+      "bbox": [
+        76.29,
+        329.98,
+        542.49,
+        355.3
+      ],
+      "column": 1
+    },
+    {
+      "id": "b195",
+      "type": "paragraph",
+      "text": "[8] David Ha and Jürgen Schmidhuber. Recurrent world models facilitate policy evolution. In\nAdvances in Neural Information Processing Systems, 2018. URL https://arxiv.org/abs/1809.\n01999.",
+      "page": 18,
+      "bbox": [
+        76.29,
+        364.83,
+        545.17,
+        403.98
+      ],
+      "column": 1
+    },
+    {
+      "id": "b196",
+      "type": "paragraph",
+      "text": "[9] Danijar Hafner, Jurgis Pasukonis, Jimmy Ba, and Timothy Lillicrap. Mastering diverse domains\nthrough world models, 2023. URL https://arxiv.org/abs/2301.04104.",
+      "page": 18,
+      "bbox": [
+        76.29,
+        413.6,
+        540.97,
+        438.84
+      ],
+      "column": 1
+    },
+    {
+      "id": "b197",
+      "type": "paragraph",
+      "text": "[10] Jonathan Ho, Ajay Jain, and Pieter Abbeel. Denoising diffusion probabilistic models. In Advances\nin Neural Information Processing Systems, 2020. URL https://arxiv.org/abs/2006.11239.",
+      "page": 18,
+      "bbox": [
+        70.87,
+        448.47,
+        540.94,
+        473.71
+      ],
+      "column": 0
+    },
+    {
+      "id": "b198",
+      "type": "paragraph",
+      "text": "[11] Anthony Hu, Lloyd Russell, Harry Yeo, Zak Murez, George A. Fedoseev, Alex Kendall, Jamie\nShotton, and Greg Corrado. Gaia-1: A generative world model for autonomous driving, 2023.\nURL https://arxiv.org/abs/2309.17080.",
+      "page": 18,
+      "bbox": [
+        70.87,
+        483.31,
+        543.11,
+        522.39
+      ],
+      "column": 1
+    },
+    {
+      "id": "b199",
+      "type": "paragraph",
+      "text": "[12] Xiaoyu Huang, Zhen Li, Guande He, Mingyuan Zhou, and Eli Shechtman. Self forcing: Bridging\nthe train-test gap in autoregressive video diffusion. In Advances in Neural Information Processing\nSystems, 2025. URL https://arxiv.org/abs/2506.08009.",
+      "page": 18,
+      "bbox": [
+        70.87,
+        532.01,
+        540.95,
+        571.07
+      ],
+      "column": 0
+    },
+    {
+      "id": "b200",
+      "type": "paragraph",
+      "text": "[13] Keller Jordan et al. Muon: An optimizer for the hidden layers of neural networks, 2024. URL",
+      "page": 18,
+      "bbox": [
+        70.87,
+        580.68,
+        541.34,
+        591.61
+      ],
+      "column": 1
+    },
+    {
+      "id": "b201",
+      "type": "paragraph",
+      "text": "[14] Alexander Khazatsky et al. Droid: A large-scale in-the-wild robot manipulation dataset. In\nRobotics: Science and Systems, 2024. URL https://arxiv.org/abs/2403.12945.",
+      "page": 18,
+      "bbox": [
+        70.87,
+        615.48,
+        541.0,
+        640.8
+      ],
+      "column": 0
+    },
+    {
+      "id": "b202",
+      "type": "paragraph",
+      "text": "[15] Dan Kondratyuk et al. Videopoet: A large language model for zero-shot video generation.\nIn International Conference on Machine Learning, 2024. URL https://arxiv.org/abs/2312.\n14125.",
+      "page": 18,
+      "bbox": [
+        70.87,
+        650.34,
+        545.17,
+        689.48
+      ],
+      "column": 1
+    },
+    {
+      "id": "b203",
+      "type": "heading",
+      "text": "References",
+      "page": 18,
+      "bbox": [
+        70.87,
+        78.43,
+        137.46,
+        92.78
+      ],
+      "column": 0,
+      "level": 1
+    },
+    {
+      "id": "b204",
+      "type": "paragraph",
+      "text": "https://kellerjordan.github.io/posts/muon/.",
+      "page": 18,
+      "bbox": [
+        93.6,
+        594.52,
+        333.51,
+        605.94
+      ],
+      "column": 0
+    },
+    {
+      "id": "b205",
+      "type": "paragraph",
+      "text": "https://arxiv.org/abs/2509.25161.",
+      "page": 19,
+      "bbox": [
+        93.6,
+        213.63,
+        277.1,
+        225.05
+      ],
+      "column": 0
+    },
+    {
+      "id": "b206",
+      "type": "paragraph",
+      "text": "https://arxiv.org/abs/2412.20404.",
+      "page": 20,
+      "bbox": [
+        93.6,
+        338.63,
+        277.1,
+        350.05
+      ],
+      "column": 0
+    },
+    {
+      "id": "fig1",
+      "type": "figure",
+      "page": 4,
+      "bbox": [
+        70.08,
+        76.09,
+        542.68,
+        365.66
+      ],
+      "column": 1,
+      "image_path": "images/fig_01.png",
+      "caption": "Figure 1 Overview of MiniWorld. Videos are encoded into latent representations by a pretrained\nVideo VAE, while actions are converted into latent-frame-aligned conditioning signals. MiniWorld\npartitions the latent sequence into temporal chunks and trains a block-causal Video DiT with\nchunk-wise non-decreasing noise schedules. During streaming inference, future chunks are denoised\nasynchronously, completed chunks are committed to a rolling KV cache as persistent history, and the\nactive denoising window remains bounded as generation proceeds.",
+      "figure_label": "Figure 1"
+    },
+    {
+      "id": "fig3",
+      "type": "figure",
+      "page": 11,
+      "bbox": [
+        66.87,
+        73.95,
+        545.14,
+        371.05
+      ],
+      "column": 1,
+      "image_path": "images/fig_03.png",
+      "caption": "Figure 2 Main results on DROID and RealEstate10K. The bidirectional short-video baseline is\nnormalized to 1. For error metrics, the relative ratio is inverted so that larger values indicate better\nperformance.",
+      "figure_label": "Figure 2"
+    },
+    {
+      "id": "fig5",
+      "type": "figure",
+      "page": 14,
+      "bbox": [
+        66.56,
+        73.95,
+        546.88,
+        247.91
+      ],
+      "column": 1,
+      "image_path": "images/fig_05.png",
+      "caption": "Figure 4 Scaling and throughput analyses of MiniWorld.",
+      "figure_label": "Figure 4"
+    }
+  ]
+}
