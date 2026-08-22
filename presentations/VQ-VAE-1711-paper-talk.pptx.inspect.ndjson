@@ -1,0 +1,218 @@
+{"kind":"deck","id":"pr/fyr3lj","name":"Deck"}
+{"kind":"layout","layoutId":"4455c9dd-a36a-4c10-90b9-8107ef884fab","name":"Master","type":"master"}
+{"kind":"layout","layoutId":"08962c33-b3c7-4c8d-9f08-7ed382157d16","name":"Title Slide","type":"title"}
+{"kind":"slide","id":"sl/yb0ntx","slide":1,"title":"PAPER TALK · DISCRETE REPRESENTATIONS · NIPS 2017","textShapes":8}
+{"kind":"textbox","id":"sh/5sbuhgzm","slide":1,"name":"text-185","text":"PAPER TALK · DISCRETE REPRESENTATIONS · NIPS 2017","textPreview":"PAPER TALK · DISCRETE REPRESENTATIONS · NIPS 2017","textChars":49,"textLines":1,"bbox":[72,58,720,24]}
+{"kind":"textbox","id":"sh/ipkv61gb","slide":1,"name":"text-186","text":"Neural Discrete","textPreview":"Neural Discrete","textChars":15,"textLines":1,"bbox":[72,126,980,92]}
+{"kind":"textbox","id":"sh/jqtcf6hw","slide":1,"name":"text-187","text":"Representation Learning","textPreview":"Representation Learning","textChars":23,"textLines":1,"bbox":[72,210,1080,92]}
+{"kind":"shape","id":"sh/wn2d4ry5","slide":1,"name":"shape-188","bbox":[74,338,110,4]}
+{"kind":"textbox","id":"sh/hobudwzq","slide":1,"name":"text-189","text":"VQ-VAE made neural representations discrete without high-variance estimators.","textPreview":"VQ-VAE made neural representations discrete without high-variance estimators.","textChars":77,"textLines":1,"bbox":[74,372,1060,90]}
+{"kind":"textbox","id":"sh/ul0v2hgz","slide":1,"name":"text-190","text":"Nearest-neighbor codes, a straight-through path, and explicit codebook updates create a trainable token interface.","textPreview":"Nearest-neighbor codes, a straight-through path, and explicit codebook updates create a trainable token interface.","textChars":114,"textLines":1,"bbox":[74,480,1040,82]}
+{"kind":"textbox","id":"sh/vmtcbmhk","slide":1,"name":"text-191","text":"Aaron van den Oord · Oriol Vinyals · Koray Kavukcuoglu","textPreview":"Aaron van den Oord · Oriol Vinyals · Koray Kavukcuoglu","textChars":54,"textLines":1,"bbox":[74,610,900,28]}
+{"kind":"textbox","id":"sh/8zid0ry9","slide":1,"name":"text-192","text":"NIPS 2017 · arXiv:1711.00937","textPreview":"NIPS 2017 · arXiv:1711.00937","textChars":28,"textLines":1,"bbox":[74,642,520,24]}
+{"kind":"textbox","id":"sh/9kru9cze","slide":1,"name":"text-193","text":"01","textPreview":"01","textChars":2,"textLines":1,"bbox":[1138,642,70,24]}
+{"kind":"notes","id":"nt/yb0ntx","slide":1,"text":"Frame VQ-VAE as an interface between continuous neural features and discrete tokens.\n\n[Sources]\n- /Users/xnnxax/projects/jerexjs-blog/local-papers/VQ-VAE-1711.pdf, p. 1, title and abstract, accessed 2026-08-22\n[/Sources]"}
+{"kind":"slide","id":"sl/gi21ad","slide":2,"title":"PROBLEM","textShapes":16}
+{"kind":"textbox","id":"sh/290fmx0f","slide":2,"name":"text-194","text":"PROBLEM","textPreview":"PROBLEM","textChars":7,"textLines":1,"bbox":[72,30,430,24]}
+{"kind":"shape","id":"sh/pwryxszq","slide":2,"name":"shape-195","bbox":[72,62,1136,2]}
+{"kind":"textbox","id":"sh/ovixo7i5","slide":2,"name":"text-196","text":"Paper §1-2 · pp. 1-3","textPreview":"Paper §1-2 · pp. 1-3","textChars":20,"textLines":1,"bbox":[72,682,930,18]}
+{"kind":"textbox","id":"sh/f6pgriho","slide":2,"name":"text-197","text":"02","textPreview":"02","textChars":2,"textLines":1,"bbox":[1138,680,70,20]}
+{"kind":"textbox","id":"sh/e5gfid03","slide":2,"name":"text-198","text":"Powerful decoders can ignore continuous latents","textPreview":"Powerful decoders can ignore continuous latents","textChars":47,"textLines":1,"bbox":[72,92,1136,72]}
+{"kind":"textbox","id":"sh/18rytszu","slide":2,"name":"text-199","text":"CONTINUOUS VAE + STRONG DECODER","textPreview":"CONTINUOUS VAE + STRONG DECODER","textChars":31,"textLines":1,"bbox":[88,216,440,24]}
+{"kind":"shape","id":"sh/g7yxkni9","slide":2,"name":"shape-200","bbox":[88,270,500,118]}
+{"kind":"textbox","id":"sh/z2tg3mhs","slide":2,"name":"text-201","text":"q(z|x) ≈ p(z)","textPreview":"q(z|x) ≈ p(z)","textChars":13,"textLines":1,"bbox":[110,292,456,40]}
+{"kind":"textbox","id":"sh/y1kzuh07","slide":2,"name":"text-202","text":"the decoder models x without using z","textPreview":"the decoder models x without using z","textChars":36,"textLines":1,"bbox":[110,338,456,30]}
+{"kind":"textbox","id":"sh/wzq9sz2h","slide":2,"name":"text-203","text":"DISCRETE REPRESENTATION","textPreview":"DISCRETE REPRESENTATION","textChars":23,"textLines":1,"bbox":[694,216,380,24]}
+{"kind":"shape","id":"sh/h0zal4j2","slide":2,"name":"shape-204","bbox":[694,270,500,118]}
+{"kind":"textbox","id":"sh/ux8rqpkb","slide":2,"name":"text-205","text":"z ∈ {1, …, K}","textPreview":"z ∈ {1, …, K}","textChars":13,"textLines":1,"bbox":[716,292,456,40]}
+{"kind":"textbox","id":"sh/vyhsju1w","slide":2,"name":"text-206","text":"a compressed symbol sequence for a learned prior","textPreview":"a compressed symbol sequence for a learned prior","textChars":48,"textLines":1,"bbox":[716,338,456,30]}
+{"kind":"shape","id":"sh/8vq9of25","slide":2,"name":"shape-207","bbox":[88,436,1106,1]}
+{"kind":"textbox","id":"sh/9wzahkjq","slide":2,"name":"text-208","text":"low variance","textPreview":"low variance","textChars":12,"textLines":1,"bbox":[112,472,320,72]}
+{"kind":"textbox","id":"sh/mtorm5kf","slide":2,"name":"text-209","text":"without score-function estimators","textPreview":"without score-function estimators","textChars":33,"textLines":1,"bbox":[112,546,320,66]}
+{"kind":"textbox","id":"sh/7uh8falk","slide":2,"name":"text-210","text":"hard codes","textPreview":"hard codes","textChars":10,"textLines":1,"bbox":[484,472,300,72]}
+{"kind":"textbox","id":"sh/kr69kf29","slide":2,"name":"text-211","text":"without annealing a soft relaxation","textPreview":"without annealing a soft relaxation","textChars":35,"textLines":1,"bbox":[484,546,300,66]}
+{"kind":"textbox","id":"sh/lsfqdk3u","slide":2,"name":"text-212","text":"strong prior","textPreview":"strong prior","textChars":12,"textLines":1,"bbox":[862,472,300,72]}
+{"kind":"textbox","id":"sh/1o76hwvi","slide":2,"name":"text-213","text":"over compressed discrete sequences","textPreview":"over compressed discrete sequences","textChars":34,"textLines":1,"bbox":[862,546,300,66]}
+{"kind":"notes","id":"nt/gi21ad","slide":2,"text":"The motivation combines latent usage under powerful decoders with practical gradients for discrete variables.\n\n[Sources]\n- /Users/xnnxax/projects/jerexjs-blog/local-papers/VQ-VAE-1711.pdf, pp. 1-2, §1, accessed 2026-08-22\n- /Users/xnnxax/projects/jerexjs-blog/local-papers/VQ-VAE-1711.pdf, pp. 2-3, §2, accessed 2026-08-22\n[/Sources]"}
+{"kind":"slide","id":"sl/svvz9a","slide":3,"title":"DISCRETE BOTTLENECK","textShapes":5}
+{"kind":"textbox","id":"sh/vixgbit4","slide":3,"name":"text-214","text":"DISCRETE BOTTLENECK","textPreview":"DISCRETE BOTTLENECK","textChars":19,"textLines":1,"bbox":[72,30,430,24]}
+{"kind":"shape","id":"sh/gj6xknup","slide":3,"name":"shape-215","bbox":[72,62,1136,2]}
+{"kind":"textbox","id":"sh/h4fydsba","slide":3,"name":"text-216","text":"Paper Fig. 1, Eq. (1)-(2) · pp. 3-4","textPreview":"Paper Fig. 1, Eq. (1)-(2) · pp. 3-4","textChars":35,"textLines":1,"bbox":[72,682,930,18]}
+{"kind":"textbox","id":"sh/6d4fedcn","slide":3,"name":"text-217","text":"03","textPreview":"03","textChars":2,"textLines":1,"bbox":[1138,680,70,20]}
+{"kind":"textbox","id":"sh/7edg7it8","slide":3,"name":"text-218","text":"Nearest-neighbor lookup turns features into tokens","textPreview":"Nearest-neighbor lookup turns features into tokens","textChars":50,"textLines":1,"bbox":[72,92,1136,72]}
+{"kind":"shape","id":"sh/8fmxgnud","slide":3,"name":"shape-219","bbox":[64,182,1152,398]}
+{"kind":"textbox","id":"sh/q98fqxcr","slide":3,"name":"text-220","text":"zₑ(x) → k = argminⱼ ||zₑ(x) − eⱼ||² → zq(x) = eₖ","textPreview":"zₑ(x) → k = argminⱼ ||zₑ(x) − eⱼ||² → zq(x) = eₖ","textChars":48,"textLines":1,"bbox":[194,600,890,46]}
+{"kind":"image","id":"im/k3qp8fap","slide":3,"name":"","alt":"VQ-VAE architecture and codebook lookup","bbox":[72,190,1136,382]}
+{"kind":"notes","id":"nt/svvz9a","slide":3,"text":"The forward pass is genuinely discrete. The decoder receives only the nearest codebook embedding.\n\n[Sources]\n- /Users/xnnxax/projects/jerexjs-blog/local-papers/VQ-VAE-1711.pdf, pp. 3-4, Figure 1 and Eq. (1)-(2), accessed 2026-08-22\n[/Sources]"}
+{"kind":"slide","id":"sl/2klviu","slide":4,"title":"GRADIENT INTERFACE","textShapes":9}
+{"kind":"textbox","id":"sh/7upkfyx0","slide":4,"name":"text-221","text":"GRADIENT INTERFACE","textPreview":"GRADIENT INTERFACE","textChars":18,"textLines":1,"bbox":[72,30,430,24]}
+{"kind":"shape","id":"sh/8vylo3yl","slide":4,"name":"shape-222","bbox":[72,62,1136,2]}
+{"kind":"textbox","id":"sh/tw72h8f6","slide":4,"name":"text-223","text":"Paper §3.2 · pp. 3-4","textPreview":"Paper §3.2 · pp. 3-4","textChars":20,"textLines":1,"bbox":[72,682,930,18]}
+{"kind":"textbox","id":"sh/y5g3itgj","slide":4,"name":"text-224","text":"04","textPreview":"04","textChars":2,"textLines":1,"bbox":[1138,680,70,20]}
+{"kind":"textbox","id":"sh/j6pkbyx4","slide":4,"name":"text-225","text":"Straight-through bypasses the discrete assignment","textPreview":"Straight-through bypasses the discrete assignment","textChars":49,"textLines":1,"bbox":[72,92,1136,72]}
+{"kind":"textbox","id":"sh/krylkjyp","slide":4,"name":"text-226","text":"FORWARD","textPreview":"FORWARD","textChars":7,"textLines":1,"bbox":[92,220,220,24]}
+{"kind":"shape","id":"sh/ls72dofa","slide":4,"name":"shape-227","bbox":[92,272,1080,86]}
+{"kind":"textbox","id":"sh/i103udgn","slide":4,"name":"text-228","text":"zₑ(x)  →  nearest code eₖ  →  decoder  →  reconstruction","textPreview":"zₑ(x)  →  nearest code eₖ  →  decoder  →  reconstruction","textChars":56,"textLines":1,"bbox":[120,294,1024,42]}
+{"kind":"textbox","id":"sh/3m9knix8","slide":4,"name":"text-229","text":"BACKWARD","textPreview":"BACKWARD","textChars":8,"textLines":1,"bbox":[92,410,220,24]}
+{"kind":"shape","id":"sh/zypgzahs","slide":4,"name":"shape-230","bbox":[92,462,1080,86]}
+{"kind":"textbox","id":"sh/yxgzq507","slide":4,"name":"text-231","text":"∇z L is copied directly from zq(x) to zₑ(x)","textPreview":"∇z L is copied directly from zq(x) to zₑ(x)","textChars":43,"textLines":1,"bbox":[120,484,1024,42]}
+{"kind":"shape","id":"sh/l07y1kzy","slide":4,"name":"shape-232","bbox":[180,596,5,50]}
+{"kind":"textbox","id":"sh/kzyhsfid","slide":4,"name":"text-233","text":"The gradient is biased: it is not the derivative of nearest-neighbor lookup.","textPreview":"The gradient is biased: it is not the derivative of nearest-neighbor lookup.","textChars":76,"textLines":1,"bbox":[204,592,896,58]}
+{"kind":"notes","id":"nt/2klviu","slide":4,"text":"The paper explicitly says no real gradient is defined for the lookup. The straight-through estimator copies the decoder gradient to the encoder.\n\n[Sources]\n- /Users/xnnxax/projects/jerexjs-blog/local-papers/VQ-VAE-1711.pdf, pp. 3-4, §3.2, accessed 2026-08-22\n[/Sources]"}
+{"kind":"slide","id":"sl/xpgscb","slide":5,"title":"OBJECTIVE","textShapes":22}
+{"kind":"textbox","id":"sh/nq9wrmxg","slide":5,"name":"text-234","text":"OBJECTIVE","textPreview":"OBJECTIVE","textChars":9,"textLines":1,"bbox":[72,30,430,24]}
+{"kind":"shape","id":"sh/orixkry1","slide":5,"name":"shape-235","bbox":[72,62,1136,2]}
+{"kind":"textbox","id":"sh/9sbytwfm","slide":5,"name":"text-236","text":"Paper Eq. (3) · p. 4","textPreview":"Paper Eq. (3) · p. 4","textChars":20,"textLines":1,"bbox":[72,682,930,18]}
+{"kind":"textbox","id":"sh/e10fehgz","slide":5,"name":"text-237","text":"05","textPreview":"05","textChars":2,"textLines":1,"bbox":[1138,680,70,20]}
+{"kind":"textbox","id":"sh/z29wnmxk","slide":5,"name":"text-238","text":"Three losses divide responsibility across the model","textPreview":"Three losses divide responsibility across the model","textChars":51,"textLines":1,"bbox":[72,92,1136,72]}
+{"kind":"shape","id":"sh/0nixgryp","slide":5,"name":"shape-239","bbox":[78,218,350,286]}
+{"kind":"textbox","id":"sh/1orepwfa","slide":5,"name":"text-240","text":"RECONSTRUCTION","textPreview":"RECONSTRUCTION","textChars":14,"textLines":1,"bbox":[102,246,302,24]}
+{"kind":"textbox","id":"sh/qxgfahgn","slide":5,"name":"text-241","text":"− log p(x | zq)","textPreview":"− log p(x | zq)","textChars":15,"textLines":1,"bbox":[100,304,306,64]}
+{"kind":"shape","id":"sh/rypwj2x8","slide":5,"name":"shape-242","bbox":[114,390,278,1]}
+{"kind":"textbox","id":"sh/3e9cb2tg","slide":5,"name":"text-243","text":"updates","textPreview":"updates","textChars":7,"textLines":1,"bbox":[102,416,302,24]}
+{"kind":"textbox","id":"sh/2d0b2xsv","slide":5,"name":"text-244","text":"decoder + encoder","textPreview":"decoder + encoder","textChars":17,"textLines":1,"bbox":[102,450,302,34]}
+{"kind":"shape","id":"sh/pgbudcbm","slide":5,"name":"shape-245","bbox":[470,218,350,286]}
+{"kind":"textbox","id":"sh/ofit47a1","slide":5,"name":"text-246","text":"CODEBOOK","textPreview":"CODEBOOK","textChars":8,"textLines":1,"bbox":[494,246,302,24]}
+{"kind":"textbox","id":"sh/bitcf2ts","slide":5,"name":"text-247","text":"|| sg[zₑ] − e ||²","textPreview":"|| sg[zₑ] − e ||²","textChars":17,"textLines":1,"bbox":[492,304,306,64]}
+{"kind":"shape","id":"sh/qhkb6hs7","slide":5,"name":"shape-248","bbox":[506,390,278,1]}
+{"kind":"textbox","id":"sh/dkbuhcby","slide":5,"name":"text-249","text":"updates","textPreview":"updates","textChars":7,"textLines":1,"bbox":[494,416,302,24]}
+{"kind":"textbox","id":"sh/cj2t87ad","slide":5,"name":"text-250","text":"embeddings only","textPreview":"embeddings only","textChars":15,"textLines":1,"bbox":[494,450,302,34]}
+{"kind":"shape","id":"sh/rmps3it8","slide":5,"name":"shape-251","bbox":[862,218,350,286]}
+{"kind":"textbox","id":"sh/6lgbuds3","slide":5,"name":"text-252","text":"COMMITMENT","textPreview":"COMMITMENT","textChars":10,"textLines":1,"bbox":[886,246,302,24]}
+{"kind":"textbox","id":"sh/ud8nypgn","slide":5,"name":"text-253","text":"β || zₑ − sg[e] ||²","textPreview":"β || zₑ − sg[e] ||²","textChars":19,"textLines":1,"bbox":[884,304,306,64]}
+{"kind":"shape","id":"sh/vehorah8","slide":5,"name":"shape-254","bbox":[898,390,278,1]}
+{"kind":"textbox","id":"sh/wfq50fyt","slide":5,"name":"text-255","text":"updates","textPreview":"updates","textChars":7,"textLines":1,"bbox":[886,416,302,24]}
+{"kind":"textbox","id":"sh/hgz6tkze","slide":5,"name":"text-256","text":"encoder only","textPreview":"encoder only","textChars":12,"textLines":1,"bbox":[886,450,302,34]}
+{"kind":"textbox","id":"sh/mponu5gr","slide":5,"name":"text-257","text":"β = 0.25","textPreview":"β = 0.25","textChars":8,"textLines":1,"bbox":[170,548,280,72]}
+{"kind":"textbox","id":"sh/7qxonahc","slide":5,"name":"text-258","text":"used in every experiment","textPreview":"used in every experiment","textChars":24,"textLines":1,"bbox":[170,622,280,66]}
+{"kind":"textbox","id":"sh/8b65wfyh","slide":5,"name":"text-259","text":"0.1–2.0","textPreview":"0.1–2.0","textChars":7,"textLines":1,"bbox":[510,548,280,72]}
+{"kind":"textbox","id":"sh/9cf6pkz2","slide":5,"name":"text-260","text":"reported robust range","textPreview":"reported robust range","textChars":21,"textLines":1,"bbox":[510,622,280,66]}
+{"kind":"textbox","id":"sh/ylonqlgf","slide":5,"name":"text-261","text":"KL = log K","textPreview":"KL = log K","textChars":10,"textLines":1,"bbox":[850,548,300,72]}
+{"kind":"textbox","id":"sh/zmx4jqh0","slide":5,"name":"text-262","text":"constant under the uniform prior","textPreview":"constant under the uniform prior","textChars":32,"textLines":1,"bbox":[850,622,300,66]}
+{"kind":"notes","id":"nt/xpgscb","slide":5,"text":"Stop-gradient determines ownership: reconstruction trains decoder and encoder; dictionary loss trains embeddings; commitment trains encoder.\n\n[Sources]\n- /Users/xnnxax/projects/jerexjs-blog/local-papers/VQ-VAE-1711.pdf, p. 4, Eq. (3) and §3.2, accessed 2026-08-22\n[/Sources]"}
+{"kind":"slide","id":"sl/7z28kd","slide":6,"title":"TWO-STAGE MODEL","textShapes":13}
+{"kind":"textbox","id":"sh/69kjmpkb","slide":6,"name":"text-263","text":"TWO-STAGE MODEL","textPreview":"TWO-STAGE MODEL","textChars":15,"textLines":1,"bbox":[72,30,430,24]}
+{"kind":"shape","id":"sh/tcvix43m","slide":6,"name":"shape-264","bbox":[72,62,1136,2]}
+{"kind":"textbox","id":"sh/sb21oz21","slide":6,"name":"text-265","text":"Paper §3.3 · p. 5","textPreview":"Paper §3.3 · p. 5","textChars":17,"textLines":1,"bbox":[72,682,930,18]}
+{"kind":"textbox","id":"sh/fedkzels","slide":6,"name":"text-266","text":"06","textPreview":"06","textChars":2,"textLines":1,"bbox":[1138,680,70,20]}
+{"kind":"textbox","id":"sh/ed4jq9k7","slide":6,"name":"text-267","text":"Learn the representation, then learn its prior","textPreview":"Learn the representation, then learn its prior","textChars":46,"textLines":1,"bbox":[72,92,1136,72]}
+{"kind":"textbox","id":"sh/1gv21o3y","slide":6,"name":"text-268","text":"STAGE 1 · LEARN THE TOKENIZER","textPreview":"STAGE 1 · LEARN THE TOKENIZER","textChars":29,"textLines":1,"bbox":[88,214,410,24]}
+{"kind":"shape","id":"sh/0fm1sj2d","slide":6,"name":"shape-269","bbox":[88,264,500,196]}
+{"kind":"textbox","id":"sh/n2dk3elo","slide":6,"name":"text-270","text":"x → encoder → discrete z → decoder → x̂","textPreview":"x → encoder → discrete z → decoder → x̂","textChars":39,"textLines":1,"bbox":[114,302,448,54]}
+{"kind":"textbox","id":"sh/214ju9k3","slide":6,"name":"text-271","text":"uniform prior during VQ-VAE training","textPreview":"uniform prior during VQ-VAE training","textChars":36,"textLines":1,"bbox":[114,382,448,34]}
+{"kind":"textbox","id":"sh/0fmdsryd","slide":6,"name":"text-272","text":"→","textPreview":"→","textChars":1,"textLines":1,"bbox":[608,318,64,70]}
+{"kind":"textbox","id":"sh/lgvulwfy","slide":6,"name":"text-273","text":"STAGE 2 · LEARN THE PRIOR","textPreview":"STAGE 2 · LEARN THE PRIOR","textChars":25,"textLines":1,"bbox":[692,214,410,24]}
+{"kind":"shape","id":"sh/yd4vq1g7","slide":6,"name":"shape-274","bbox":[692,264,500,196]}
+{"kind":"textbox","id":"sh/zedcjmxs","slide":6,"name":"text-275","text":"p(z) = PixelCNN or WaveNet","textPreview":"p(z) = PixelCNN or WaveNet","textChars":26,"textLines":1,"bbox":[718,302,448,54]}
+{"kind":"textbox","id":"sh/8jmdwby9","slide":6,"name":"text-276","text":"ancestral sample z, then decode once","textPreview":"ancestral sample z, then decode once","textChars":36,"textLines":1,"bbox":[718,382,448,34]}
+{"kind":"shape","id":"sh/94vupgfu","slide":6,"name":"shape-277","bbox":[200,530,5,70]}
+{"kind":"textbox","id":"sh/mh4vu1g3","slide":6,"name":"text-278","text":"The prior models global structure; the decoder handles local detail.","textPreview":"The prior models global structure; the decoder handles local detail.","textChars":68,"textLines":1,"bbox":[224,526,856,78]}
+{"kind":"textbox","id":"sh/nidcn6xo","slide":6,"name":"text-279","text":"Joint training is explicitly left as future work.","textPreview":"Joint training is explicitly left as future work.","textChars":49,"textLines":1,"bbox":[384,626,512,24]}
+{"kind":"notes","id":"nt/7z28kd","slide":6,"text":"Sample quality is produced by both stages and should not be attributed to the quantizer alone.\n\n[Sources]\n- /Users/xnnxax/projects/jerexjs-blog/local-papers/VQ-VAE-1711.pdf, p. 5, §3.3, accessed 2026-08-22\n[/Sources]"}
+{"kind":"slide","id":"sl/vqvexr","slide":7,"title":"QUANTITATIVE EVIDENCE","textShapes":13}
+{"kind":"textbox","id":"sh/cfep0zyd","slide":7,"name":"text-280","text":"QUANTITATIVE EVIDENCE","textPreview":"QUANTITATIVE EVIDENCE","textChars":21,"textLines":1,"bbox":[72,30,430,24]}
+{"kind":"shape","id":"sh/be5o7exs","slide":7,"name":"shape-281","bbox":[72,62,1136,2]}
+{"kind":"textbox","id":"sh/qdw7y9g7","slide":7,"name":"text-282","text":"Paper §4.1 · p. 5","textPreview":"Paper §4.1 · p. 5","textChars":17,"textLines":1,"bbox":[72,682,930,18]}
+{"kind":"textbox","id":"sh/l47qdofu","slide":7,"name":"text-283","text":"07","textPreview":"07","textChars":2,"textLines":1,"bbox":[1138,680,70,20]}
+{"kind":"textbox","id":"sh/03yp4jy9","slide":7,"name":"text-284","text":"VQ-VAE approaches continuous-VAE likelihood","textPreview":"VQ-VAE approaches continuous-VAE likelihood","textChars":43,"textLines":1,"bbox":[72,92,1136,72]}
+{"kind":"textbox","id":"sh/zip8bex4","slide":7,"name":"text-285","text":"4.51","textPreview":"4.51","textChars":4,"textLines":1,"bbox":[112,238,270,72]}
+{"kind":"textbox","id":"sh/yhw729gj","slide":7,"name":"text-286","text":"continuous VAE\nbits / dim","textPreview":"continuous VAE | bits / dim","textChars":25,"textLines":2,"bbox":[112,312,270,66]}
+{"kind":"textbox","id":"sh/987qhof6","slide":7,"name":"text-287","text":"4.67","textPreview":"4.67","textChars":4,"textLines":1,"bbox":[500,238,270,72]}
+{"kind":"textbox","id":"sh/87yp83el","slide":7,"name":"text-288","text":"VQ-VAE\nbits / dim","textPreview":"VQ-VAE | bits / dim","textChars":17,"textLines":2,"bbox":[500,312,270,66]}
+{"kind":"textbox","id":"sh/698bm9sj","slide":7,"name":"text-289","text":"5.14","textPreview":"5.14","textChars":4,"textLines":1,"bbox":[888,238,270,72]}
+{"kind":"textbox","id":"sh/7ahcfeto","slide":7,"name":"text-290","text":"VIMCO\nbits / dim","textPreview":"VIMCO | bits / dim","textChars":16,"textLines":2,"bbox":[888,312,270,66]}
+{"kind":"textbox","id":"sh/sbqtoza9","slide":7,"name":"text-291","text":"lower is better · all values are variational lower bounds","textPreview":"lower is better · all values are variational lower bounds","textChars":57,"textLines":1,"bbox":[242,416,796,32]}
+{"kind":"shape","id":"sh/tczuh4bu","slide":7,"name":"shape-292","bbox":[112,486,1046,1]}
+{"kind":"shape","id":"sh/ud8bq9sf","slide":7,"name":"shape-293","bbox":[154,524,5,58]}
+{"kind":"textbox","id":"sh/fehcjet0","slide":7,"name":"text-294","text":"VQ-VAE is 0.16 bits/dim behind the continuous VAE.","textPreview":"VQ-VAE is 0.16 bits/dim behind the continuous VAE.","textChars":50,"textLines":1,"bbox":[178,520,746,66]}
+{"kind":"shape","id":"sh/gfatsjal","slide":7,"name":"shape-295","bbox":[154,598,5,52]}
+{"kind":"textbox","id":"sh/hgjulob6","slide":7,"name":"text-296","text":"It improves 0.47 bits/dim over this VIMCO baseline.","textPreview":"It improves 0.47 bits/dim over this VIMCO baseline.","textChars":51,"textLines":1,"bbox":[178,594,826,60]}
+{"kind":"notes","id":"nt/vqvexr","slide":7,"text":"VQ-VAE approaches but does not beat the continuous VAE. The result establishes competitive hard discrete latents under the shared architecture.\n\n[Sources]\n- /Users/xnnxax/projects/jerexjs-blog/local-papers/VQ-VAE-1711.pdf, p. 5, §4.1, accessed 2026-08-22\n[/Sources]"}
+{"kind":"slide","id":"sl/78yupc","slide":8,"title":"IMAGE EVIDENCE","textShapes":9}
+{"kind":"textbox","id":"sh/mp87ul8f","slide":8,"name":"text-297","text":"IMAGE EVIDENCE","textPreview":"IMAGE EVIDENCE","textChars":14,"textLines":1,"bbox":[72,30,430,24]}
+{"kind":"shape","id":"sh/9cj65grq","slide":8,"name":"shape-298","bbox":[72,62,1136,2]}
+{"kind":"textbox","id":"sh/obapwvq5","slide":8,"name":"text-299","text":"Paper Fig. 2-3, §4.2 · pp. 5-6","textPreview":"Paper Fig. 2-3, §4.2 · pp. 5-6","textChars":30,"textLines":1,"bbox":[72,682,930,18]}
+{"kind":"textbox","id":"sh/zmhoz69o","slide":8,"name":"text-300","text":"08","textPreview":"08","textChars":2,"textLines":1,"bbox":[1138,680,70,20]}
+{"kind":"textbox","id":"sh/el87q1s3","slide":8,"name":"text-301","text":"A compact code grid preserves image structure","textPreview":"A compact code grid preserves image structure","textChars":45,"textLines":1,"bbox":[72,92,1136,72]}
+{"kind":"shape","id":"sh/1oz61gru","slide":8,"name":"shape-302","bbox":[64,190,564,226]}
+{"kind":"shape","id":"sh/rihov69c","slide":8,"name":"shape-303","bbox":[652,180,564,310]}
+{"kind":"textbox","id":"sh/wbupcf29","slide":8,"name":"text-304","text":"RECONSTRUCTION","textPreview":"RECONSTRUCTION","textChars":14,"textLines":1,"bbox":[90,430,270,24]}
+{"kind":"textbox","id":"sh/hc36lk3u","slide":8,"name":"text-305","text":"128×128×3 image\n→ 32×32 codes, K=512","textPreview":"128×128×3 image | → 32×32 codes, K=512","textChars":36,"textLines":2,"bbox":[90,468,430,72]}
+{"kind":"textbox","id":"sh/u9s7a543","slide":8,"name":"text-306","text":"≈42.6×","textPreview":"≈42.6×","textChars":6,"textLines":1,"bbox":[744,500,350,72]}
+{"kind":"textbox","id":"sh/va1ojalo","slide":8,"name":"text-307","text":"raw-bit compression ratio\nbefore entropy coding","textPreview":"raw-bit compression ratio | before entropy coding","textChars":47,"textLines":2,"bbox":[744,574,350,66]}
+{"kind":"textbox","id":"sh/87ap8fmd","slide":8,"name":"text-308","text":"Main objects survive; pixel-level detail becomes visibly blurrier.","textPreview":"Main objects survive; pixel-level detail becomes visibly blurrier.","textChars":66,"textLines":1,"bbox":[90,572,510,54]}
+{"kind":"image","id":"im/54r25wz2","slide":8,"name":"","alt":"ImageNet originals and reconstructions","bbox":[72,198,548,210]}
+{"kind":"image","id":"im/r6tk76h8","slide":8,"name":"","alt":"ImageNet samples from PixelCNN prior","bbox":[660,188,548,294]}
+{"kind":"notes","id":"nt/78yupc","slide":8,"text":"The nominal ratio compares raw 8-bit RGB pixels with 9-bit indices. It excludes model size and entropy coding. Evidence is qualitative.\n\n[Sources]\n- /Users/xnnxax/projects/jerexjs-blog/local-papers/VQ-VAE-1711.pdf, pp. 5-6, Figure 2-3 and §4.2, accessed 2026-08-22\n[/Sources]"}
+{"kind":"slide","id":"sl/8oze64","slide":9,"title":"SPEECH EVIDENCE","textShapes":11}
+{"kind":"textbox","id":"sh/sfi94b2d","slide":9,"name":"text-309","text":"SPEECH EVIDENCE","textPreview":"SPEECH EVIDENCE","textChars":15,"textLines":1,"bbox":[72,30,430,24]}
+{"kind":"shape","id":"sh/re9sv6ls","slide":9,"name":"shape-310","bbox":[72,62,1136,2]}
+{"kind":"textbox","id":"sh/qdgr21k7","slide":9,"name":"text-311","text":"Paper Fig. 6, §4.3 · pp. 7-8","textPreview":"Paper Fig. 6, §4.3 · pp. 7-8","textChars":28,"textLines":1,"bbox":[72,682,930,18]}
+{"kind":"textbox","id":"sh/5c7atg3m","slide":9,"name":"text-312","text":"09","textPreview":"09","textChars":2,"textLines":1,"bbox":[1138,680,70,20]}
+{"kind":"textbox","id":"sh/4by90b21","slide":9,"name":"text-313","text":"Speech codes retain content and enable conversion","textPreview":"Speech codes retain content and enable conversion","textChars":49,"textLines":1,"bbox":[72,92,1136,72]}
+{"kind":"shape","id":"sh/3apsr6lg","slide":9,"name":"shape-314","bbox":[64,196,776,236]}
+{"kind":"textbox","id":"sh/p8ba50jq","slide":9,"name":"text-315","text":"49.3%","textPreview":"49.3%","textChars":5,"textLines":1,"bbox":[900,218,260,72]}
+{"kind":"textbox","id":"sh/o72tcv25","slide":9,"name":"text-316","text":"code → phoneme\naccuracy","textPreview":"code → phoneme | accuracy","textChars":23,"textLines":2,"bbox":[900,292,260,66]}
+{"kind":"textbox","id":"sh/69o3qlc3","slide":9,"name":"text-317","text":"7.2%","textPreview":"7.2%","textChars":4,"textLines":1,"bbox":[900,390,260,72]}
+{"kind":"textbox","id":"sh/rax4zqdo","slide":9,"name":"text-318","text":"majority-phoneme\nbaseline","textPreview":"majority-phoneme | baseline","textChars":25,"textLines":2,"bbox":[900,464,260,66]}
+{"kind":"textbox","id":"sh/svqlsvu9","slide":9,"name":"text-319","text":"VCTK SETUP","textPreview":"VCTK SETUP","textChars":10,"textLines":1,"bbox":[92,470,220,24]}
+{"kind":"textbox","id":"sh/twzm10vu","slide":9,"name":"text-320","text":"109 speakers · 64× downsampling · K=512 · decoder receives speaker ID","textPreview":"109 speakers · 64× downsampling · K=512 · decoder receives speaker ID","textChars":69,"textLines":1,"bbox":[92,510,706,74]}
+{"kind":"shape","id":"sh/i5o3mlc7","slide":9,"name":"shape-321","bbox":[200,606,5,46]}
+{"kind":"textbox","id":"sh/j6x4vqds","slide":9,"name":"text-322","text":"Content is retained while speaker identity can be swapped.","textPreview":"Content is retained while speaker identity can be swapped.","textChars":58,"textLines":1,"bbox":[224,602,776,54]}
+{"kind":"image","id":"im/vqdgvudc","slide":9,"name":"","alt":"Original and reconstructed speech waveforms","bbox":[72,204,760,220]}
+{"kind":"notes","id":"nt/8oze64","slide":9,"text":"The phoneme probe is unsupervised with respect to VQ-VAE training, but the mapping is simple. Speaker conversion also uses explicit speaker conditioning.\n\n[Sources]\n- /Users/xnnxax/projects/jerexjs-blog/local-papers/VQ-VAE-1711.pdf, pp. 7-8, Figure 6 and §4.3, accessed 2026-08-22\n[/Sources]"}
+{"kind":"slide","id":"sl/dywnvf","slide":10,"title":"VIDEO EVIDENCE","textShapes":10}
+{"kind":"textbox","id":"sh/cr6p8zyx","slide":10,"name":"text-323","text":"VIDEO EVIDENCE","textPreview":"VIDEO EVIDENCE","textChars":14,"textLines":1,"bbox":[72,30,430,24]}
+{"kind":"shape","id":"sh/bqxofuxc","slide":10,"name":"shape-324","bbox":[72,62,1136,2]}
+{"kind":"textbox","id":"sh/apo769g7","slide":10,"name":"text-325","text":"Paper Fig. 7, §4.4 · p. 8","textPreview":"Paper Fig. 7, §4.4 · p. 8","textChars":25,"textLines":1,"bbox":[72,682,930,18]}
+{"kind":"textbox","id":"sh/lwz65ofu","slide":10,"name":"text-326","text":"10","textPreview":"10","textChars":2,"textLines":1,"bbox":[1138,680,70,20]}
+{"kind":"textbox","id":"sh/kvqpcjy9","slide":10,"name":"text-327","text":"Short latent rollouts retain local DMLab geometry","textPreview":"Short latent rollouts retain local DMLab geometry","textChars":49,"textLines":1,"bbox":[72,92,1136,72]}
+{"kind":"shape","id":"sh/zuho3exo","slide":10,"name":"shape-328","bbox":[64,198,1152,336]}
+{"kind":"textbox","id":"sh/10v69kfa","slide":10,"name":"text-329","text":"6","textPreview":"6","textChars":1,"textLines":1,"bbox":[180,530,220,72]}
+{"kind":"textbox","id":"sh/0zm50fyp","slide":10,"name":"text-330","text":"provided frames","textPreview":"provided frames","textChars":15,"textLines":1,"bbox":[180,604,220,66]}
+{"kind":"textbox","id":"sh/u5szq5oz","slide":10,"name":"text-331","text":"10","textPreview":"10","textChars":2,"textLines":1,"bbox":[530,530,220,72]}
+{"kind":"textbox","id":"sh/f61gja54","slide":10,"name":"text-332","text":"generated frames","textPreview":"generated frames","textChars":16,"textLines":1,"bbox":[530,604,220,66]}
+{"kind":"textbox","id":"sh/g7ahsf6p","slide":10,"name":"text-333","text":"latent first","textPreview":"latent first","textChars":12,"textLines":1,"bbox":[850,530,310,72]}
+{"kind":"textbox","id":"sh/h8jyl0na","slide":10,"name":"text-334","text":"generate all z before deterministic pixel decoding","textPreview":"generate all z before deterministic pixel decoding","textChars":50,"textLines":1,"bbox":[850,604,310,66]}
+{"kind":"image","id":"im/3e1c7it8","slide":10,"name":"","alt":"Action-conditioned DMLab sequence","bbox":[72,206,1136,320]}
+{"kind":"notes","id":"nt/dywnvf","slide":10,"text":"The rows condition on different actions. The qualitative result shows plausible local geometry for ten generated frames, not quantified long-horizon dynamics.\n\n[Sources]\n- /Users/xnnxax/projects/jerexjs-blog/local-papers/VQ-VAE-1711.pdf, p. 8, Figure 7 and §4.4, accessed 2026-08-22\n[/Sources]"}
+{"kind":"slide","id":"sl/d8ftbd","slide":11,"title":"EVIDENCE BOUNDARY","textShapes":13}
+{"kind":"textbox","id":"sh/mhk7i1wr","slide":11,"name":"text-335","text":"EVIDENCE BOUNDARY","textPreview":"EVIDENCE BOUNDARY","textChars":17,"textLines":1,"bbox":[72,30,430,24]}
+{"kind":"shape","id":"sh/9kb6tgf2","slide":11,"name":"shape-336","bbox":[72,62,1136,2]}
+{"kind":"textbox","id":"sh/oj2pkbex","slide":11,"name":"text-337","text":"Paper §3-5, Appendix A.1 · pp. 3-11","textPreview":"Paper §3-5, Appendix A.1 · pp. 3-11","textChars":35,"textLines":1,"bbox":[72,682,930,18]}
+{"kind":"textbox","id":"sh/bmdov6x8","slide":11,"name":"text-338","text":"11","textPreview":"11","textChars":2,"textLines":1,"bbox":[1138,680,70,20]}
+{"kind":"textbox","id":"sh/alk7mlwn","slide":11,"name":"text-339","text":"The method is strong; causal claims remain suggestive","textPreview":"The method is strong; causal claims remain suggestive","textChars":53,"textLines":1,"bbox":[72,92,1136,72]}
+{"kind":"textbox","id":"sh/x8v6xgfe","slide":11,"name":"text-340","text":"DIRECT","textPreview":"DIRECT","textChars":6,"textLines":1,"bbox":[92,210,210,34]}
+{"kind":"textbox","id":"sh/wnmpobet","slide":11,"name":"text-341","text":"Hard quantization is trainable with straight-through and codebook updates.","textPreview":"Hard quantization is trainable with straight-through and codebook updates.","textChars":74,"textLines":1,"bbox":[320,208,840,50]}
+{"kind":"shape","id":"sh/rq9ojmx4","slide":11,"name":"shape-342","bbox":[92,274,1068,1]}
+{"kind":"textbox","id":"sh/qp0nahwj","slide":11,"name":"text-343","text":"DIRECT","textPreview":"DIRECT","textChars":6,"textLines":1,"bbox":[92,310,210,34]}
+{"kind":"textbox","id":"sh/cn25kvq5","slide":11,"name":"text-344","text":"Discrete likelihood is competitive in the reported CIFAR-10 setup.","textPreview":"Discrete likelihood is competitive in the reported CIFAR-10 setup.","textChars":66,"textLines":1,"bbox":[320,308,840,50]}
+{"kind":"shape","id":"sh/dob6d07a","slide":11,"name":"shape-345","bbox":[92,374,1068,1]}
+{"kind":"textbox","id":"sh/q10ni58z","slide":11,"name":"text-346","text":"CONVERGENT","textPreview":"CONVERGENT","textChars":10,"textLines":1,"bbox":[92,410,210,34]}
+{"kind":"textbox","id":"sh/r29obqpk","slide":11,"name":"text-347","text":"Image, speech, and video examples show useful compressed structure.","textPreview":"Image, speech, and video examples show useful compressed structure.","textChars":67,"textLines":1,"bbox":[320,408,840,50]}
+{"kind":"shape","id":"sh/0r2pof61","slide":11,"name":"shape-348","bbox":[92,474,1068,1]}
+{"kind":"textbox","id":"sh/1sb6hk7m","slide":11,"name":"text-349","text":"MISSING","textPreview":"MISSING","textChars":7,"textLines":1,"bbox":[92,510,210,34]}
+{"kind":"textbox","id":"sh/epknm5ov","slide":11,"name":"text-350","text":"Code usage, dead-code statistics, matched-prior controls, and long-horizon metrics.","textPreview":"Code usage, dead-code statistics, matched-prior controls, and long-horizon metrics.","textChars":83,"textLines":1,"bbox":[320,508,840,50]}
+{"kind":"shape","id":"sh/zqtofapg","slide":11,"name":"shape-351","bbox":[190,618,5,42]}
+{"kind":"textbox","id":"sh/gvi5cbqx","slide":11,"name":"text-352","text":"A powerful PixelCNN/WaveNet prior shares credit for final sample quality.","textPreview":"A powerful PixelCNN/WaveNet prior shares credit for final sample quality.","textChars":73,"textLines":1,"bbox":[214,614,876,50]}
+{"kind":"notes","id":"nt/d8ftbd","slide":11,"text":"The optimization interface is established; posterior-collapse and semantic-abstraction claims lack mechanism-isolating controls.\n\n[Sources]\n- /Users/xnnxax/projects/jerexjs-blog/local-papers/VQ-VAE-1711.pdf, pp. 3-8, §3-5, accessed 2026-08-22\n- /Users/xnnxax/projects/jerexjs-blog/local-papers/VQ-VAE-1711.pdf, p. 11, Appendix A.1, accessed 2026-08-22\n[/Sources]"}
+{"kind":"slide","id":"sl/ri76fd","slide":12,"title":"TAKEAWAYS","textShapes":15}
+{"kind":"textbox","id":"sh/kf2dwri1","slide":12,"name":"text-353","text":"TAKEAWAYS","textPreview":"TAKEAWAYS","textChars":9,"textLines":1,"bbox":[72,30,430,24]}
+{"kind":"shape","id":"sh/jutwnmhw","slide":12,"name":"shape-354","bbox":[72,62,1136,2]}
+{"kind":"textbox","id":"sh/ytkvuh0b","slide":12,"name":"text-355","text":"Neural Discrete Representation Learning · synthesis","textPreview":"Neural Discrete Representation Learning · synthesis","textChars":51,"textLines":1,"bbox":[72,682,930,18]}
+{"kind":"textbox","id":"sh/xsbelczq","slide":12,"name":"text-356","text":"12","textPreview":"12","textChars":2,"textLines":1,"bbox":[1138,680,70,20]}
+{"kind":"textbox","id":"sh/cr2dsri5","slide":12,"name":"text-357","text":"VQ-VAE is a tokenization interface","textPreview":"VQ-VAE is a tokenization interface","textChars":34,"textLines":1,"bbox":[72,92,1136,72]}
+{"kind":"textbox","id":"sh/bq9wjmhk","slide":12,"name":"text-358","text":"01","textPreview":"01","textChars":2,"textLines":1,"bbox":[82,214,72,46]}
+{"kind":"textbox","id":"sh/ap0vqh0z","slide":12,"name":"text-359","text":"Forward semantics","textPreview":"Forward semantics","textChars":17,"textLines":1,"bbox":[172,212,990,36]}
+{"kind":"textbox","id":"sh/hovexgzu","slide":12,"name":"text-360","text":"Nearest-neighbor lookup commits every encoder feature to a finite learned vocabulary.","textPreview":"Nearest-neighbor lookup commits every encoder feature to a finite learned vocabulary.","textChars":85,"textLines":1,"bbox":[172,256,990,50]}
+{"kind":"shape","id":"sh/gnmx4bi9","slide":12,"name":"shape-361","bbox":[172,308,990,1]}
+{"kind":"textbox","id":"sh/apgb6dc3","slide":12,"name":"text-362","text":"02","textPreview":"02","textChars":2,"textLines":1,"bbox":[82,326,72,46]}
+{"kind":"textbox","id":"sh/vapczydo","slide":12,"name":"text-363","text":"Backward semantics","textPreview":"Backward semantics","textChars":18,"textLines":1,"bbox":[172,324,990,36]}
+{"kind":"textbox","id":"sh/wbit83u9","slide":12,"name":"text-364","text":"Straight-through, codebook, and commitment updates assign a gradient role to every component.","textPreview":"Straight-through, codebook, and commitment updates assign a gradient role to every component.","textChars":93,"textLines":1,"bbox":[172,368,990,50]}
+{"kind":"shape","id":"sh/xcru18vu","slide":12,"name":"shape-365","bbox":[172,420,990,1]}
+{"kind":"textbox","id":"sh/mlgb2tw7","slide":12,"name":"text-366","text":"03","textPreview":"03","textChars":2,"textLines":1,"bbox":[82,438,72,46]}
+{"kind":"textbox","id":"sh/nmpcvyds","slide":12,"name":"text-367","text":"Generative semantics","textPreview":"Generative semantics","textChars":20,"textLines":1,"bbox":[172,436,990,36]}
+{"kind":"textbox","id":"sh/8nyt43ed","slide":12,"name":"text-368","text":"A separate autoregressive prior models token sequences while the decoder reconstructs local detail.","textPreview":"A separate autoregressive prior models token sequences while the decoder reconstructs local detail.","textChars":99,"textLines":1,"bbox":[172,480,990,50]}
+{"kind":"textbox","id":"sh/9o7ux8vi","slide":12,"name":"text-369","text":"DISCUSSION","textPreview":"DISCUSSION","textChars":10,"textLines":1,"bbox":[172,568,220,24]}
+{"kind":"textbox","id":"sh/6h0vexcb","slide":12,"name":"text-370","text":"When does a discrete bottleneck create semantics—and when does it only create compression?","textPreview":"When does a discrete bottleneck create semantics—and when does it only create compression?","textChars":90,"textLines":1,"bbox":[172,604,950,52]}
+{"kind":"notes","id":"nt/ri76fd","slide":12,"text":"The durable abstraction connects continuous networks to discrete sequence models. The open question is when the interface yields stable semantics.\n\n[Sources]\n- /Users/xnnxax/projects/jerexjs-blog/local-papers/VQ-VAE-1711.pdf, p. 1, abstract, accessed 2026-08-22\n- /Users/xnnxax/projects/jerexjs-blog/local-papers/VQ-VAE-1711.pdf, pp. 3-5, §3, accessed 2026-08-22\n- /Users/xnnxax/projects/jerexjs-blog/local-papers/VQ-VAE-1711.pdf, p. 8, §5, accessed 2026-08-22\n[/Sources]"}

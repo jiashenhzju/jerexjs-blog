@@ -1,0 +1,8 @@
+interface:
+  display_name: "Paper Reading · 论文精读"
+  short_description: "Bilingual paper reading and minimalist research decks"
+  brand_color: "#315EFB"
+  default_prompt: "Use $paper-reading to deep-read this local PDF and create a rigorous research note, an English-first paper-sharing PPT, or both."
+
+policy:
+  allow_implicit_invocation: true

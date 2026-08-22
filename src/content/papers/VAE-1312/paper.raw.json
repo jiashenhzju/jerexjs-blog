@@ -1,0 +1,3868 @@
+{
+  "meta": {
+    "pdf_path": "/Users/xnnxax/projects/jerexjs-blog/local-papers/VAE-1312.pdf",
+    "pdf_name": "VAE-1312.pdf",
+    "pdf_stem": "VAE-1312",
+    "num_pages": 14,
+    "columns": 2,
+    "body_font_size": 9.62,
+    "num_figures": 7
+  },
+  "blocks": [
+    {
+      "id": "b1",
+      "type": "paragraph",
+      "text": "Diederik P. Kingma\nMachine Learning Group\nUniversiteit van Amsterdam\ndpkingma@gmail.com",
+      "page": 1,
+      "bbox": [
+        158.75,
+        171.03,
+        271.0,
+        213.45
+      ],
+      "column": 0
+    },
+    {
+      "id": "b2",
+      "type": "title",
+      "text": "arXiv:1312.6114v11  [stat.ML]  10 Dec 2022",
+      "page": 1,
+      "bbox": [
+        10.94,
+        205.6,
+        37.62,
+        570.0
+      ],
+      "column": 0,
+      "level": 0
+    },
+    {
+      "id": "b3",
+      "type": "paragraph",
+      "text": "1\nIntroduction",
+      "page": 1,
+      "bbox": [
+        108.0,
+        420.22,
+        190.81,
+        432.18
+      ],
+      "column": 0
+    },
+    {
+      "id": "b4",
+      "type": "paragraph",
+      "text": "2\nMethod",
+      "page": 1,
+      "bbox": [
+        108.0,
+        653.49,
+        165.78,
+        665.45
+      ],
+      "column": 0
+    },
+    {
+      "id": "b5",
+      "type": "title",
+      "text": "Auto-Encoding Variational Bayes",
+      "page": 1,
+      "bbox": [
+        183.44,
+        109.7,
+        428.56,
+        126.91
+      ],
+      "column": 1,
+      "level": 0
+    },
+    {
+      "id": "b6",
+      "type": "paragraph",
+      "text": "Max Welling\nMachine Learning Group\nUniversiteit van Amsterdam\nwelling.max@gmail.com",
+      "page": 1,
+      "bbox": [
+        327.72,
+        171.03,
+        453.25,
+        213.45
+      ],
+      "column": 1
+    },
+    {
+      "id": "b7",
+      "type": "heading",
+      "text": "Abstract",
+      "page": 1,
+      "bbox": [
+        283.76,
+        243.63,
+        328.24,
+        255.58
+      ],
+      "column": 1,
+      "level": 2
+    },
+    {
+      "id": "b8",
+      "type": "paragraph",
+      "text": "How can we perform efﬁcient inference and learning in directed probabilistic\nmodels, in the presence of continuous latent variables with intractable posterior\ndistributions, and large datasets? We introduce a stochastic variational inference\nand learning algorithm that scales to large datasets and, under some mild differ-\nentiability conditions, even works in the intractable case. Our contributions are\ntwo-fold. First, we show that a reparameterization of the variational lower bound\nyields a lower bound estimator that can be straightforwardly optimized using stan-\ndard stochastic gradient methods. Second, we show that for i.i.d. datasets with\ncontinuous latent variables per datapoint, posterior inference can be made espe-\ncially efﬁcient by ﬁtting an approximate inference model (also called a recogni-\ntion model) to the intractable posterior using the proposed lower bound estimator.\nTheoretical advantages are reﬂected in experimental results.",
+      "page": 1,
+      "bbox": [
+        143.87,
+        268.56,
+        468.14,
+        399.07
+      ],
+      "column": 1
+    },
+    {
+      "id": "b9",
+      "type": "paragraph",
+      "text": "How can we perform efﬁcient approximate inference and learning with directed probabilistic models\nwhose continuous latent variables and/or parameters have intractable posterior distributions? The\nvariational Bayesian (VB) approach involves the optimization of an approximation to the intractable\nposterior. Unfortunately, the common mean-ﬁeld approach requires analytical solutions of expecta-\ntions w.r.t. the approximate posterior, which are also intractable in the general case. We show how a\nreparameterization of the variational lower bound yields a simple differentiable unbiased estimator\nof the lower bound; this SGVB (Stochastic Gradient Variational Bayes) estimator can be used for ef-\nﬁcient approximate posterior inference in almost any model with continuous latent variables and/or\nparameters, and is straightforward to optimize using standard stochastic gradient ascent techniques.",
+      "page": 1,
+      "bbox": [
+        108.0,
+        445.2,
+        504.0,
+        542.84
+      ],
+      "column": 1
+    },
+    {
+      "id": "b10",
+      "type": "paragraph",
+      "text": "For the case of an i.i.d. dataset and continuous latent variables per datapoint, we propose the Auto-\nEncoding VB (AEVB) algorithm. In the AEVB algorithm we make inference and learning especially\nefﬁcient by using the SGVB estimator to optimize a recognition model that allows us to perform very\nefﬁcient approximate posterior inference using simple ancestral sampling, which in turn allows us\nto efﬁciently learn the model parameters, without the need of expensive iterative inference schemes\n(such as MCMC) per datapoint. The learned approximate posterior inference model can also be used\nfor a host of tasks such as recognition, denoising, representation and visualization purposes. When\na neural network is used for the recognition model, we arrive at the variational auto-encoder.",
+      "page": 1,
+      "bbox": [
+        108.0,
+        549.81,
+        504.0,
+        636.48
+      ],
+      "column": 1
+    },
+    {
+      "id": "b11",
+      "type": "paragraph",
+      "text": "The strategy in this section can be used to derive a lower bound estimator (a stochastic objective\nfunction) for a variety of directed graphical models with continuous latent variables. We will restrict\nourselves here to the common case where we have an i.i.d. dataset with latent variables per datapoint,\nand where we like to perform maximum likelihood (ML) or maximum a posteriori (MAP) inference\non the (global) parameters, and variational inference on the latent variables. It is, for example, z\nφ\nθ",
+      "page": 1,
+      "bbox": [
+        108.0,
+        678.47,
+        504.0,
+        732.27
+      ],
+      "column": 1
+    },
+    {
+      "id": "b13",
+      "type": "paragraph",
+      "text": "2.1\nProblem scenario",
+      "page": 2,
+      "bbox": [
+        108.0,
+        312.69,
+        204.67,
+        322.66
+      ],
+      "column": 0
+    },
+    {
+      "id": "b14",
+      "type": "paragraph",
+      "text": "We are interested in, and propose a solution to, three related problems in the above scenario:",
+      "page": 2,
+      "bbox": [
+        108.0,
+        612.01,
+        475.72,
+        621.97
+      ],
+      "column": 0
+    },
+    {
+      "id": "b15",
+      "type": "paragraph",
+      "text": "x",
+      "page": 2,
+      "bbox": [
+        303.47,
+        138.84,
+        309.52,
+        148.8
+      ],
+      "column": 1
+    },
+    {
+      "id": "b16",
+      "type": "paragraph",
+      "text": "N",
+      "page": 2,
+      "bbox": [
+        308.32,
+        159.07,
+        315.69,
+        168.04
+      ],
+      "column": 1
+    },
+    {
+      "id": "b19",
+      "type": "paragraph",
+      "text": "straightforward to extend this scenario to the case where we also perform variational inference on\nthe global parameters; that algorithm is put in the appendix, but experiments with that case are left to\nfuture work. Note that our method can be applied to online, non-stationary settings, e.g. streaming\ndata, but here we assume a ﬁxed dataset for simplicity.",
+      "page": 2,
+      "bbox": [
+        108.0,
+        252.79,
+        504.0,
+        295.63
+      ],
+      "column": 1
+    },
+    {
+      "id": "b20",
+      "type": "paragraph",
+      "text": "Let us consider some dataset X = {x(i)}N\ni=1 consisting of N i.i.d. samples of some continuous\nor discrete variable x. We assume that the data are generated by some random process, involving\nan unobserved continuous random variable z. The process consists of two steps: (1) a value z(i)",
+      "page": 2,
+      "bbox": [
+        108.0,
+        332.64,
+        504.0,
+        367.07
+      ],
+      "column": 1
+    },
+    {
+      "id": "b21",
+      "type": "paragraph",
+      "text": "is generated from some prior distribution pθ∗(z); (2) a value x(i) is generated from some condi-\ntional distribution pθ∗(x|z). We assume that the prior pθ∗(z) and likelihood pθ∗(x|z) come from\nparametric families of distributions pθ(z) and pθ(x|z), and that their PDFs are differentiable almost\neverywhere w.r.t. both θ and z. Unfortunately, a lot of this process is hidden from our view: the true\nparameters θ∗as well as the values of the latent variables z(i) are unknown to us.",
+      "page": 2,
+      "bbox": [
+        108.0,
+        365.49,
+        504.0,
+        423.95
+      ],
+      "column": 1
+    },
+    {
+      "id": "b22",
+      "type": "paragraph",
+      "text": "Very importantly, we do not make the common simplifying assumptions about the marginal or pos-\nterior probabilities. Conversely, we are here interested in a general algorithm that even works efﬁ-\nciently in the case of:",
+      "page": 2,
+      "bbox": [
+        108.0,
+        430.74,
+        504.0,
+        462.8
+      ],
+      "column": 1
+    },
+    {
+      "id": "b23",
+      "type": "paragraph",
+      "text": "1. Intractability:\nthe case where the integral of the marginal likelihood pθ(x)\n=\nR\npθ(z)pθ(x|z) dz is intractable (so we cannot evaluate or differentiate the marginal like-\nlihood), where the true posterior density pθ(z|x) = pθ(x|z)pθ(z)/pθ(x) is intractable\n(so the EM algorithm cannot be used), and where the required integrals for any reason-\nable mean-ﬁeld VB algorithm are also intractable. These intractabilities are quite common\nand appear in cases of moderately complicated likelihood functions pθ(x|z), e.g. a neural\nnetwork with a nonlinear hidden layer.",
+      "page": 2,
+      "bbox": [
+        131.41,
+        474.47,
+        504.0,
+        550.41
+      ],
+      "column": 1
+    },
+    {
+      "id": "b24",
+      "type": "paragraph",
+      "text": "2. A large dataset: we have so much data that batch optimization is too costly; we would like\nto make parameter updates using small minibatches or even single datapoints. Sampling-\nbased solutions, e.g. Monte Carlo EM, would in general be too slow, since it involves a\ntypically expensive sampling loop per datapoint.",
+      "page": 2,
+      "bbox": [
+        131.41,
+        557.1,
+        504.0,
+        600.11
+      ],
+      "column": 1
+    },
+    {
+      "id": "b25",
+      "type": "paragraph",
+      "text": "1. Efﬁcient approximate ML or MAP estimation for the parameters θ. The parameters can be\nof interest themselves, e.g. if we are analyzing some natural process. They also allow us to\nmimic the hidden random process and generate artiﬁcial data that resembles the real data.",
+      "page": 2,
+      "bbox": [
+        131.41,
+        633.64,
+        504.0,
+        665.75
+      ],
+      "column": 1
+    },
+    {
+      "id": "b26",
+      "type": "paragraph",
+      "text": "2. Efﬁcient approximate posterior inference of the latent variable z given an observed value x\nfor a choice of parameters θ. This is useful for coding or data representation tasks.",
+      "page": 2,
+      "bbox": [
+        131.41,
+        672.38,
+        504.0,
+        693.53
+      ],
+      "column": 1
+    },
+    {
+      "id": "b27",
+      "type": "paragraph",
+      "text": "3. Efﬁcient approximate marginal inference of the variable x. This allows us to perform all\nkinds of inference tasks where a prior over x is required. Common applications in computer\nvision include image denoising, inpainting and super-resolution.",
+      "page": 2,
+      "bbox": [
+        131.41,
+        700.16,
+        504.0,
+        732.27
+      ],
+      "column": 1
+    },
+    {
+      "id": "b28",
+      "type": "paragraph",
+      "text": "2.2\nThe variational bound",
+      "page": 3,
+      "bbox": [
+        108.0,
+        224.11,
+        225.54,
+        234.07
+      ],
+      "column": 0
+    },
+    {
+      "id": "b29",
+      "type": "paragraph",
+      "text": "2.3\nThe SGVB estimator and AEVB algorithm",
+      "page": 3,
+      "bbox": [
+        108.0,
+        462.03,
+        312.79,
+        471.99
+      ],
+      "column": 0
+    },
+    {
+      "id": "b30",
+      "type": "paragraph",
+      "text": "Eqφ(z|x(i)) [f(z)] = Ep(ϵ)\nh\nf(gφ(ϵ, x(i)))\ni\n≃1",
+      "page": 3,
+      "bbox": [
+        115.74,
+        623.56,
+        306.73,
+        642.56
+      ],
+      "column": 0
+    },
+    {
+      "id": "b31",
+      "type": "paragraph",
+      "text": "L",
+      "page": 3,
+      "bbox": [
+        300.85,
+        637.14,
+        307.64,
+        647.1
+      ],
+      "column": 0
+    },
+    {
+      "id": "b32",
+      "type": "paragraph",
+      "text": "L\nX eLA(θ, φ; x(i)) = 1",
+      "page": 3,
+      "bbox": [
+        261.87,
+        682.36,
+        276.27,
+        700.14
+      ],
+      "column": 0
+    },
+    {
+      "id": "b34",
+      "type": "paragraph",
+      "text": "L",
+      "page": 3,
+      "bbox": [
+        252.24,
+        699.31,
+        259.02,
+        709.28
+      ],
+      "column": 0
+    },
+    {
+      "id": "b35",
+      "type": "paragraph",
+      "text": "For the purpose of solving the above problems, let us introduce a recognition model qφ(z|x): an\napproximation to the intractable true posterior pθ(z|x). Note that in contrast with the approximate\nposterior in mean-ﬁeld variational inference, it is not necessarily factorial and its parameters φ are\nnot computed from some closed-form expectation. Instead, we’ll introduce a method for learning\nthe recognition model parameters φ jointly with the generative model parameters θ.",
+      "page": 3,
+      "bbox": [
+        108.0,
+        83.91,
+        504.0,
+        138.07
+      ],
+      "column": 1
+    },
+    {
+      "id": "b36",
+      "type": "paragraph",
+      "text": "From a coding theory perspective, the unobserved variables z have an interpretation as a latent\nrepresentation or code. In this paper we will therefore also refer to the recognition model qφ(z|x)\nas a probabilistic encoder, since given a datapoint x it produces a distribution (e.g. a Gaussian)\nover the possible values of the code z from which the datapoint x could have been generated. In a\nsimilar vein we will refer to pθ(x|z) as a probabilistic decoder, since given a code z it produces a\ndistribution over the possible corresponding values of x.",
+      "page": 3,
+      "bbox": [
+        108.0,
+        144.81,
+        504.0,
+        209.8
+      ],
+      "column": 1
+    },
+    {
+      "id": "b37",
+      "type": "paragraph",
+      "text": "The marginal likelihood is composed of a sum over the marginal likelihoods of individual datapoints\nlog pθ(x(1), · · · , x(N)) = PN\ni=1 log pθ(x(i)), which can each be rewritten as:",
+      "page": 3,
+      "bbox": [
+        108.0,
+        244.72,
+        504.0,
+        274.55
+      ],
+      "column": 1
+    },
+    {
+      "id": "b38",
+      "type": "paragraph",
+      "text": "log pθ(x(i)) = DKL(qφ(z|x(i))||pθ(z|x(i))) + L(θ, φ; x(i))\n(1)\nThe ﬁrst RHS term is the KL divergence of the approximate from the true posterior. Since this\nKL-divergence is non-negative, the second RHS term L(θ, φ; x(i)) is called the (variational) lower\nbound on the marginal likelihood of datapoint i, and can be written as:",
+      "page": 3,
+      "bbox": [
+        108.0,
+        272.39,
+        504.0,
+        321.7
+      ],
+      "column": 1
+    },
+    {
+      "id": "b39",
+      "type": "paragraph",
+      "text": "log pθ(x(i)) ≥L(θ, φ; x(i)) = Eqφ(z|x) [−log qφ(z|x) + log pθ(x, z)]\n(2)\nwhich can also be written as:",
+      "page": 3,
+      "bbox": [
+        108.0,
+        325.25,
+        504.0,
+        351.99
+      ],
+      "column": 1
+    },
+    {
+      "id": "b40",
+      "type": "paragraph",
+      "text": "L(θ, φ; x(i)) = −DKL(qφ(z|x(i))||pθ(z)) + Eqφ(z|x(i))\nh\nlog pθ(x(i)|z)\ni\n(3)",
+      "page": 3,
+      "bbox": [
+        159.0,
+        353.92,
+        504.0,
+        370.05
+      ],
+      "column": 1
+    },
+    {
+      "id": "b41",
+      "type": "paragraph",
+      "text": "We want to differentiate and optimize the lower bound L(θ, φ; x(i)) w.r.t. both the variational\nparameters φ and generative parameters θ. However, the gradient of the lower bound w.r.t. φ\nis a bit problematic. The usual (na¨ıve) Monte Carlo gradient estimator for this type of problem\nis: ∇φEqφ(z) [f(z)] = Eqφ(z)\n\u0002\nf(z)∇qφ(z) log qφ(z)\n\u0003\n≃1",
+      "page": 3,
+      "bbox": [
+        108.0,
+        376.27,
+        504.01,
+        424.16
+      ],
+      "column": 1
+    },
+    {
+      "id": "b42",
+      "type": "paragraph",
+      "text": "L\nPL\nl=1 f(z)∇qφ(z(l)) log qφ(z(l)) where\nz(l) ∼qφ(z|x(i)). This gradient estimator exhibits exhibits very high variance (see e.g. [BJP12])\nand is impractical for our purposes.",
+      "page": 3,
+      "bbox": [
+        108.0,
+        409.72,
+        504.0,
+        447.72
+      ],
+      "column": 1
+    },
+    {
+      "id": "b43",
+      "type": "paragraph",
+      "text": "In this section we introduce a practical estimator of the lower bound and its derivatives w.r.t. the\nparameters. We assume an approximate posterior in the form qφ(z|x), but please note that the\ntechnique can be applied to the case qφ(z), i.e. where we do not condition on x, as well. The fully\nvariational Bayesian method for inferring a posterior over the parameters is given in the appendix.",
+      "page": 3,
+      "bbox": [
+        108.0,
+        482.65,
+        504.0,
+        525.48
+      ],
+      "column": 1
+    },
+    {
+      "id": "b44",
+      "type": "paragraph",
+      "text": "Under certain mild conditions outlined in section 2.4 for a chosen approximate posterior qφ(z|x) we\ncan reparameterize the random variable ez ∼qφ(z|x) using a differentiable transformation gφ(ϵ, x)\nof an (auxiliary) noise variable ϵ:\nez = gφ(ϵ, x)\nwith\nϵ ∼p(ϵ)\n(4)\nSee section 2.4 for general strategies for chosing such an approriate distribution p(ϵ) and function\ngφ(ϵ, x). We can now form Monte Carlo estimates of expectations of some function f(z) w.r.t.\nqφ(z|x) as follows:",
+      "page": 3,
+      "bbox": [
+        108.0,
+        532.1,
+        504.0,
+        615.62
+      ],
+      "column": 1
+    },
+    {
+      "id": "b45",
+      "type": "paragraph",
+      "text": "L\nX l=1\nf(gφ(ϵ(l), x(i)))\nwhere\nϵ(l) ∼p(ϵ) (5)",
+      "page": 3,
+      "bbox": [
+        310.49,
+        620.18,
+        324.88,
+        637.96
+      ],
+      "column": 1
+    },
+    {
+      "id": "b47",
+      "type": "paragraph",
+      "text": "We apply this technique to the variational lower bound (eq. (2)), yielding our generic Stochastic\nGradient Variational Bayes (SGVB) estimator eLA(θ, φ; x(i)) ≃L(θ, φ; x(i)):",
+      "page": 3,
+      "bbox": [
+        108.0,
+        654.72,
+        504.0,
+        684.48
+      ],
+      "column": 1
+    },
+    {
+      "id": "b48",
+      "type": "paragraph",
+      "text": "l=1\nlog pθ(x(i), z(i,l)) −log qφ(z(i,l)|x(i))",
+      "page": 3,
+      "bbox": [
+        262.74,
+        690.7,
+        432.81,
+        713.77
+      ],
+      "column": 1
+    },
+    {
+      "id": "b49",
+      "type": "paragraph",
+      "text": "where\nz(i,l) = gφ(ϵ(i,l), x(i))\nand\nϵ(l) ∼p(ϵ)\n(6)",
+      "page": 3,
+      "bbox": [
+        181.4,
+        714.55,
+        504.0,
+        729.59
+      ],
+      "column": 1
+    },
+    {
+      "id": "b52",
+      "type": "paragraph",
+      "text": "θ, φ ←Initialize parameters\nrepeat",
+      "page": 4,
+      "bbox": [
+        117.96,
+        110.01,
+        232.24,
+        131.2
+      ],
+      "column": 0
+    },
+    {
+      "id": "b53",
+      "type": "paragraph",
+      "text": "XM ←Random minibatch of M datapoints (drawn from full dataset)\nϵ ←Random samples from noise distribution p(ϵ)\ng ←∇θ,φ eLM(θ, φ; XM, ϵ) (Gradients of minibatch estimator (8))\nθ, φ ←Update parameters using gradients g (e.g. SGD or Adagrad [DHS10])\nuntil convergence of parameters (θ, φ)\nreturn θ, φ eLB(θ, φ; x(i)) = −DKL(qφ(z|x(i))||pθ(z)) + 1",
+      "page": 4,
+      "bbox": [
+        117.96,
+        128.31,
+        445.13,
+        199.2
+      ],
+      "column": 0
+    },
+    {
+      "id": "b55",
+      "type": "paragraph",
+      "text": "L(θ, φ; X) ≃eLM(θ, φ; XM) = N",
+      "page": 4,
+      "bbox": [
+        196.76,
+        375.36,
+        341.85,
+        396.71
+      ],
+      "column": 0
+    },
+    {
+      "id": "b56",
+      "type": "paragraph",
+      "text": "2.4\nThe reparameterization trick",
+      "page": 4,
+      "bbox": [
+        108.0,
+        588.34,
+        254.74,
+        598.31
+      ],
+      "column": 0
+    },
+    {
+      "id": "b57",
+      "type": "paragraph",
+      "text": "1Note that for inﬁnitesimals we use the notational convention dz = Q",
+      "page": 4,
+      "bbox": [
+        120.65,
+        721.52,
+        373.04,
+        738.24
+      ],
+      "column": 0
+    },
+    {
+      "id": "b58",
+      "type": "paragraph",
+      "text": "Often, the KL-divergence DKL(qφ(z|x(i))||pθ(z)) of eq. (3) can be integrated analytically (see\nappendix B), such that only the expected reconstruction error Eqφ(z|x(i))\n\u0002\nlog pθ(x(i)|z)\n\u0003\nrequires\nestimation by sampling. The KL-divergence term can then be interpreted as regularizing φ, encour-\naging the approximate posterior to be close to the prior pθ(z). This yields a second version of the\nSGVB estimator eLB(θ, φ; x(i)) ≃L(θ, φ; x(i)), corresponding to eq. (3), which typically has less\nvariance than the generic estimator:",
+      "page": 4,
+      "bbox": [
+        108.0,
+        220.84,
+        504.0,
+        292.36
+      ],
+      "column": 1
+    },
+    {
+      "id": "b59",
+      "type": "paragraph",
+      "text": "L\nX l=1\n(log pθ(x(i)|z(i,l)))",
+      "page": 4,
+      "bbox": [
+        360.94,
+        296.41,
+        375.33,
+        314.19
+      ],
+      "column": 1
+    },
+    {
+      "id": "b61",
+      "type": "paragraph",
+      "text": "L where\nz(i,l) = gφ(ϵ(i,l), x(i))\nand\nϵ(l) ∼p(ϵ)\n(7)\nGiven multiple datapoints from a dataset X with N datapoints, we can construct an estimator of the\nmarginal likelihood lower bound of the full dataset, based on minibatches:",
+      "page": 4,
+      "bbox": [
+        351.3,
+        313.36,
+        358.09,
+        323.32
+      ],
+      "column": 1
+    },
+    {
+      "id": "b63",
+      "type": "paragraph",
+      "text": "M\nX i=1\neL(θ, φ; x(i))\n(8)",
+      "page": 4,
+      "bbox": [
+        346.61,
+        371.98,
+        361.01,
+        389.76
+      ],
+      "column": 1
+    },
+    {
+      "id": "b65",
+      "type": "paragraph",
+      "text": "M where the minibatch XM = {x(i)}M\ni=1 is a randomly drawn sample of M datapoints from the\nfull dataset X with N datapoints. In our experiments we found that the number of samples L\nper datapoint can be set to 1 as long as the minibatch size M was large enough, e.g. M = 100.\nDerivatives ∇θ,φ eL(θ; XM) can be taken, and the resulting gradients can be used in conjunction\nwith stochastic optimization methods such as SGD or Adagrad [DHS10]. See algorithm 1 for a\nbasic approach to compute the stochastic gradients.",
+      "page": 4,
+      "bbox": [
+        333.01,
+        388.93,
+        342.67,
+        398.9
+      ],
+      "column": 1
+    },
+    {
+      "id": "fig2",
+      "type": "figure",
+      "page": 4,
+      "bbox": [
+        113.96,
+        106.01,
+        236.24,
+        135.2
+      ],
+      "column": 0,
+      "image_path": "images/fig_02.png",
+      "caption": "Algorithm 1 Minibatch version of the Auto-Encoding VB (AEVB) algorithm. Either of the two\nSGVB estimators in section 2.3 can be used. We use settings M = 100 and L = 1 in experiments.",
+      "figure_label": "Algorithm 1"
+    },
+    {
+      "id": "b67",
+      "type": "paragraph",
+      "text": "A connection with auto-encoders becomes clear when looking at the objective function given at\neq. (7). The ﬁrst term is (the KL divergence of the approximate posterior from the prior) acts as a\nregularizer, while the second term is a an expected negative reconstruction error. The function gφ(.)\nis chosen such that it maps a datapoint x(i) and a random noise vector ϵ(l) to a sample from the\napproximate posterior for that datapoint: z(i,l) = gφ(ϵ(l), x(i)) where z(i,l) ∼qφ(z|x(i)). Subse-\nquently, the sample z(i,l) is then input to function log pθ(x(i)|z(i,l)), which equals the probability\ndensity (or mass) of datapoint x(i) under the generative model, given z(i,l). This term is a negative\nreconstruction error in auto-encoder parlance.",
+      "page": 4,
+      "bbox": [
+        108.0,
+        481.55,
+        504.0,
+        574.11
+      ],
+      "column": 1
+    },
+    {
+      "id": "b68",
+      "type": "paragraph",
+      "text": "In order to solve our problem we invoked an alternative method for generating samples from\nqφ(z|x). The essential parameterization trick is quite simple. Let z be a continuous random vari-\nable, and z ∼qφ(z|x) be some conditional distribution. It is then often possible to express the\nrandom variable z as a deterministic variable z = gφ(ϵ, x), where ϵ is an auxiliary variable with\nindependent marginal p(ϵ), and gφ(.) is some vector-valued function parameterized by φ.",
+      "page": 4,
+      "bbox": [
+        108.0,
+        608.96,
+        504.0,
+        663.37
+      ],
+      "column": 1
+    },
+    {
+      "id": "b69",
+      "type": "paragraph",
+      "text": "This reparameterization is useful for our case since it can be used to rewrite an expectation w.r.t\nqφ(z|x) such that the Monte Carlo estimate of the expectation is differentiable w.r.t. φ. A proof\nis as follows. Given the deterministic mapping z = gφ(ϵ, x) we know that qφ(z|x) Q i dzi =\np(ϵ) Q i dϵi. Therefore1,\nR\nqφ(z|x)f(z) dz =\nR\np(ϵ)f(z) dϵ =\nR\np(ϵ)f(gφ(ϵ, x)) dϵ. It follows i dzi",
+      "page": 4,
+      "bbox": [
+        108.0,
+        669.73,
+        504.0,
+        708.54
+      ],
+      "column": 1
+    },
+    {
+      "id": "b73",
+      "type": "paragraph",
+      "text": "For which qφ(z|x) can we choose such a differentiable transformation gφ(.) and auxiliary variable\nϵ ∼p(ϵ)? Three basic approaches are:",
+      "page": 5,
+      "bbox": [
+        108.0,
+        167.29,
+        504.0,
+        188.57
+      ],
+      "column": 0
+    },
+    {
+      "id": "b74",
+      "type": "paragraph",
+      "text": "3\nExample: Variational Auto-Encoder",
+      "page": 5,
+      "bbox": [
+        108.0,
+        372.35,
+        310.92,
+        384.31
+      ],
+      "column": 0
+    },
+    {
+      "id": "b75",
+      "type": "paragraph",
+      "text": "J\nX",
+      "page": 5,
+      "bbox": [
+        202.66,
+        638.4,
+        217.05,
+        656.17
+      ],
+      "column": 0
+    },
+    {
+      "id": "b76",
+      "type": "paragraph",
+      "text": "L(θ, φ; x(i)) ≃1 j=1",
+      "page": 5,
+      "bbox": [
+        127.76,
+        641.77,
+        199.8,
+        658.48
+      ],
+      "column": 0
+    },
+    {
+      "id": "b78",
+      "type": "paragraph",
+      "text": "As explained above and in appendix C, the decoding term log pθ(x(i)|z(i,l)) is a Bernoulli or Gaus-\nsian MLP, depending on the type of data we are modelling.",
+      "page": 5,
+      "bbox": [
+        108.0,
+        691.96,
+        504.0,
+        714.39
+      ],
+      "column": 0
+    },
+    {
+      "id": "b79",
+      "type": "paragraph",
+      "text": "2Note that this is just a (simplifying) choice, and not a limitation of our method.",
+      "page": 5,
+      "bbox": [
+        120.65,
+        721.52,
+        407.07,
+        732.03
+      ],
+      "column": 0
+    },
+    {
+      "id": "b80",
+      "type": "paragraph",
+      "text": "that a differentiable estimator can be constructed:\nR\nqφ(z|x)f(z) dz ≃\n1\nL\nPL\nl=1 f(gφ(x, ϵ(l)))\nwhere ϵ(l) ∼p(ϵ). In section 2.3 we applied this trick to obtain a differentiable estimator of the\nvariational lower bound.",
+      "page": 5,
+      "bbox": [
+        108.0,
+        81.36,
+        504.0,
+        118.47
+      ],
+      "column": 1
+    },
+    {
+      "id": "b81",
+      "type": "paragraph",
+      "text": "Take, for example, the univariate Gaussian case: let z ∼p(z|x) = N(µ, σ2). In this case, a valid\nreparameterization is z = µ + σϵ, where ϵ is an auxiliary noise variable ϵ ∼N(0, 1). Therefore,\nEN(z;µ,σ2) [f(z)] = EN(ϵ;0,1) [f(µ + σϵ)] ≃1",
+      "page": 5,
+      "bbox": [
+        108.0,
+        123.93,
+        504.0,
+        161.19
+      ],
+      "column": 1
+    },
+    {
+      "id": "b82",
+      "type": "paragraph",
+      "text": "L\nPL\nl=1 f(µ + σϵ(l)) where ϵ(l) ∼N(0, 1).",
+      "page": 5,
+      "bbox": [
+        290.97,
+        145.69,
+        466.08,
+        162.38
+      ],
+      "column": 1
+    },
+    {
+      "id": "b83",
+      "type": "paragraph",
+      "text": "1. Tractable inverse CDF. In this case, let ϵ ∼U(0, I), and let gφ(ϵ, x) be the inverse CDF of\nqφ(z|x). Examples: Exponential, Cauchy, Logistic, Rayleigh, Pareto, Weibull, Reciprocal,\nGompertz, Gumbel and Erlang distributions.\n2. Analogous to the Gaussian example, for any ”location-scale” family of distributions we can\nchoose the standard distribution (with location = 0, scale = 1) as the auxiliary variable\nϵ, and let g(.) = location + scale · ϵ. Examples: Laplace, Elliptical, Student’s t, Logistic,\nUniform, Triangular and Gaussian distributions.\n3. Composition: It is often possible to express random variables as different transformations\nof auxiliary variables. Examples: Log-Normal (exponentiation of normally distributed\nvariable), Gamma (a sum over exponentially distributed variables), Dirichlet (weighted\nsum of Gamma variates), Beta, Chi-Squared, and F distributions.",
+      "page": 5,
+      "bbox": [
+        131.41,
+        198.04,
+        504.0,
+        324.8
+      ],
+      "column": 1
+    },
+    {
+      "id": "b84",
+      "type": "paragraph",
+      "text": "When all three approaches fail, good approximations to the inverse CDF exist requiring computa-\ntions with time complexity comparable to the PDF (see e.g. [Dev86] for some methods).",
+      "page": 5,
+      "bbox": [
+        108.0,
+        334.63,
+        504.0,
+        355.55
+      ],
+      "column": 1
+    },
+    {
+      "id": "b85",
+      "type": "paragraph",
+      "text": "In this section we’ll give an example where we use a neural network for the probabilistic encoder\nqφ(z|x) (the approximation to the posterior of the generative model pθ(x, z)) and where the param-\neters φ and θ are optimized jointly with the AEVB algorithm.",
+      "page": 5,
+      "bbox": [
+        108.0,
+        397.13,
+        504.0,
+        429.01
+      ],
+      "column": 1
+    },
+    {
+      "id": "b86",
+      "type": "paragraph",
+      "text": "Let the prior over the latent variables be the centered isotropic multivariate Gaussian pθ(z) =\nN(z; 0, I). Note that in this case, the prior lacks parameters. We let pθ(x|z) be a multivariate\nGaussian (in case of real-valued data) or Bernoulli (in case of binary data) whose distribution pa-\nrameters are computed from z with a MLP (a fully-connected neural network with a single hidden\nlayer, see appendix C). Note the true posterior pθ(z|x) is in this case intractable. While there is\nmuch freedom in the form qφ(z|x), we’ll assume the true (but intractable) posterior takes on a ap-\nproximate Gaussian form with an approximately diagonal covariance. In this case, we can let the\nvariational approximate posterior be a multivariate Gaussian with a diagonal covariance structure2:",
+      "page": 5,
+      "bbox": [
+        108.0,
+        435.75,
+        504.0,
+        522.66
+      ],
+      "column": 1
+    },
+    {
+      "id": "b87",
+      "type": "paragraph",
+      "text": "log qφ(z|x(i)) = log N(z; µ(i), σ2(i)I)\n(9)",
+      "page": 5,
+      "bbox": [
+        227.47,
+        527.34,
+        504.0,
+        539.92
+      ],
+      "column": 1
+    },
+    {
+      "id": "b88",
+      "type": "paragraph",
+      "text": "where the mean and s.d. of the approximate posterior, µ(i) and σ(i), are outputs of the encoding\nMLP, i.e. nonlinear functions of datapoint x(i) and the variational parameters φ (see appendix C).",
+      "page": 5,
+      "bbox": [
+        108.0,
+        543.02,
+        504.0,
+        568.6
+      ],
+      "column": 1
+    },
+    {
+      "id": "b89",
+      "type": "paragraph",
+      "text": "As explained in section 2.4, we sample from the posterior z(i,l) ∼qφ(z|x(i)) using z(i,l) =\ngφ(x(i), ϵ(l)) = µ(i) + σ(i) ⊙ϵ(l) where ϵ(l) ∼N(0, I). With ⊙we signify an element-wise\nproduct. In this model both pθ(z) (the prior) and qφ(z|x) are Gaussian; in this case, we can use the\nestimator of eq. (7) where the KL divergence can be computed and differentiated without estimation\n(see appendix B). The resulting estimator for this model and datapoint x(i) is:",
+      "page": 5,
+      "bbox": [
+        108.0,
+        572.63,
+        504.0,
+        633.18
+      ],
+      "column": 1
+    },
+    {
+      "id": "b90",
+      "type": "paragraph",
+      "text": "L\nX",
+      "page": 5,
+      "bbox": [
+        399.13,
+        638.4,
+        413.53,
+        656.17
+      ],
+      "column": 1
+    },
+    {
+      "id": "b91",
+      "type": "paragraph",
+      "text": "\u0010\n1 + log((σ(i)\nj )2) −(µ(i)\nj )2 −(σ(i)\nj )2\u0011\n+ 1 l=1\nlog pθ(x(i)|z(i,l))",
+      "page": 5,
+      "bbox": [
+        218.71,
+        641.77,
+        395.38,
+        661.25
+      ],
+      "column": 1
+    },
+    {
+      "id": "b93",
+      "type": "paragraph",
+      "text": "L where\nz(i,l) = µ(i) + σ(i) ⊙ϵ(l)\nand\nϵ(l) ∼N(0, I)\n(10)",
+      "page": 5,
+      "bbox": [
+        389.5,
+        655.35,
+        396.28,
+        665.31
+      ],
+      "column": 1
+    },
+    {
+      "id": "b95",
+      "type": "paragraph",
+      "text": "4\nRelated work",
+      "page": 6,
+      "bbox": [
+        108.0,
+        82.65,
+        194.54,
+        94.6
+      ],
+      "column": 0
+    },
+    {
+      "id": "b96",
+      "type": "paragraph",
+      "text": "5\nExperiments",
+      "page": 6,
+      "bbox": [
+        108.0,
+        618.44,
+        191.02,
+        630.39
+      ],
+      "column": 0
+    },
+    {
+      "id": "b97",
+      "type": "paragraph",
+      "text": "3Available at http://www.cs.nyu.edu/˜roweis/data.html",
+      "page": 6,
+      "bbox": [
+        120.65,
+        721.52,
+        378.88,
+        733.29
+      ],
+      "column": 0
+    },
+    {
+      "id": "b98",
+      "type": "paragraph",
+      "text": "The wake-sleep algorithm [HDFN95] is, to the best of our knowledge, the only other on-line learn-\ning method in the literature that is applicable to the same general class of continuous latent variable\nmodels. Like our method, the wake-sleep algorithm employs a recognition model that approximates\nthe true posterior. A drawback of the wake-sleep algorithm is that it requires a concurrent optimiza-\ntion of two objective functions, which together do not correspond to optimization of (a bound of)\nthe marginal likelihood. An advantage of wake-sleep is that it also applies to models with discrete\nlatent variables. Wake-Sleep has the same computational complexity as AEVB per datapoint.",
+      "page": 6,
+      "bbox": [
+        108.0,
+        107.46,
+        504.0,
+        183.17
+      ],
+      "column": 1
+    },
+    {
+      "id": "b99",
+      "type": "paragraph",
+      "text": "Stochastic variational inference [HBWP13] has recently received increasing interest.\nRecently,\n[BJP12] introduced a control variate schemes to reduce the high variance of the na¨ıve gradient\nestimator discussed in section 2.1, and applied to exponential family approximations of the poste-\nrior. In [RGB13] some general methods, i.e. a control variate scheme, were introduced for reducing\nthe variance of the original gradient estimator. In [SK13], a similar reparameterization as in this\npaper was used in an efﬁcient version of a stochastic variational inference algorithm for learning the\nnatural parameters of exponential-family approximating distributions.",
+      "page": 6,
+      "bbox": [
+        108.0,
+        190.15,
+        504.0,
+        265.86
+      ],
+      "column": 1
+    },
+    {
+      "id": "b100",
+      "type": "paragraph",
+      "text": "The AEVB algorithm exposes a connection between directed probabilistic models (trained with a\nvariational objective) and auto-encoders. A connection between linear auto-encoders and a certain\nclass of generative linear-Gaussian models has long been known. In [Row98] it was shown that PCA\ncorresponds to the maximum-likelihood (ML) solution of a special case of the linear-Gaussian model\nwith a prior p(z) = N(0, I) and a conditional distribution p(x|z) = N(x; Wz, ϵI), speciﬁcally the\ncase with inﬁnitesimally small ϵ.",
+      "page": 6,
+      "bbox": [
+        108.0,
+        272.84,
+        504.0,
+        337.59
+      ],
+      "column": 1
+    },
+    {
+      "id": "b101",
+      "type": "paragraph",
+      "text": "In relevant recent work on autoencoders [VLL+10] it was shown that the training criterion of un-\nregularized autoencoders corresponds to maximization of a lower bound (see the infomax princi-\nple [Lin89]) of the mutual information between input X and latent representation Z. Maximiz-\ning (w.r.t. parameters) of the mutual information is equivalent to maximizing the conditional en-\ntropy, which is lower bounded by the expected loglikelihood of the data under the autoencoding\nmodel [VLL+10], i.e. the negative reconstrution error. However, it is well known that this recon-\nstruction criterion is in itself not sufﬁcient for learning useful representations [BCV13]. Regular-\nization techniques have been proposed to make autoencoders learn useful representations, such as\ndenoising, contractive and sparse autoencoder variants [BCV13]. The SGVB objective contains a\nregularization term dictated by the variational bound (e.g. eq. (10)), lacking the usual nuisance regu-\nlarization hyperparameter required to learn useful representations. Related are also encoder-decoder\narchitectures such as the predictive sparse decomposition (PSD) [KRL08], from which we drew\nsome inspiration. Also relevant are the recently introduced Generative Stochastic Networks [BTL13]\nwhere noisy auto-encoders learn the transition operator of a Markov chain that samples from the data\ndistribution. In [SL10] a recognition model was employed for efﬁcient learning with Deep Boltz-\nmann Machines. These methods are targeted at either unnormalized models (i.e. undirected models\nlike Boltzmann machines) or limited to sparse coding models, in contrast to our proposed algorithm\nfor learning a general class of directed probabilistic models.",
+      "page": 6,
+      "bbox": [
+        108.0,
+        343.06,
+        504.0,
+        540.83
+      ],
+      "column": 1
+    },
+    {
+      "id": "b102",
+      "type": "paragraph",
+      "text": "The recently proposed DARN method [GMW13], also learns a directed probabilistic model using\nan auto-encoding structure, however their method applies to binary latent variables. Even more\nrecently, [RMW14] also make the connection between auto-encoders, directed proabilistic models\nand stochastic variational inference using the reparameterization trick we describe in this paper.\nTheir work was developed independently of ours and provides an additional perspective on AEVB.",
+      "page": 6,
+      "bbox": [
+        108.0,
+        547.8,
+        504.0,
+        601.6
+      ],
+      "column": 1
+    },
+    {
+      "id": "b103",
+      "type": "paragraph",
+      "text": "We trained generative models of images from the MNIST and Frey Face datasets3 and compared\nlearning algorithms in terms of the variational lower bound, and the estimated marginal likelihood.",
+      "page": 6,
+      "bbox": [
+        108.0,
+        639.63,
+        504.0,
+        664.17
+      ],
+      "column": 1
+    },
+    {
+      "id": "b104",
+      "type": "paragraph",
+      "text": "The generative model (encoder) and variational approximation (decoder) from section 3 were used,\nwhere the described encoder and decoder have an equal number of hidden units. Since the Frey\nFace data are continuous, we used a decoder with Gaussian outputs, identical to the encoder, except\nthat the means were constrained to the interval (0, 1) using a sigmoidal activation function at the",
+      "page": 6,
+      "bbox": [
+        108.0,
+        671.14,
+        504.0,
+        713.98
+      ],
+      "column": 1
+    },
+    {
+      "id": "b105",
+      "type": "paragraph",
+      "text": "MNIST, Nz =3",
+      "page": 7,
+      "bbox": [
+        139.86,
+        83.72,
+        180.64,
+        92.84
+      ],
+      "column": 0
+    },
+    {
+      "id": "b106",
+      "type": "paragraph",
+      "text": "MNIST, Nz =5",
+      "page": 7,
+      "bbox": [
+        211.73,
+        83.72,
+        252.51,
+        92.84
+      ],
+      "column": 0
+    },
+    {
+      "id": "b107",
+      "type": "paragraph",
+      "text": "MNIST, Nz =10",
+      "page": 7,
+      "bbox": [
+        282.05,
+        83.72,
+        326.0,
+        92.84
+      ],
+      "column": 0
+    },
+    {
+      "id": "b108",
+      "type": "paragraph",
+      "text": "100",
+      "page": 7,
+      "bbox": [
+        122.22,
+        93.94,
+        130.65,
+        99.09
+      ],
+      "column": 0
+    },
+    {
+      "id": "b109",
+      "type": "paragraph",
+      "text": "100",
+      "page": 7,
+      "bbox": [
+        194.09,
+        93.94,
+        202.51,
+        99.09
+      ],
+      "column": 0
+    },
+    {
+      "id": "b110",
+      "type": "paragraph",
+      "text": "100",
+      "page": 7,
+      "bbox": [
+        265.95,
+        93.94,
+        274.38,
+        99.09
+      ],
+      "column": 0
+    },
+    {
+      "id": "b111",
+      "type": "paragraph",
+      "text": "110",
+      "page": 7,
+      "bbox": [
+        122.22,
+        103.38,
+        130.65,
+        108.52
+      ],
+      "column": 0
+    },
+    {
+      "id": "b112",
+      "type": "paragraph",
+      "text": "110",
+      "page": 7,
+      "bbox": [
+        194.09,
+        103.38,
+        202.51,
+        108.52
+      ],
+      "column": 0
+    },
+    {
+      "id": "b113",
+      "type": "paragraph",
+      "text": "110",
+      "page": 7,
+      "bbox": [
+        265.95,
+        103.38,
+        274.38,
+        108.52
+      ],
+      "column": 0
+    },
+    {
+      "id": "b114",
+      "type": "paragraph",
+      "text": "120",
+      "page": 7,
+      "bbox": [
+        122.22,
+        112.82,
+        130.65,
+        117.96
+      ],
+      "column": 0
+    },
+    {
+      "id": "b115",
+      "type": "paragraph",
+      "text": "120",
+      "page": 7,
+      "bbox": [
+        194.09,
+        112.82,
+        202.51,
+        117.96
+      ],
+      "column": 0
+    },
+    {
+      "id": "b116",
+      "type": "paragraph",
+      "text": "120",
+      "page": 7,
+      "bbox": [
+        265.95,
+        112.82,
+        274.38,
+        117.96
+      ],
+      "column": 0
+    },
+    {
+      "id": "b117",
+      "type": "paragraph",
+      "text": "L",
+      "page": 7,
+      "bbox": [
+        110.85,
+        116.4,
+        120.06,
+        120.05
+      ],
+      "column": 0
+    },
+    {
+      "id": "b118",
+      "type": "paragraph",
+      "text": "130",
+      "page": 7,
+      "bbox": [
+        122.22,
+        122.25,
+        130.65,
+        127.4
+      ],
+      "column": 0
+    },
+    {
+      "id": "b119",
+      "type": "paragraph",
+      "text": "130",
+      "page": 7,
+      "bbox": [
+        194.09,
+        122.25,
+        202.51,
+        127.4
+      ],
+      "column": 0
+    },
+    {
+      "id": "b120",
+      "type": "paragraph",
+      "text": "130",
+      "page": 7,
+      "bbox": [
+        265.95,
+        122.25,
+        274.38,
+        127.4
+      ],
+      "column": 0
+    },
+    {
+      "id": "b121",
+      "type": "paragraph",
+      "text": "140",
+      "page": 7,
+      "bbox": [
+        122.22,
+        131.69,
+        130.65,
+        136.84
+      ],
+      "column": 0
+    },
+    {
+      "id": "b122",
+      "type": "paragraph",
+      "text": "140",
+      "page": 7,
+      "bbox": [
+        194.09,
+        131.69,
+        202.51,
+        136.84
+      ],
+      "column": 0
+    },
+    {
+      "id": "b123",
+      "type": "paragraph",
+      "text": "140",
+      "page": 7,
+      "bbox": [
+        265.95,
+        131.69,
+        274.38,
+        136.84
+      ],
+      "column": 0
+    },
+    {
+      "id": "b124",
+      "type": "paragraph",
+      "text": "150",
+      "page": 7,
+      "bbox": [
+        122.22,
+        141.13,
+        130.65,
+        146.27
+      ],
+      "column": 0
+    },
+    {
+      "id": "b125",
+      "type": "paragraph",
+      "text": "105\n106\n107\n108\n150",
+      "page": 7,
+      "bbox": [
+        194.09,
+        141.13,
+        257.44,
+        150.96
+      ],
+      "column": 0
+    },
+    {
+      "id": "b126",
+      "type": "paragraph",
+      "text": "105\n106\n107\n108\n150",
+      "page": 7,
+      "bbox": [
+        265.95,
+        141.13,
+        329.31,
+        150.96
+      ],
+      "column": 0
+    },
+    {
+      "id": "b127",
+      "type": "paragraph",
+      "text": "105\n106\n107\n108",
+      "page": 7,
+      "bbox": [
+        127.23,
+        144.69,
+        185.58,
+        150.96
+      ],
+      "column": 0
+    },
+    {
+      "id": "b128",
+      "type": "paragraph",
+      "text": "# Training samples evaluated",
+      "page": 7,
+      "bbox": [
+        121.2,
+        152.39,
+        200.84,
+        158.57
+      ],
+      "column": 0
+    },
+    {
+      "id": "b129",
+      "type": "paragraph",
+      "text": "Frey Face, Nz =2",
+      "page": 7,
+      "bbox": [
+        206.43,
+        158.91,
+        258.09,
+        168.02
+      ],
+      "column": 0
+    },
+    {
+      "id": "b130",
+      "type": "paragraph",
+      "text": "105\n106\n107\n108\n0\n200\n400\n600\n800\n1000\n1200\n1400\n1600 Frey Face, Nz =5",
+      "page": 7,
+      "bbox": [
+        263.16,
+        158.91,
+        336.04,
+        226.22
+      ],
+      "column": 0
+    },
+    {
+      "id": "b131",
+      "type": "paragraph",
+      "text": "105\n106\n107\n108\n0\n200\n400\n600\n800\n1000\n1200\n1400\n1600",
+      "page": 7,
+      "bbox": [
+        191.29,
+        164.49,
+        264.18,
+        226.22
+      ],
+      "column": 0
+    },
+    {
+      "id": "b132",
+      "type": "paragraph",
+      "text": "Wake-Sleep (test)\nWake-Sleep (train)\nAEVB (test)\nAEVB (train)",
+      "page": 7,
+      "bbox": [
+        131.41,
+        180.08,
+        172.74,
+        204.66
+      ],
+      "column": 0
+    },
+    {
+      "id": "b133",
+      "type": "paragraph",
+      "text": "L",
+      "page": 7,
+      "bbox": [
+        183.62,
+        191.66,
+        192.83,
+        195.31
+      ],
+      "column": 0
+    },
+    {
+      "id": "b134",
+      "type": "paragraph",
+      "text": "MNIST, Nz =20",
+      "page": 7,
+      "bbox": [
+        353.91,
+        83.72,
+        397.87,
+        92.84
+      ],
+      "column": 1
+    },
+    {
+      "id": "b135",
+      "type": "paragraph",
+      "text": "MNIST, Nz =200",
+      "page": 7,
+      "bbox": [
+        424.23,
+        83.72,
+        471.37,
+        92.84
+      ],
+      "column": 1
+    },
+    {
+      "id": "b136",
+      "type": "paragraph",
+      "text": "100",
+      "page": 7,
+      "bbox": [
+        337.82,
+        93.94,
+        346.24,
+        99.09
+      ],
+      "column": 1
+    },
+    {
+      "id": "b137",
+      "type": "paragraph",
+      "text": "100",
+      "page": 7,
+      "bbox": [
+        409.68,
+        93.94,
+        418.11,
+        99.09
+      ],
+      "column": 1
+    },
+    {
+      "id": "b138",
+      "type": "paragraph",
+      "text": "110",
+      "page": 7,
+      "bbox": [
+        337.82,
+        103.38,
+        346.24,
+        108.52
+      ],
+      "column": 1
+    },
+    {
+      "id": "b139",
+      "type": "paragraph",
+      "text": "110",
+      "page": 7,
+      "bbox": [
+        409.68,
+        103.38,
+        418.11,
+        108.52
+      ],
+      "column": 1
+    },
+    {
+      "id": "b140",
+      "type": "paragraph",
+      "text": "120",
+      "page": 7,
+      "bbox": [
+        337.82,
+        112.82,
+        346.24,
+        117.96
+      ],
+      "column": 1
+    },
+    {
+      "id": "b141",
+      "type": "paragraph",
+      "text": "120",
+      "page": 7,
+      "bbox": [
+        409.68,
+        112.82,
+        418.11,
+        117.96
+      ],
+      "column": 1
+    },
+    {
+      "id": "b142",
+      "type": "paragraph",
+      "text": "130",
+      "page": 7,
+      "bbox": [
+        337.82,
+        122.25,
+        346.24,
+        127.4
+      ],
+      "column": 1
+    },
+    {
+      "id": "b143",
+      "type": "paragraph",
+      "text": "130",
+      "page": 7,
+      "bbox": [
+        409.68,
+        122.25,
+        418.11,
+        127.4
+      ],
+      "column": 1
+    },
+    {
+      "id": "b144",
+      "type": "paragraph",
+      "text": "140",
+      "page": 7,
+      "bbox": [
+        337.82,
+        131.69,
+        346.24,
+        136.84
+      ],
+      "column": 1
+    },
+    {
+      "id": "b145",
+      "type": "paragraph",
+      "text": "140",
+      "page": 7,
+      "bbox": [
+        409.68,
+        131.69,
+        418.11,
+        136.84
+      ],
+      "column": 1
+    },
+    {
+      "id": "b146",
+      "type": "paragraph",
+      "text": "105\n106\n107\n108\n150",
+      "page": 7,
+      "bbox": [
+        337.82,
+        141.13,
+        401.18,
+        150.96
+      ],
+      "column": 1
+    },
+    {
+      "id": "b147",
+      "type": "paragraph",
+      "text": "105\n106\n107\n108\n150",
+      "page": 7,
+      "bbox": [
+        409.68,
+        141.13,
+        473.04,
+        150.96
+      ],
+      "column": 1
+    },
+    {
+      "id": "b148",
+      "type": "paragraph",
+      "text": "105\n106\n107\n108\n0\n200\n400\n600\n800\n1000\n1200\n1400\n1600 Frey Face, Nz =10",
+      "page": 7,
+      "bbox": [
+        335.02,
+        158.91,
+        407.91,
+        226.22
+      ],
+      "column": 1
+    },
+    {
+      "id": "b149",
+      "type": "paragraph",
+      "text": "105\n106\n107\n108\n0\n200\n400\n600\n800\n1000\n1200\n1400\n1600 Frey Face, Nz =20",
+      "page": 7,
+      "bbox": [
+        406.89,
+        158.91,
+        479.77,
+        226.22
+      ],
+      "column": 1
+    },
+    {
+      "id": "b152",
+      "type": "paragraph",
+      "text": "decoder output. Note that with hidden units we refer to the hidden layer of the neural networks of\nthe encoder and decoder.",
+      "page": 7,
+      "bbox": [
+        108.0,
+        358.12,
+        504.0,
+        379.21
+      ],
+      "column": 1
+    },
+    {
+      "id": "b153",
+      "type": "paragraph",
+      "text": "Parameters are updated using stochastic gradient ascent where gradients are computed by differenti-\nating the lower bound estimator ∇θ,φL(θ, φ; X) (see algorithm 1), plus a small weight decay term\ncorresponding to a prior p(θ) = N(0, I). Optimization of this objective is equivalent to approxi-\nmate MAP estimation, where the likelihood gradient is approximated by the gradient of the lower\nbound.",
+      "page": 7,
+      "bbox": [
+        108.0,
+        386.19,
+        504.0,
+        439.99
+      ],
+      "column": 1
+    },
+    {
+      "id": "b154",
+      "type": "paragraph",
+      "text": "We compared performance of AEVB to the wake-sleep algorithm [HDFN95]. We employed the\nsame encoder (also called recognition model) for the wake-sleep algorithm and the variational auto-\nencoder. All parameters, both variational and generative, were initialized by random sampling from\nN(0, 0.01), and were jointly stochastically optimized using the MAP criterion. Stepsizes were\nadapted with Adagrad [DHS10]; the Adagrad global stepsize parameters were chosen from {0.01,\n0.02, 0.1} based on performance on the training set in the ﬁrst few iterations. Minibatches of size\nM = 100 were used, with L = 1 samples per datapoint.",
+      "page": 7,
+      "bbox": [
+        108.0,
+        446.96,
+        504.0,
+        522.68
+      ],
+      "column": 1
+    },
+    {
+      "id": "b155",
+      "type": "paragraph",
+      "text": "Likelihood lower bound\nWe trained generative models (decoders) and corresponding encoders\n(a.k.a. recognition models) having 500 hidden units in case of MNIST, and 200 hidden units in case\nof the Frey Face dataset (to prevent overﬁtting, since it is a considerably smaller dataset). The chosen\nnumber of hidden units is based on prior literature on auto-encoders, and the relative performance\nof different algorithms was not very sensitive to these choices. Figure 2 shows the results when\ncomparing the lower bounds. Interestingly, superﬂuous latent variables did not result in overﬁtting,\nwhich is explained by the regularizing nature of the variational bound.",
+      "page": 7,
+      "bbox": [
+        108.0,
+        546.19,
+        504.0,
+        621.99
+      ],
+      "column": 1
+    },
+    {
+      "id": "fig3",
+      "type": "figure",
+      "page": 7,
+      "bbox": [
+        104.0,
+        77.86,
+        488.64,
+        233.97
+      ],
+      "column": 0,
+      "image_path": "images/fig_03.png",
+      "caption": "Figure 2: Comparison of our AEVB method to the wake-sleep algorithm, in terms of optimizing the\nlower bound, for different dimensionality of latent space (Nz). Our method converged considerably\nfaster and reached a better solution in all experiments. Interestingly enough, more latent variables\ndoes not result in more overﬁtting, which is explained by the regularizing effect of the lower bound.\nVertical axis: the estimated average variational lower bound per datapoint. The estimator variance\nwas small (< 1) and omitted. Horizontal axis: amount of training points evaluated. Computa-\ntion took around 20-40 minutes per million training samples with a Intel Xeon CPU running at an\neffective 40 GFLOPS.",
+      "figure_label": "Figure 2"
+    },
+    {
+      "id": "b156",
+      "type": "paragraph",
+      "text": "Marginal likelihood\nFor very low-dimensional latent space it is possible to estimate the marginal\nlikelihood of the learned generative models using an MCMC estimator. More information about the\nmarginal likelihood estimator is available in the appendix. For the encoder and decoder we again\nused neural networks, this time with 100 hidden units, and 3 latent variables; for higher dimensional\nlatent space the estimates became unreliable. Again, the MNIST dataset was used. The AEVB\nand Wake-Sleep methods were compared to Monte Carlo EM (MCEM) with a Hybrid Monte Carlo\n(HMC) [DKPR87] sampler; details are in the appendix. We compared the convergence speed for\nthe three algorithms, for a small and large training set size. Results are in ﬁgure 3.",
+      "page": 7,
+      "bbox": [
+        108.0,
+        645.5,
+        504.0,
+        732.27
+      ],
+      "column": 1
+    },
+    {
+      "id": "b157",
+      "type": "paragraph",
+      "text": "Ntrain = 1000",
+      "page": 8,
+      "bbox": [
+        168.84,
+        84.29,
+        222.12,
+        95.58
+      ],
+      "column": 0
+    },
+    {
+      "id": "b158",
+      "type": "paragraph",
+      "text": "100",
+      "page": 8,
+      "bbox": [
+        126.57,
+        91.47,
+        137.57,
+        98.19
+      ],
+      "column": 0
+    },
+    {
+      "id": "b159",
+      "type": "paragraph",
+      "text": "130",
+      "page": 8,
+      "bbox": [
+        262.82,
+        108.08,
+        273.82,
+        114.79
+      ],
+      "column": 0
+    },
+    {
+      "id": "b160",
+      "type": "paragraph",
+      "text": "110",
+      "page": 8,
+      "bbox": [
+        126.57,
+        110.84,
+        137.57,
+        117.56
+      ],
+      "column": 0
+    },
+    {
+      "id": "b161",
+      "type": "paragraph",
+      "text": "Marginal log-likelihood",
+      "page": 8,
+      "bbox": [
+        110.98,
+        113.67,
+        119.04,
+        192.04
+      ],
+      "column": 0
+    },
+    {
+      "id": "b162",
+      "type": "paragraph",
+      "text": "135",
+      "page": 8,
+      "bbox": [
+        262.95,
+        124.68,
+        273.95,
+        131.4
+      ],
+      "column": 0
+    },
+    {
+      "id": "b163",
+      "type": "paragraph",
+      "text": "120",
+      "page": 8,
+      "bbox": [
+        126.57,
+        130.22,
+        137.57,
+        136.93
+      ],
+      "column": 0
+    },
+    {
+      "id": "b164",
+      "type": "paragraph",
+      "text": "140",
+      "page": 8,
+      "bbox": [
+        262.82,
+        141.29,
+        273.82,
+        148.0
+      ],
+      "column": 0
+    },
+    {
+      "id": "b165",
+      "type": "paragraph",
+      "text": "130",
+      "page": 8,
+      "bbox": [
+        126.57,
+        149.59,
+        137.57,
+        156.31
+      ],
+      "column": 0
+    },
+    {
+      "id": "b166",
+      "type": "paragraph",
+      "text": "145",
+      "page": 8,
+      "bbox": [
+        262.95,
+        157.89,
+        273.95,
+        164.61
+      ],
+      "column": 0
+    },
+    {
+      "id": "b167",
+      "type": "paragraph",
+      "text": "140",
+      "page": 8,
+      "bbox": [
+        126.57,
+        168.96,
+        137.57,
+        175.68
+      ],
+      "column": 0
+    },
+    {
+      "id": "b168",
+      "type": "paragraph",
+      "text": "150",
+      "page": 8,
+      "bbox": [
+        262.82,
+        174.5,
+        273.82,
+        181.21
+      ],
+      "column": 0
+    },
+    {
+      "id": "b169",
+      "type": "paragraph",
+      "text": "150",
+      "page": 8,
+      "bbox": [
+        126.57,
+        188.33,
+        137.57,
+        195.05
+      ],
+      "column": 0
+    },
+    {
+      "id": "b170",
+      "type": "paragraph",
+      "text": "155",
+      "page": 8,
+      "bbox": [
+        262.95,
+        191.1,
+        273.95,
+        197.82
+      ],
+      "column": 0
+    },
+    {
+      "id": "b171",
+      "type": "paragraph",
+      "text": "160",
+      "page": 8,
+      "bbox": [
+        126.57,
+        207.71,
+        137.57,
+        214.42
+      ],
+      "column": 0
+    },
+    {
+      "id": "b172",
+      "type": "paragraph",
+      "text": "0\n10\n20\n30\n40\n50\n60\n# Training samples evaluated (millions)",
+      "page": 8,
+      "bbox": [
+        127.33,
+        212.8,
+        265.57,
+        229.13
+      ],
+      "column": 0
+    },
+    {
+      "id": "b173",
+      "type": "paragraph",
+      "text": "6\nConclusion",
+      "page": 8,
+      "bbox": [
+        108.0,
+        369.37,
+        183.07,
+        381.32
+      ],
+      "column": 0
+    },
+    {
+      "id": "b174",
+      "type": "paragraph",
+      "text": "7\nFuture work",
+      "page": 8,
+      "bbox": [
+        108.0,
+        487.67,
+        190.35,
+        499.63
+      ],
+      "column": 0
+    },
+    {
+      "id": "b175",
+      "type": "paragraph",
+      "text": "125\nNtrain = 50000",
+      "page": 8,
+      "bbox": [
+        262.95,
+        84.29,
+        361.06,
+        98.19
+      ],
+      "column": 1
+    },
+    {
+      "id": "b176",
+      "type": "paragraph",
+      "text": "Wake-Sleep (train)\nWake-Sleep (test)\nMCEM (train)\nMCEM (test)\nAEVB (train)\nAEVB (test)",
+      "page": 8,
+      "bbox": [
+        433.53,
+        120.97,
+        498.3,
+        179.84
+      ],
+      "column": 1
+    },
+    {
+      "id": "b177",
+      "type": "paragraph",
+      "text": "0\n10\n20\n30\n40\n50\n60\n160",
+      "page": 8,
+      "bbox": [
+        262.82,
+        207.71,
+        379.38,
+        219.52
+      ],
+      "column": 1
+    },
+    {
+      "id": "b180",
+      "type": "paragraph",
+      "text": "Visualisation of high-dimensional data\nIf we choose a low-dimensional latent space (e.g. 2D),\nwe can use the learned encoders (recognition model) to project high-dimensional data to a low-\ndimensional manifold. See appendix A for visualisations of the 2D latent manifolds for the MNIST\nand Frey Face datasets.",
+      "page": 8,
+      "bbox": [
+        108.0,
+        309.13,
+        504.0,
+        352.06
+      ],
+      "column": 1
+    },
+    {
+      "id": "b181",
+      "type": "paragraph",
+      "text": "We have introduced a novel estimator of the variational lower bound, Stochastic Gradient VB\n(SGVB), for efﬁcient approximate inference with continuous latent variables. The proposed estima-\ntor can be straightforwardly differentiated and optimized using standard stochastic gradient meth-\nods. For the case of i.i.d. datasets and continuous latent variables per datapoint we introduce an\nefﬁcient algorithm for efﬁcient inference and learning, Auto-Encoding VB (AEVB), that learns an\napproximate inference model using the SGVB estimator. The theoretical advantages are reﬂected in\nexperimental results.",
+      "page": 8,
+      "bbox": [
+        108.0,
+        394.65,
+        504.0,
+        470.37
+      ],
+      "column": 1
+    },
+    {
+      "id": "b182",
+      "type": "paragraph",
+      "text": "Since the SGVB estimator and the AEVB algorithm can be applied to almost any inference and\nlearning problem with continuous latent variables, there are plenty of future directions: (i) learning\nhierarchical generative architectures with deep neural networks (e.g. convolutional networks) used\nfor the encoders and decoders, trained jointly with AEVB; (ii) time-series models (i.e. dynamic\nBayesian networks); (iii) application of SGVB to the global parameters; (iv) supervised models\nwith latent variables, useful for learning complicated noise distributions.",
+      "page": 8,
+      "bbox": [
+        108.0,
+        512.96,
+        504.0,
+        577.71
+      ],
+      "column": 1
+    },
+    {
+      "id": "b183",
+      "type": "heading",
+      "text": "References",
+      "page": 9,
+      "bbox": [
+        108.0,
+        82.65,
+        163.54,
+        94.6
+      ],
+      "column": 0,
+      "level": 1
+    },
+    {
+      "id": "b184",
+      "type": "paragraph",
+      "text": "[GMW13]\nKarol Gregor, Andriy Mnih, and Daan Wierstra. Deep autoregressive networks. arXiv\npreprint arXiv:1310.8499, 2013.",
+      "page": 9,
+      "bbox": [
+        108.0,
+        295.22,
+        504.0,
+        316.32
+      ],
+      "column": 0
+    },
+    {
+      "id": "b185",
+      "type": "paragraph",
+      "text": "A\nVisualisations",
+      "page": 9,
+      "bbox": [
+        108.0,
+        684.85,
+        199.23,
+        696.8
+      ],
+      "column": 0
+    },
+    {
+      "id": "b186",
+      "type": "paragraph",
+      "text": "[BCV13]\nYoshua Bengio, Aaron Courville, and Pascal Vincent. Representation learning: A re-\nview and new perspectives. 2013.",
+      "page": 9,
+      "bbox": [
+        108.0,
+        106.07,
+        504.0,
+        126.99
+      ],
+      "column": 1
+    },
+    {
+      "id": "b187",
+      "type": "paragraph",
+      "text": "[BJP12]\nDavid M Blei, Michael I Jordan, and John W Paisley. Variational Bayesian inference\nwith Stochastic Search. In Proceedings of the 29th International Conference on Ma-\nchine Learning (ICML-12), pages 1367–1374, 2012.",
+      "page": 9,
+      "bbox": [
+        108.0,
+        133.78,
+        504.0,
+        165.66
+      ],
+      "column": 1
+    },
+    {
+      "id": "b188",
+      "type": "paragraph",
+      "text": "[BTL13]\nYoshua Bengio and ´Eric Thibodeau-Laufer. Deep generative stochastic networks train-\nable by backprop. arXiv preprint arXiv:1306.1091, 2013.",
+      "page": 9,
+      "bbox": [
+        108.0,
+        171.43,
+        504.0,
+        194.53
+      ],
+      "column": 1
+    },
+    {
+      "id": "b189",
+      "type": "paragraph",
+      "text": "[Dev86]\nLuc Devroye. Sample-based non-uniform random variate generation. In Proceedings\nof the 18th conference on Winter simulation, pages 260–265. ACM, 1986.",
+      "page": 9,
+      "bbox": [
+        108.0,
+        201.14,
+        504.0,
+        222.24
+      ],
+      "column": 1
+    },
+    {
+      "id": "b190",
+      "type": "paragraph",
+      "text": "[DHS10]\nJohn Duchi, Elad Hazan, and Yoram Singer. Adaptive subgradient methods for online\nlearning and stochastic optimization. Journal of Machine Learning Research, 12:2121–\n2159, 2010.",
+      "page": 9,
+      "bbox": [
+        108.0,
+        229.02,
+        504.0,
+        260.9
+      ],
+      "column": 1
+    },
+    {
+      "id": "b191",
+      "type": "paragraph",
+      "text": "[DKPR87] Simon Duane, Anthony D Kennedy, Brian J Pendleton, and Duncan Roweth. Hybrid\nmonte carlo. Physics letters B, 195(2):216–222, 1987.",
+      "page": 9,
+      "bbox": [
+        108.0,
+        267.69,
+        504.0,
+        288.61
+      ],
+      "column": 1
+    },
+    {
+      "id": "b192",
+      "type": "paragraph",
+      "text": "[HBWP13] Matthew D Hoffman, David M Blei, Chong Wang, and John Paisley. Stochastic varia-\ntional inference. The Journal of Machine Learning Research, 14(1):1303–1347, 2013.",
+      "page": 9,
+      "bbox": [
+        108.0,
+        323.11,
+        504.0,
+        344.03
+      ],
+      "column": 1
+    },
+    {
+      "id": "b193",
+      "type": "paragraph",
+      "text": "[HDFN95] Geoffrey E Hinton, Peter Dayan, Brendan J Frey, and Radford M Neal. The” wake-\nsleep” algorithm for unsupervised neural networks. SCIENCE, pages 1158–1158, 1995.",
+      "page": 9,
+      "bbox": [
+        108.0,
+        350.82,
+        504.0,
+        371.74
+      ],
+      "column": 1
+    },
+    {
+      "id": "b194",
+      "type": "paragraph",
+      "text": "[KRL08]\nKoray Kavukcuoglu, Marc’Aurelio Ranzato, and Yann LeCun. Fast inference in sparse\ncoding algorithms with applications to object recognition. Technical Report CBLL-\nTR-2008-12-01, Computational and Biological Learning Lab, Courant Institute, NYU,\n2008.",
+      "page": 9,
+      "bbox": [
+        108.0,
+        378.53,
+        504.0,
+        421.37
+      ],
+      "column": 1
+    },
+    {
+      "id": "b195",
+      "type": "paragraph",
+      "text": "[Lin89]\nRalph Linsker. An application of the principle of maximum information preservation to\nlinear systems. Morgan Kaufmann Publishers Inc., 1989.",
+      "page": 9,
+      "bbox": [
+        108.0,
+        427.98,
+        504.0,
+        449.08
+      ],
+      "column": 1
+    },
+    {
+      "id": "b196",
+      "type": "paragraph",
+      "text": "[RGB13]\nRajesh Ranganath, Sean Gerrish, and David M Blei. Black Box Variational Inference.\narXiv preprint arXiv:1401.0118, 2013.",
+      "page": 9,
+      "bbox": [
+        108.0,
+        455.87,
+        504.0,
+        476.79
+      ],
+      "column": 1
+    },
+    {
+      "id": "b197",
+      "type": "paragraph",
+      "text": "[RMW14]\nDanilo Jimenez Rezende, Shakir Mohamed, and Daan Wierstra.\nStochastic back-\npropagation and variational inference in deep latent gaussian models. arXiv preprint\narXiv:1401.4082, 2014.",
+      "page": 9,
+      "bbox": [
+        108.0,
+        483.58,
+        504.0,
+        515.45
+      ],
+      "column": 1
+    },
+    {
+      "id": "b198",
+      "type": "paragraph",
+      "text": "[Row98]\nSam Roweis. EM algorithms for PCA and SPCA. Advances in neural information\nprocessing systems, pages 626–632, 1998.",
+      "page": 9,
+      "bbox": [
+        108.0,
+        522.07,
+        504.0,
+        543.16
+      ],
+      "column": 1
+    },
+    {
+      "id": "b199",
+      "type": "paragraph",
+      "text": "[SK13]\nTim Salimans and David A Knowles. Fixed-form variational posterior approximation\nthrough stochastic linear regression. Bayesian Analysis, 8(4), 2013.",
+      "page": 9,
+      "bbox": [
+        108.0,
+        549.95,
+        504.0,
+        570.87
+      ],
+      "column": 1
+    },
+    {
+      "id": "b200",
+      "type": "paragraph",
+      "text": "[SL10]\nRuslan Salakhutdinov and Hugo Larochelle. Efﬁcient learning of deep boltzmann ma-\nchines. In International Conference on Artiﬁcial Intelligence and Statistics, pages 693–\n700, 2010.",
+      "page": 9,
+      "bbox": [
+        108.0,
+        577.66,
+        504.0,
+        609.54
+      ],
+      "column": 1
+    },
+    {
+      "id": "b201",
+      "type": "paragraph",
+      "text": "[VLL+10] Pascal Vincent, Hugo Larochelle, Isabelle Lajoie, Yoshua Bengio, and Pierre-Antoine\nManzagol. Stacked denoising autoencoders: Learning useful representations in a deep\nnetwork with a local denoising criterion. The Journal of Machine Learning Research,\n9999:3371–3408, 2010.",
+      "page": 9,
+      "bbox": [
+        108.0,
+        614.82,
+        504.0,
+        659.17
+      ],
+      "column": 1
+    },
+    {
+      "id": "b202",
+      "type": "paragraph",
+      "text": "See ﬁgures 4 and 5 for visualisations of latent space and corresponding observed space of models\nlearned with SGVB.",
+      "page": 9,
+      "bbox": [
+        108.0,
+        711.35,
+        504.0,
+        732.27
+      ],
+      "column": 1
+    },
+    {
+      "id": "b203",
+      "type": "paragraph",
+      "text": "(a) Learned Frey Face manifold",
+      "page": 10,
+      "bbox": [
+        133.77,
+        312.66,
+        247.53,
+        321.62
+      ],
+      "column": 0
+    },
+    {
+      "id": "b204",
+      "type": "paragraph",
+      "text": "(a) 2-D latent space",
+      "page": 10,
+      "bbox": [
+        130.42,
+        502.7,
+        200.88,
+        511.66
+      ],
+      "column": 0
+    },
+    {
+      "id": "b205",
+      "type": "paragraph",
+      "text": "(b) 5-D latent space",
+      "page": 10,
+      "bbox": [
+        223.74,
+        502.7,
+        294.7,
+        511.66
+      ],
+      "column": 0
+    },
+    {
+      "id": "b206",
+      "type": "paragraph",
+      "text": "B\nSolution of −DKL(qφ(z)||pθ(z)), Gaussian case",
+      "page": 10,
+      "bbox": [
+        108.0,
+        571.63,
+        365.74,
+        584.66
+      ],
+      "column": 0
+    },
+    {
+      "id": "b207",
+      "type": "paragraph",
+      "text": "Z\nqθ(z) log p(z) dz =\nZ\nN(z; µ, σ2) log N(z; 0, I) dz",
+      "page": 10,
+      "bbox": [
+        193.74,
+        670.79,
+        418.26,
+        687.99
+      ],
+      "column": 0
+    },
+    {
+      "id": "b208",
+      "type": "paragraph",
+      "text": "= −J",
+      "page": 10,
+      "bbox": [
+        276.52,
+        701.23,
+        301.51,
+        717.93
+      ],
+      "column": 0
+    },
+    {
+      "id": "b209",
+      "type": "paragraph",
+      "text": "(b) Learned MNIST manifold",
+      "page": 10,
+      "bbox": [
+        320.42,
+        312.66,
+        427.24,
+        321.62
+      ],
+      "column": 1
+    },
+    {
+      "id": "b212",
+      "type": "paragraph",
+      "text": "(c) 10-D latent space",
+      "page": 10,
+      "bbox": [
+        315.31,
+        502.7,
+        390.26,
+        511.66
+      ],
+      "column": 1
+    },
+    {
+      "id": "b213",
+      "type": "paragraph",
+      "text": "(d) 20-D latent space",
+      "page": 10,
+      "bbox": [
+        408.63,
+        502.7,
+        484.08,
+        511.66
+      ],
+      "column": 1
+    },
+    {
+      "id": "b216",
+      "type": "paragraph",
+      "text": "The variational lower bound (the objective to be maximized) contains a KL term that can often be\nintegrated analytically. Here we give the solution when both the prior pθ(z) = N(0, I) and the\nposterior approximation qφ(z|x(i)) are Gaussian. Let J be the dimensionality of z. Let µ and σ\ndenote the variational mean and s.d. evaluated at datapoint i, and let µj and σj simply denote the\nj-th element of these vectors. Then:",
+      "page": 10,
+      "bbox": [
+        108.0,
+        601.87,
+        504.0,
+        657.04
+      ],
+      "column": 1
+    },
+    {
+      "id": "b217",
+      "type": "paragraph",
+      "text": "J\nX",
+      "page": 10,
+      "bbox": [
+        358.17,
+        697.85,
+        372.56,
+        715.63
+      ],
+      "column": 1
+    },
+    {
+      "id": "b218",
+      "type": "heading",
+      "text": "2 log(2π) −1",
+      "page": 10,
+      "bbox": [
+        296.73,
+        701.23,
+        355.31,
+        724.77
+      ],
+      "column": 1,
+      "level": 1
+    },
+    {
+      "id": "b219",
+      "type": "paragraph",
+      "text": "j=1\n(µ2\nj + σ2\nj )",
+      "page": 10,
+      "bbox": [
+        358.47,
+        706.19,
+        413.48,
+        729.03
+      ],
+      "column": 1
+    },
+    {
+      "id": "b220",
+      "type": "paragraph",
+      "text": "And:\nZ\nqθ(z) log qθ(z) dz =\nZ\nN(z; µ, σ2) log N(z; µ, σ2) dz",
+      "page": 11,
+      "bbox": [
+        108.0,
+        84.27,
+        424.87,
+        114.12
+      ],
+      "column": 0
+    },
+    {
+      "id": "b221",
+      "type": "paragraph",
+      "text": "= −J",
+      "page": 11,
+      "bbox": [
+        274.48,
+        127.35,
+        299.47,
+        144.05
+      ],
+      "column": 0
+    },
+    {
+      "id": "b222",
+      "type": "paragraph",
+      "text": "Therefore:",
+      "page": 11,
+      "bbox": [
+        108.0,
+        160.82,
+        150.04,
+        170.78
+      ],
+      "column": 0
+    },
+    {
+      "id": "b223",
+      "type": "paragraph",
+      "text": "−DKL((qφ(z)||pθ(z)) =\nZ\nqθ(z) (log pθ(z) −log qθ(z)) dz",
+      "page": 11,
+      "bbox": [
+        171.55,
+        173.47,
+        421.16,
+        190.67
+      ],
+      "column": 0
+    },
+    {
+      "id": "b224",
+      "type": "paragraph",
+      "text": "J\nX",
+      "page": 11,
+      "bbox": [
+        286.51,
+        200.52,
+        300.9,
+        218.3
+      ],
+      "column": 0
+    },
+    {
+      "id": "b225",
+      "type": "paragraph",
+      "text": "= 1 j=1",
+      "page": 11,
+      "bbox": [
+        266.96,
+        203.9,
+        283.65,
+        220.61
+      ],
+      "column": 0
+    },
+    {
+      "id": "b227",
+      "type": "paragraph",
+      "text": "When using a recognition model qφ(z|x) then µ and s.d. σ are simply functions of x and the\nvariational parameters φ, as exempliﬁed in the text.",
+      "page": 11,
+      "bbox": [
+        108.0,
+        237.69,
+        504.0,
+        258.97
+      ],
+      "column": 0
+    },
+    {
+      "id": "b228",
+      "type": "paragraph",
+      "text": "C\nMLP’s as probabilistic encoders and decoders",
+      "page": 11,
+      "bbox": [
+        108.0,
+        275.85,
+        362.72,
+        287.81
+      ],
+      "column": 0
+    },
+    {
+      "id": "b229",
+      "type": "paragraph",
+      "text": "C.1\nBernoulli MLP as decoder",
+      "page": 11,
+      "bbox": [
+        108.0,
+        369.03,
+        244.56,
+        379.0
+      ],
+      "column": 0
+    },
+    {
+      "id": "b230",
+      "type": "paragraph",
+      "text": "In this case let pθ(x|z) be a multivariate Bernoulli whose probabilities are computed from z with a\nfully-connected neural network with a single hidden layer:",
+      "page": 11,
+      "bbox": [
+        108.0,
+        389.29,
+        504.0,
+        410.57
+      ],
+      "column": 0
+    },
+    {
+      "id": "b231",
+      "type": "paragraph",
+      "text": "D\nX log p(x|z) =",
+      "page": 11,
+      "bbox": [
+        258.88,
+        416.23,
+        273.28,
+        434.01
+      ],
+      "column": 0
+    },
+    {
+      "id": "b233",
+      "type": "paragraph",
+      "text": "C.2\nGaussian MLP as encoder or decoder",
+      "page": 11,
+      "bbox": [
+        108.0,
+        501.99,
+        292.3,
+        511.95
+      ],
+      "column": 0
+    },
+    {
+      "id": "b234",
+      "type": "paragraph",
+      "text": "In this case let encoder or decoder be a multivariate Gaussian with a diagonal covariance structure:",
+      "page": 11,
+      "bbox": [
+        108.0,
+        522.6,
+        501.35,
+        532.57
+      ],
+      "column": 0
+    },
+    {
+      "id": "b235",
+      "type": "paragraph",
+      "text": "where {W3, W4, W5, b3, b4, b5} are the weights and biases of the MLP and part of θ when used\nas decoder. Note that when this network is used as an encoder qφ(z|x), then z and x are swapped,\nand the weights and biases are variational parameters φ.",
+      "page": 11,
+      "bbox": [
+        108.0,
+        597.14,
+        504.0,
+        629.38
+      ],
+      "column": 0
+    },
+    {
+      "id": "b236",
+      "type": "paragraph",
+      "text": "D\nMarginal likelihood estimator",
+      "page": 11,
+      "bbox": [
+        108.0,
+        646.27,
+        281.11,
+        658.22
+      ],
+      "column": 0
+    },
+    {
+      "id": "b237",
+      "type": "paragraph",
+      "text": "The estimation process consists of three stages:",
+      "page": 11,
+      "bbox": [
+        108.0,
+        722.31,
+        296.71,
+        732.27
+      ],
+      "column": 0
+    },
+    {
+      "id": "b238",
+      "type": "paragraph",
+      "text": "J\nX",
+      "page": 11,
+      "bbox": [
+        356.12,
+        123.97,
+        370.52,
+        141.75
+      ],
+      "column": 1
+    },
+    {
+      "id": "b239",
+      "type": "heading",
+      "text": "2 log(2π) −1",
+      "page": 11,
+      "bbox": [
+        294.69,
+        127.35,
+        353.27,
+        150.89
+      ],
+      "column": 1,
+      "level": 1
+    },
+    {
+      "id": "b240",
+      "type": "paragraph",
+      "text": "j=1\n(1 + log σ2\nj )",
+      "page": 11,
+      "bbox": [
+        356.43,
+        132.31,
+        420.47,
+        155.15
+      ],
+      "column": 1
+    },
+    {
+      "id": "b241",
+      "type": "paragraph",
+      "text": "\u0000\n1 + log((σj)2) −(µj)2 −(σj)2\u0001",
+      "page": 11,
+      "bbox": [
+        302.56,
+        206.4,
+        440.45,
+        221.45
+      ],
+      "column": 1
+    },
+    {
+      "id": "b242",
+      "type": "paragraph",
+      "text": "In variational auto-encoders, neural networks are used as probabilistic encoders and decoders. There\nare many possible choices of encoders and decoders, depending on the type of data and model. In\nour example we used relatively simple neural networks, namely multi-layered perceptrons (MLPs).\nFor the encoder we used a MLP with Gaussian output, while for the decoder we used MLPs with\neither Gaussian or Bernoulli outputs, depending on the type of data.",
+      "page": 11,
+      "bbox": [
+        108.0,
+        300.71,
+        504.0,
+        354.51
+      ],
+      "column": 1
+    },
+    {
+      "id": "b243",
+      "type": "paragraph",
+      "text": "i=1\nxi log yi + (1 −xi) · log(1 −yi)",
+      "page": 11,
+      "bbox": [
+        259.62,
+        426.22,
+        407.6,
+        447.41
+      ],
+      "column": 1
+    },
+    {
+      "id": "b244",
+      "type": "paragraph",
+      "text": "where y = fσ(W2 tanh(W1z + b1) + b2)\n(11)",
+      "page": 11,
+      "bbox": [
+        210.07,
+        450.75,
+        504.0,
+        462.21
+      ],
+      "column": 1
+    },
+    {
+      "id": "b245",
+      "type": "paragraph",
+      "text": "where fσ(.) is the elementwise sigmoid activation function, and where θ = {W1, W2, b1, b2} are\nthe weights and biases of the MLP.",
+      "page": 11,
+      "bbox": [
+        108.0,
+        466.18,
+        504.0,
+        487.47
+      ],
+      "column": 1
+    },
+    {
+      "id": "b246",
+      "type": "paragraph",
+      "text": "log p(x|z) = log N(x; µ, σ2I)\nwhere µ = W4h + b4\nlog σ2 = W5h + b5\nh = tanh(W3z + b3)\n(12)",
+      "page": 11,
+      "bbox": [
+        242.71,
+        536.16,
+        504.0,
+        592.51
+      ],
+      "column": 1
+    },
+    {
+      "id": "b247",
+      "type": "paragraph",
+      "text": "We derived the following marginal likelihood estimator that produces good estimates of the marginal\nlikelihood as long as the dimensionality of the sampled space is low (less then 5 dimensions), and\nsufﬁcient samples are taken. Let pθ(x, z) = pθ(z)pθ(x|z) be the generative model we are sampling\nfrom, and for a given datapoint x(i) we would like to estimate the marginal likelihood pθ(x(i)).",
+      "page": 11,
+      "bbox": [
+        108.0,
+        671.12,
+        504.0,
+        715.94
+      ],
+      "column": 1
+    },
+    {
+      "id": "b248",
+      "type": "paragraph",
+      "text": "L\nX",
+      "page": 12,
+      "bbox": [
+        242.65,
+        157.54,
+        257.05,
+        175.32
+      ],
+      "column": 0
+    },
+    {
+      "id": "b249",
+      "type": "paragraph",
+      "text": "1\nL q(z(l))\npθ(z)pθ(x(i)|z(l))",
+      "page": 12,
+      "bbox": [
+        223.93,
+        157.78,
+        239.8,
+        184.45
+      ],
+      "column": 0
+    },
+    {
+      "id": "b251",
+      "type": "paragraph",
+      "text": "pθ(x(i)) ≃ l=1",
+      "page": 12,
+      "bbox": [
+        177.17,
+        165.88,
+        221.17,
+        178.46
+      ],
+      "column": 0
+    },
+    {
+      "id": "b253",
+      "type": "paragraph",
+      "text": "Derivation of the estimator:",
+      "page": 12,
+      "bbox": [
+        108.0,
+        198.54,
+        217.91,
+        208.51
+      ],
+      "column": 0
+    },
+    {
+      "id": "b254",
+      "type": "paragraph",
+      "text": "R\nq(z) dz\npθ(x(i)) =",
+      "page": 12,
+      "bbox": [
+        222.45,
+        219.48,
+        272.05,
+        245.09
+      ],
+      "column": 0
+    },
+    {
+      "id": "b255",
+      "type": "paragraph",
+      "text": "1\npθ(x(i)) =",
+      "page": 12,
+      "bbox": [
+        173.3,
+        220.53,
+        218.49,
+        245.09
+      ],
+      "column": 0
+    },
+    {
+      "id": "b256",
+      "type": "paragraph",
+      "text": "=\nZ pθ(x(i), z)",
+      "page": 12,
+      "bbox": [
+        210.74,
+        242.79,
+        277.08,
+        266.31
+      ],
+      "column": 0
+    },
+    {
+      "id": "b257",
+      "type": "paragraph",
+      "text": "pθ(x(i))\nq(z)\npθ(x(i), z) dz",
+      "page": 12,
+      "bbox": [
+        238.84,
+        249.61,
+        335.6,
+        274.16
+      ],
+      "column": 0
+    },
+    {
+      "id": "b258",
+      "type": "paragraph",
+      "text": "=\nZ\npθ(z|x(i))\nq(z)\npθ(x(i), z) dz",
+      "page": 12,
+      "bbox": [
+        210.74,
+        277.31,
+        331.55,
+        301.86
+      ],
+      "column": 0
+    },
+    {
+      "id": "b259",
+      "type": "paragraph",
+      "text": "L\nX",
+      "page": 12,
+      "bbox": [
+        232.09,
+        305.63,
+        246.49,
+        323.41
+      ],
+      "column": 0
+    },
+    {
+      "id": "b260",
+      "type": "paragraph",
+      "text": "≃1",
+      "page": 12,
+      "bbox": [
+        210.74,
+        309.01,
+        228.34,
+        325.58
+      ],
+      "column": 0
+    },
+    {
+      "id": "b261",
+      "type": "paragraph",
+      "text": "L l=1",
+      "page": 12,
+      "bbox": [
+        222.46,
+        322.58,
+        229.24,
+        332.55
+      ],
+      "column": 0
+    },
+    {
+      "id": "b263",
+      "type": "paragraph",
+      "text": "E\nMonte Carlo EM",
+      "page": 12,
+      "bbox": [
+        108.0,
+        351.48,
+        215.58,
+        363.44
+      ],
+      "column": 0
+    },
+    {
+      "id": "b264",
+      "type": "paragraph",
+      "text": "F\nFull VB",
+      "page": 12,
+      "bbox": [
+        108.0,
+        497.62,
+        167.45,
+        509.57
+      ],
+      "column": 0
+    },
+    {
+      "id": "b265",
+      "type": "paragraph",
+      "text": "Let pα(θ) be some hyperprior for the parameters introduced above, parameterized by α. The\nmarginal likelihood can be written as:",
+      "page": 12,
+      "bbox": [
+        108.0,
+        561.49,
+        504.0,
+        582.64
+      ],
+      "column": 0
+    },
+    {
+      "id": "b266",
+      "type": "paragraph",
+      "text": "!−1 where\nz(l) ∼pθ(z|x(i))",
+      "page": 12,
+      "bbox": [
+        334.7,
+        154.15,
+        352.79,
+        167.75
+      ],
+      "column": 1
+    },
+    {
+      "id": "b268",
+      "type": "paragraph",
+      "text": "R\nq(z) pθ(x(i),z)",
+      "page": 12,
+      "bbox": [
+        276.01,
+        213.86,
+        337.59,
+        227.77
+      ],
+      "column": 1
+    },
+    {
+      "id": "b269",
+      "type": "paragraph",
+      "text": "pθ(x(i),z) dz pθ(x(i))",
+      "page": 12,
+      "bbox": [
+        303.16,
+        217.8,
+        350.73,
+        231.61
+      ],
+      "column": 1
+    },
+    {
+      "id": "b271",
+      "type": "paragraph",
+      "text": "q(z(l))\npθ(z)pθ(x(i)|z(l))\nwhere\nz(l) ∼pθ(z|x(i))",
+      "page": 12,
+      "bbox": [
+        249.34,
+        307.73,
+        439.9,
+        333.57
+      ],
+      "column": 1
+    },
+    {
+      "id": "b272",
+      "type": "paragraph",
+      "text": "The Monte Carlo EM algorithm does not employ an encoder, instead it samples from the pos-\nterior of the latent variables using gradients of the posterior computed with ∇z log pθ(z|x) =\n∇z log pθ(z) + ∇z log pθ(x|z). The Monte Carlo EM procedure consists of 10 HMC leapfrog\nsteps with an automatically tuned stepsize such that the acceptance rate was 90%, followed by 5\nweight updates steps using the acquired sample. For all algorithms the parameters were updated\nusing the Adagrad stepsizes (with accompanying annealing schedule).",
+      "page": 12,
+      "bbox": [
+        108.0,
+        376.73,
+        504.0,
+        441.49
+      ],
+      "column": 1
+    },
+    {
+      "id": "b273",
+      "type": "paragraph",
+      "text": "The marginal likelihood was estimated with the ﬁrst 1000 datapoints from the train and test sets,\nfor each datapoint sampling 50 values from the posterior of the latent variables using Hybrid Monte\nCarlo with 4 leapfrog steps.",
+      "page": 12,
+      "bbox": [
+        108.0,
+        448.46,
+        504.0,
+        480.34
+      ],
+      "column": 1
+    },
+    {
+      "id": "b274",
+      "type": "paragraph",
+      "text": "As written in the paper, it is possible to perform variational inference on both the parameters θ and\nthe latent variables z, as opposed to just the latent variables as we did in the paper. Here, we’ll derive\nour estimator for that case.",
+      "page": 12,
+      "bbox": [
+        108.0,
+        522.63,
+        504.0,
+        554.74
+      ],
+      "column": 1
+    },
+    {
+      "id": "b275",
+      "type": "paragraph",
+      "text": "log pα(X) = DKL(qφ(θ)||pα(θ|X)) + L(φ; X)\n(13)",
+      "page": 12,
+      "bbox": [
+        206.88,
+        590.06,
+        504.0,
+        600.99
+      ],
+      "column": 1
+    },
+    {
+      "id": "b276",
+      "type": "paragraph",
+      "text": "where the ﬁrst RHS term denotes a KL divergence of the approximate from the true posterior, and\nwhere L(φ; X) denotes the variational lower bound to the marginal likelihood:",
+      "page": 12,
+      "bbox": [
+        108.0,
+        608.16,
+        504.0,
+        629.08
+      ],
+      "column": 1
+    },
+    {
+      "id": "b277",
+      "type": "paragraph",
+      "text": "L(φ; X) =\nZ\nqφ(θ) (log pθ(X) + log pα(θ) −log qφ(θ)) dθ\n(14)",
+      "page": 12,
+      "bbox": [
+        180.2,
+        636.32,
+        504.0,
+        653.52
+      ],
+      "column": 1
+    },
+    {
+      "id": "b278",
+      "type": "paragraph",
+      "text": "Note that this is a lower bound since the KL divergence is non-negative; the bound equals the true\nmarginal when the approximate and true posteriors match exactly. The term log pθ(X) is composed\nof a sum over the marginal likelihoods of individual datapoints log pθ(X) = PN\ni=1 log pθ(x(i)),\nwhich can each be rewritten as:",
+      "page": 12,
+      "bbox": [
+        108.0,
+        666.1,
+        504.0,
+        711.24
+      ],
+      "column": 1
+    },
+    {
+      "id": "b279",
+      "type": "paragraph",
+      "text": "log pθ(x(i)) = DKL(qφ(z|x(i))||pθ(z|x(i))) + L(θ, φ; x(i))\n(15)",
+      "page": 12,
+      "bbox": [
+        184.36,
+        717.01,
+        504.0,
+        729.59
+      ],
+      "column": 1
+    },
+    {
+      "id": "b280",
+      "type": "paragraph",
+      "text": "where we choose a prior p(ϵ) and a function gφ(ϵ, x) such that the following holds:",
+      "page": 13,
+      "bbox": [
+        108.0,
+        242.44,
+        441.97,
+        253.24
+      ],
+      "column": 0
+    },
+    {
+      "id": "b281",
+      "type": "paragraph",
+      "text": "L(θ, φ; x(i)) =\nZ\nqφ(z|x)\n\u0010\nlog pθ(x(i)|z) + log pθ(z) −log qφ(z|x)\n\u0011\ndz",
+      "page": 13,
+      "bbox": [
+        130.39,
+        259.79,
+        431.14,
+        276.99
+      ],
+      "column": 0
+    },
+    {
+      "id": "b282",
+      "type": "paragraph",
+      "text": "The same can be done for the approximate posterior qφ(θ):",
+      "page": 13,
+      "bbox": [
+        108.0,
+        319.99,
+        344.94,
+        330.8
+      ],
+      "column": 0
+    },
+    {
+      "id": "b283",
+      "type": "paragraph",
+      "text": "L(φ; X) =\nZ\nqφ(θ) (log pθ(X) + log pα(θ) −log qφ(θ)) dθ",
+      "page": 13,
+      "bbox": [
+        165.64,
+        382.88,
+        416.93,
+        400.08
+      ],
+      "column": 0
+    },
+    {
+      "id": "b284",
+      "type": "paragraph",
+      "text": "For notational conciseness we introduce a shorthand notation fφ(x, z, θ):",
+      "page": 13,
+      "bbox": [
+        108.0,
+        449.06,
+        401.49,
+        459.86
+      ],
+      "column": 0
+    },
+    {
+      "id": "b285",
+      "type": "paragraph",
+      "text": "L\nX",
+      "page": 13,
+      "bbox": [
+        262.81,
+        513.24,
+        277.21,
+        531.02
+      ],
+      "column": 0
+    },
+    {
+      "id": "b286",
+      "type": "paragraph",
+      "text": "L(φ; X) ≃1",
+      "page": 13,
+      "bbox": [
+        203.89,
+        516.62,
+        259.06,
+        533.32
+      ],
+      "column": 0
+    },
+    {
+      "id": "b287",
+      "type": "paragraph",
+      "text": "L",
+      "page": 13,
+      "bbox": [
+        253.17,
+        530.2,
+        259.96,
+        540.16
+      ],
+      "column": 0
+    },
+    {
+      "id": "b288",
+      "type": "paragraph",
+      "text": "F.1\nExample where again the ﬁrst RHS term is the KL divergence of the approximate from the true posterior, and\nL(θ, φ; x) is the variational lower bound of the marginal likelihood of datapoint i:",
+      "page": 13,
+      "bbox": [
+        108.0,
+        621.39,
+        168.06,
+        631.35
+      ],
+      "column": 0
+    },
+    {
+      "id": "b290",
+      "type": "paragraph",
+      "text": "L(θ, φ; x(i)) =\nZ\nqφ(z|x)\n\u0010\nlog pθ(x(i)|z) + log pθ(z) −log qφ(z|x)\n\u0011\ndz\n(16)",
+      "page": 13,
+      "bbox": [
+        155.62,
+        111.99,
+        504.0,
+        129.19
+      ],
+      "column": 1
+    },
+    {
+      "id": "b291",
+      "type": "paragraph",
+      "text": "The expectations on the RHS of eqs (14) and (16) can obviously be written as a sum of three separate\nexpectations, of which the second and third component can sometimes be analytically solved, e.g.\nwhen both pθ(x) and qφ(z|x) are Gaussian. For generality we will here assume that each of these\nexpectations is intractable.",
+      "page": 13,
+      "bbox": [
+        108.0,
+        147.3,
+        504.0,
+        190.14
+      ],
+      "column": 1
+    },
+    {
+      "id": "b292",
+      "type": "paragraph",
+      "text": "Under certain mild conditions outlined in section (see paper) for chosen approximate posteriors\nqφ(θ) and qφ(z|x) we can reparameterize conditional samples ez ∼qφ(z|x) as ez = gφ(ϵ, x)\nwith\nϵ ∼p(ϵ)\n(17)",
+      "page": 13,
+      "bbox": [
+        108.0,
+        197.12,
+        504.0,
+        224.97
+      ],
+      "column": 1
+    },
+    {
+      "id": "b294",
+      "type": "paragraph",
+      "text": "=\nZ\np(ϵ)\n\u0010\nlog pθ(x(i)|z) + log pθ(z) −log qφ(z|x)\n\u0011 \f\f\f\f\nz=gφ(ϵ,x(i))\ndϵ\n(18)",
+      "page": 13,
+      "bbox": [
+        185.23,
+        285.92,
+        504.0,
+        313.81
+      ],
+      "column": 1
+    },
+    {
+      "id": "b295",
+      "type": "paragraph",
+      "text": "eθ = hφ(ζ)\nwith\nζ ∼p(ζ)\n(19)",
+      "page": 13,
+      "bbox": [
+        245.01,
+        339.88,
+        504.0,
+        354.5
+      ],
+      "column": 1
+    },
+    {
+      "id": "b296",
+      "type": "paragraph",
+      "text": "where we, similarly as above, choose a prior p(ζ) and a function hφ(ζ) such that the following\nholds:",
+      "page": 13,
+      "bbox": [
+        108.0,
+        357.3,
+        504.0,
+        378.46
+      ],
+      "column": 1
+    },
+    {
+      "id": "b297",
+      "type": "paragraph",
+      "text": "=\nZ\np(ζ) (log pθ(X) + log pα(θ) −log qφ(θ))\n\f\f\f\f\nθ=hφ(ζ)\ndζ\n(20)",
+      "page": 13,
+      "bbox": [
+        203.22,
+        409.0,
+        504.0,
+        436.9
+      ],
+      "column": 1
+    },
+    {
+      "id": "b298",
+      "type": "paragraph",
+      "text": "fφ(x, z, θ) = N · (log pθ(x|z) + log pθ(z) −log qφ(z|x)) + log pα(θ) −log qφ(θ)\n(21)",
+      "page": 13,
+      "bbox": [
+        127.89,
+        466.23,
+        504.0,
+        477.16
+      ],
+      "column": 1
+    },
+    {
+      "id": "b299",
+      "type": "paragraph",
+      "text": "Using equations (20) and (18), the Monte Carlo estimate of the variational lower bound, given\ndatapoint x(i), is:",
+      "page": 13,
+      "bbox": [
+        108.0,
+        483.89,
+        504.0,
+        505.85
+      ],
+      "column": 1
+    },
+    {
+      "id": "b300",
+      "type": "paragraph",
+      "text": "l=1\nfφ(x(l), gφ(ϵ(l), x(l)), hφ(ζ(l)))\n(22)",
+      "page": 13,
+      "bbox": [
+        263.68,
+        521.58,
+        504.0,
+        544.65
+      ],
+      "column": 1
+    },
+    {
+      "id": "b301",
+      "type": "paragraph",
+      "text": "where ϵ(l) ∼p(ϵ) and ζ(l) ∼p(ζ). The estimator only depends on samples from p(ϵ) and p(ζ)\nwhich are obviously not inﬂuenced by φ, therefore the estimator can be differentiated w.r.t. φ.\nThe resulting stochastic gradients can be used in conjunction with stochastic optimization methods\nsuch as SGD or Adagrad [DHS10]. See algorithm 1 for a basic approach to computing stochastic\ngradients.",
+      "page": 13,
+      "bbox": [
+        108.0,
+        548.78,
+        504.0,
+        606.55
+      ],
+      "column": 1
+    },
+    {
+      "id": "b302",
+      "type": "paragraph",
+      "text": "Let the prior over the parameters and latent variables be the centered isotropic Gaussian pα(θ) =\nN(z; 0, I) and pθ(z) = N(z; 0, I). Note that in this case, the prior lacks parameters. Let’s also\nassume that the true posteriors are approximatily Gaussian with an approximately diagonal covari-\nance. In this case, we can let the variational approximate posteriors be multivariate Gaussians with\na diagonal covariance structure:",
+      "page": 13,
+      "bbox": [
+        108.0,
+        641.77,
+        504.01,
+        695.8
+      ],
+      "column": 1
+    },
+    {
+      "id": "b303",
+      "type": "paragraph",
+      "text": "log qφ(θ) = log N(θ; µθ, σ2\nθI)",
+      "page": 13,
+      "bbox": [
+        246.22,
+        701.13,
+        373.77,
+        714.68
+      ],
+      "column": 1
+    },
+    {
+      "id": "b304",
+      "type": "paragraph",
+      "text": "log qφ(z|x) = log N(z; µz, σ2\nzI)\n(23)",
+      "page": 13,
+      "bbox": [
+        238.23,
+        717.01,
+        504.0,
+        730.56
+      ],
+      "column": 1
+    },
+    {
+      "id": "b307",
+      "type": "paragraph",
+      "text": "Require: φ (Current value of variational parameters)",
+      "page": 14,
+      "bbox": [
+        108.0,
+        110.83,
+        322.75,
+        121.03
+      ],
+      "column": 0
+    },
+    {
+      "id": "b308",
+      "type": "paragraph",
+      "text": "g ←0\nfor l is 1 to L do x ←Random draw from dataset X\nϵ ←Random draw from prior p(ϵ)\nζ ←Random draw from prior p(ζ)\ng ←g + 1",
+      "page": 14,
+      "bbox": [
+        117.96,
+        121.66,
+        185.23,
+        142.94
+      ],
+      "column": 0
+    },
+    {
+      "id": "b310",
+      "type": "paragraph",
+      "text": "L∇φfφ(x, gφ(ϵ, x), hφ(ζ))\nend for\nreturn g",
+      "page": 14,
+      "bbox": [
+        117.96,
+        176.46,
+        287.29,
+        208.61
+      ],
+      "column": 0
+    },
+    {
+      "id": "b311",
+      "type": "paragraph",
+      "text": "",
+      "page": 14,
+      "bbox": [
+        213.05,
+        365.01,
+        221.77,
+        374.97
+      ],
+      "column": 0
+    },
+    {
+      "id": "b312",
+      "type": "paragraph",
+      "text": "L\nX",
+      "page": 14,
+      "bbox": [
+        180.71,
+        367.75,
+        195.11,
+        385.53
+      ],
+      "column": 0
+    },
+    {
+      "id": "b313",
+      "type": "paragraph",
+      "text": "J\nX",
+      "page": 14,
+      "bbox": [
+        230.8,
+        367.75,
+        245.2,
+        385.53
+      ],
+      "column": 0
+    },
+    {
+      "id": "b314",
+      "type": "paragraph",
+      "text": "L(φ; X) ≃1",
+      "page": 14,
+      "bbox": [
+        121.79,
+        371.13,
+        176.96,
+        387.83
+      ],
+      "column": 0
+    },
+    {
+      "id": "b315",
+      "type": "paragraph",
+      "text": "1 l=1\nN ·",
+      "page": 14,
+      "bbox": [
+        213.05,
+        371.13,
+        227.95,
+        392.9
+      ],
+      "column": 0
+    },
+    {
+      "id": "b317",
+      "type": "paragraph",
+      "text": "L j=1",
+      "page": 14,
+      "bbox": [
+        171.08,
+        384.7,
+        177.86,
+        394.66
+      ],
+      "column": 0
+    },
+    {
+      "id": "b319",
+      "type": "paragraph",
+      "text": "J\nX",
+      "page": 14,
+      "bbox": [
+        177.81,
+        405.39,
+        192.2,
+        423.17
+      ],
+      "column": 0
+    },
+    {
+      "id": "b320",
+      "type": "paragraph",
+      "text": "+ 1 j=1 µ(i)\nj\nand σ(i)\nj\nsimply denote the j-th element of vectors µ(i) and σ(i).",
+      "page": 14,
+      "bbox": [
+        158.81,
+        408.77,
+        174.95,
+        425.47
+      ],
+      "column": 0
+    },
+    {
+      "id": "b323",
+      "type": "paragraph",
+      "text": "where µz and σz are yet unspeciﬁed functions of x. Since they are Gaussian, we can parameterize\nthe variational approximate posteriors:",
+      "page": 14,
+      "bbox": [
+        108.0,
+        234.71,
+        504.0,
+        255.87
+      ],
+      "column": 1
+    },
+    {
+      "id": "b324",
+      "type": "paragraph",
+      "text": "qφ(θ)\nas\neθ = µθ + σθ ⊙ζ\nwhere\nζ ∼N(0, I)\nqφ(z|x)\nas\nez = µz + σz ⊙ϵ\nwhere\nϵ ∼N(0, I)",
+      "page": 14,
+      "bbox": [
+        161.92,
+        265.49,
+        450.08,
+        296.56
+      ],
+      "column": 1
+    },
+    {
+      "id": "b325",
+      "type": "paragraph",
+      "text": "With ⊙we signify an element-wise product. These can be plugged into the lower bound deﬁned\nabove (eqs (21) and (22)).",
+      "page": 14,
+      "bbox": [
+        108.0,
+        297.37,
+        504.0,
+        318.66
+      ],
+      "column": 1
+    },
+    {
+      "id": "b326",
+      "type": "paragraph",
+      "text": "In this case it is possible to construct an alternative estimator with a lower variance, since in this\nmodel pα(θ), pθ(z), qφ(θ) and qφ(z|x) are Gaussian, and therefore four terms of fφ can be solved\nanalytically. The resulting estimator is:",
+      "page": 14,
+      "bbox": [
+        108.0,
+        325.63,
+        504.0,
+        357.51
+      ],
+      "column": 1
+    },
+    {
+      "id": "b327",
+      "type": "paragraph",
+      "text": "",
+      "page": 14,
+      "bbox": [
+        481.49,
+        365.01,
+        490.21,
+        374.97
+      ],
+      "column": 1
+    },
+    {
+      "id": "b328",
+      "type": "paragraph",
+      "text": "\u0010\n1 + log((σ(l)\nz,j)2) −(µ(l)\nz,j)2 −(σ(l)\nz,j)2\u0011\n+ log pθ(x(i)z(i))",
+      "page": 14,
+      "bbox": [
+        246.85,
+        373.62,
+        481.49,
+        389.95
+      ],
+      "column": 1
+    },
+    {
+      "id": "b329",
+      "type": "paragraph",
+      "text": "",
+      "page": 14,
+      "bbox": [
+        481.49,
+        382.94,
+        490.21,
+        392.9
+      ],
+      "column": 1
+    },
+    {
+      "id": "b330",
+      "type": "paragraph",
+      "text": "\u0010\n1 + log((σ(l)\nθ,j)2) −(µ(l)\nθ,j)2 −(σ(l)\nθ,j)2\u0011\n(24)",
+      "page": 14,
+      "bbox": [
+        193.86,
+        411.27,
+        504.0,
+        427.82
+      ],
+      "column": 1
+    },
+    {
+      "id": "fig1",
+      "type": "figure",
+      "page": 2,
+      "bbox": [
+        257.85,
+        78.06,
+        353.87,
+        173.6
+      ],
+      "column": 0,
+      "image_path": "images/fig_01.png",
+      "caption": "Figure 1: The type of directed graphical model under consideration. Solid lines denote the generative\nmodel pθ(z)pθ(x|z), dashed lines denote the variational approximation qφ(z|x) to the intractable\nposterior pθ(z|x). The variational parameters φ are learned jointly with the generative model pa-\nrameters θ.",
+      "figure_label": "Figure 1"
+    },
+    {
+      "id": "fig4",
+      "type": "figure",
+      "page": 8,
+      "bbox": [
+        104.0,
+        77.86,
+        508.0,
+        237.67
+      ],
+      "column": 0,
+      "image_path": "images/fig_04.png",
+      "caption": "Figure 3: Comparison of AEVB to the wake-sleep algorithm and Monte Carlo EM, in terms of the\nestimated marginal likelihood, for a different number of training points. Monte Carlo EM is not an\non-line algorithm, and (unlike AEVB and the wake-sleep method) can’t be applied efﬁciently for\nthe full MNIST dataset.",
+      "figure_label": "Figure 3"
+    },
+    {
+      "id": "fig5",
+      "type": "figure",
+      "page": 10,
+      "bbox": [
+        121.31,
+        77.86,
+        490.69,
+        325.62
+      ],
+      "column": 0,
+      "image_path": "images/fig_05.png",
+      "caption": "Figure 4: Visualisations of learned data manifold for generative models with two-dimensional latent\nspace, learned with AEVB. Since the prior of the latent space is Gaussian, linearly spaced coor-\ndinates on the unit square were transformed through the inverse CDF of the Gaussian to produce\nvalues of the latent variables z. For each of these values z, we plotted the corresponding generative\npθ(x|z) with the learned parameters θ.",
+      "figure_label": "Figure 4"
+    },
+    {
+      "id": "fig6",
+      "type": "figure",
+      "page": 10,
+      "bbox": [
+        116.11,
+        402.03,
+        495.88,
+        515.66
+      ],
+      "column": 0,
+      "image_path": "images/fig_06.png",
+      "caption": "Figure 5: Random samples from learned generative models of MNIST for different dimensionalities\nof latent space.",
+      "figure_label": "Figure 5"
+    },
+    {
+      "id": "fig7",
+      "type": "figure",
+      "page": 14,
+      "bbox": [
+        104.0,
+        106.83,
+        508.0,
+        322.66
+      ],
+      "column": 1,
+      "image_path": "images/fig_07.png",
+      "caption": "Algorithm 2 Pseudocode for computing a stochastic gradient using our estimator. See text for\nmeaning of the functions fφ, gφ and hφ.",
+      "figure_label": "Algorithm 2"
+    }
+  ]
+}

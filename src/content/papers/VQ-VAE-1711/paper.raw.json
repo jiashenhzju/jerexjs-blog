@@ -1,0 +1,1331 @@
+{
+  "meta": {
+    "pdf_path": "/Users/xnnxax/projects/jerexjs-blog/local-papers/VQ-VAE-1711.pdf",
+    "pdf_name": "VQ-VAE-1711.pdf",
+    "pdf_stem": "VQ-VAE-1711",
+    "num_pages": 11,
+    "columns": 2,
+    "body_font_size": 9.9,
+    "num_figures": 7
+  },
+  "blocks": [
+    {
+      "id": "b1",
+      "type": "paragraph",
+      "text": "Aaron van den Oord\nDeepMind\navdnoord@google.com",
+      "page": 1,
+      "bbox": [
+        133.42,
+        161.16,
+        232.79,
+        193.28
+      ],
+      "column": 0
+    },
+    {
+      "id": "b2",
+      "type": "title",
+      "text": "arXiv:1711.00937v2  [cs.LG]  30 May 2018",
+      "page": 1,
+      "bbox": [
+        10.94,
+        205.6,
+        37.62,
+        560.0
+      ],
+      "column": 0,
+      "level": 0
+    },
+    {
+      "id": "b3",
+      "type": "paragraph",
+      "text": "1\nIntroduction",
+      "page": 1,
+      "bbox": [
+        108.0,
+        411.47,
+        190.81,
+        423.43
+      ],
+      "column": 0
+    },
+    {
+      "id": "b4",
+      "type": "paragraph",
+      "text": "Maximum likelihood and reconstruction error are two common objectives used to train unsupervised\nmodels in the pixel domain, however their usefulness depends on the particular application the\nfeatures are used in. Our goal is to achieve a model that conserves the important features of the\ndata in its latent space while optimising for maximum likelihood. As the work in [7] suggests, the\nbest generative models (as measured by log-likelihood) will be those without latents but a powerful\ndecoder (such as PixelCNN). However, in this paper, we argue for learning discrete and useful latent\nvariables, which we demonstrate on a variety of domains.",
+      "page": 1,
+      "bbox": [
+        107.75,
+        496.53,
+        504.0,
+        571.89
+      ],
+      "column": 0
+    },
+    {
+      "id": "b5",
+      "type": "paragraph",
+      "text": "In our work, we introduce a new family of generative models succesfully combining the variational\nautoencoder (VAE) framework with discrete latent representations through a novel parameterisation\nof the posterior distribution of (discrete) latents given an observation. Our model, which relies on\nvector quantization (VQ), is simple to train, does not suffer from large variance, and avoids the",
+      "page": 1,
+      "bbox": [
+        107.75,
+        671.06,
+        504.0,
+        713.79
+      ],
+      "column": 0
+    },
+    {
+      "id": "b6",
+      "type": "paragraph",
+      "text": "31st Conference on Neural Information Processing Systems (NIPS 2017), Long Beach, CA, USA.",
+      "page": 1,
+      "bbox": [
+        108.0,
+        733.08,
+        460.14,
+        742.04
+      ],
+      "column": 0
+    },
+    {
+      "id": "b7",
+      "type": "title",
+      "text": "Neural Discrete Representation Learning",
+      "page": 1,
+      "bbox": [
+        154.63,
+        99.83,
+        457.37,
+        117.05
+      ],
+      "column": 1,
+      "level": 0
+    },
+    {
+      "id": "b8",
+      "type": "paragraph",
+      "text": "Oriol Vinyals\nDeepMind\nvinyals@google.com",
+      "page": 1,
+      "bbox": [
+        264.17,
+        161.16,
+        358.31,
+        193.28
+      ],
+      "column": 1
+    },
+    {
+      "id": "b9",
+      "type": "paragraph",
+      "text": "Koray Kavukcuoglu\nDeepMind\nkorayk@google.com",
+      "page": 1,
+      "bbox": [
+        389.69,
+        161.16,
+        478.6,
+        193.28
+      ],
+      "column": 1
+    },
+    {
+      "id": "b10",
+      "type": "heading",
+      "text": "Abstract",
+      "page": 1,
+      "bbox": [
+        283.76,
+        222.63,
+        328.24,
+        234.59
+      ],
+      "column": 1,
+      "level": 2
+    },
+    {
+      "id": "b11",
+      "type": "paragraph",
+      "text": "Learning useful representations without supervision remains a key challenge in\nmachine learning. In this paper, we propose a simple yet powerful generative\nmodel that learns such discrete representations. Our model, the Vector Quantised-\nVariational AutoEncoder (VQ-VAE), differs from VAEs in two key ways: the\nencoder network outputs discrete, rather than continuous, codes; and the prior\nis learnt rather than static. In order to learn a discrete latent representation, we\nincorporate ideas from vector quantisation (VQ). Using the VQ method allows the\nmodel to circumvent issues of “posterior collapse” -— where the latents are ignored\nwhen they are paired with a powerful autoregressive decoder -— typically observed\nin the VAE framework. Pairing these representations with an autoregressive prior,\nthe model can generate high quality images, videos, and speech as well as doing\nhigh quality speaker conversion and unsupervised learning of phonemes, providing\nfurther evidence of the utility of the learnt representations.",
+      "page": 1,
+      "bbox": [
+        143.51,
+        248.06,
+        469.79,
+        389.01
+      ],
+      "column": 1
+    },
+    {
+      "id": "b12",
+      "type": "paragraph",
+      "text": "Recent advances in generative modelling of images [38, 12, 13, 22, 10], audio [37, 26] and videos\n[20, 11] have yielded impressive samples and applications [24, 18]. At the same time, challenging\ntasks such as few-shot learning [34], domain adaptation [17], or reinforcement learning [35] heavily\nrely on learnt representations from raw data, but the usefulness of generic representations trained in\nan unsupervised fashion is still far from being the dominant approach.",
+      "page": 1,
+      "bbox": [
+        108.0,
+        436.38,
+        504.35,
+        490.05
+      ],
+      "column": 1
+    },
+    {
+      "id": "b13",
+      "type": "paragraph",
+      "text": "Learning representations with continuous features have been the focus of many previous work\n[16, 39, 6, 9] however we concentrate on discrete representations [27, 33, 8, 28] which are potentially\na more natural ﬁt for many of the modalities we are interested in. Language is inherently discrete,\nsimilarly speech is typically represented as a sequence of symbols. Images can often be described\nconcisely by language [40]. Furthermore, discrete representations are a natural ﬁt for complex\nreasoning, planning and predictive learning (e.g., if it rains, I will use an umbrella). While using\ndiscrete latent variables in deep learning has proven challenging, powerful autoregressive models\nhave been developed for modelling distributions over discrete variables [37].",
+      "page": 1,
+      "bbox": [
+        108.0,
+        578.24,
+        505.25,
+        664.65
+      ],
+      "column": 1
+    },
+    {
+      "id": "b14",
+      "type": "paragraph",
+      "text": "“posterior collapse” issue which has been problematic with many VAE models that have a powerful\ndecoder, often caused by latents being ignored. Additionally, it is the ﬁrst discrete latent VAE model\nthat get similar performance as its continuous counterparts, while offering the ﬂexibility of discrete\ndistributions. We term our model the VQ-VAE.",
+      "page": 2,
+      "bbox": [
+        106.68,
+        74.4,
+        504.0,
+        117.1
+      ],
+      "column": 0
+    },
+    {
+      "id": "b15",
+      "type": "paragraph",
+      "text": "Lastly, once a good discrete latent structure of a modality is discovered by the VQ-VAE, we train\na powerful prior over these discrete random variables, yielding interesting samples and useful\napplications. For instance, when trained on speech we discover the latent structure of language\nwithout any supervision or prior knowledge about phonemes or words. Furthermore, we can equip\nour decoder with the speaker identity, which allows for speaker conversion, i.e., transferring the\nvoice from one speaker to another without changing the contents. We also show promising results on\nlearning long term structure of environments for RL.",
+      "page": 2,
+      "bbox": [
+        107.64,
+        172.56,
+        504.0,
+        248.06
+      ],
+      "column": 0
+    },
+    {
+      "id": "b16",
+      "type": "paragraph",
+      "text": "Our contributions can thus be summarised as:",
+      "page": 2,
+      "bbox": [
+        108.0,
+        254.48,
+        289.88,
+        264.44
+      ],
+      "column": 0
+    },
+    {
+      "id": "b17",
+      "type": "paragraph",
+      "text": "2\nRelated Work",
+      "page": 2,
+      "bbox": [
+        108.0,
+        388.0,
+        197.09,
+        399.96
+      ],
+      "column": 0
+    },
+    {
+      "id": "b18",
+      "type": "paragraph",
+      "text": "There exist many alternatives for training discrete VAEs. The NVIL [27] estimator use a single-sample\nobjective to optimise the variational lower bound, and uses various variance-reduction techniques to\nspeed up training. VIMCO [28] optimises a multi-sample objective [5], which speeds up convergence\nfurther by using multiple samples from the inference network.",
+      "page": 2,
+      "bbox": [
+        107.69,
+        461.44,
+        504.0,
+        504.13
+      ],
+      "column": 0
+    },
+    {
+      "id": "b19",
+      "type": "paragraph",
+      "text": "Since VQ-VAE can make effective use of the latent space, it can successfully model important\nfeatures that usually span many dimensions in data space (for example objects span many pixels in\nimages, phonemes in speech, the message in a text fragment, etc.) as opposed to focusing or spending\ncapacity on noise and imperceptible details which are often local.",
+      "page": 2,
+      "bbox": [
+        108.0,
+        123.45,
+        504.0,
+        166.21
+      ],
+      "column": 1
+    },
+    {
+      "id": "b20",
+      "type": "list",
+      "text": "• Introducing the VQ-VAE model, which is simple, uses discrete latents, does not suffer from\n“posterior collapse” and has no variance issues.\n• We show that a discrete latent model (VQ-VAE) perform as well as its continuous model\ncounterparts in log-likelihood.\n• When paired with a powerful prior, our samples are coherent and high quality on a wide\nvariety of applications such as speech and video generation.\n• We show evidence of learning language through raw speech, without any supervision, and\nshow applications of unsupervised speaker conversion.",
+      "page": 2,
+      "bbox": [
+        133.9,
+        274.34,
+        504.0,
+        371.6
+      ],
+      "column": 1
+    },
+    {
+      "id": "b21",
+      "type": "paragraph",
+      "text": "In this work we present a new way of training variational autoencoders [23, 32] with discrete latent\nvariables [27]. Using discrete variables in deep learning has proven challenging, as suggested by\nthe dominance of continuous latent variables in most of current work – even when the underlying\nmodality is inherently discrete.",
+      "page": 2,
+      "bbox": [
+        107.75,
+        412.31,
+        504.34,
+        455.01
+      ],
+      "column": 1
+    },
+    {
+      "id": "b22",
+      "type": "paragraph",
+      "text": "Recently a few authors have suggested the use of a new continuous reparemetrisation based on the\nso-called Concrete [25] or Gumbel-softmax [19] distribution, which is a continuous distribution and\nhas a temperature constant that can be annealed during training to converge to a discrete distribution\nin the limit. In the beginning of training the variance of the gradients is low but biased, and towards\nthe end of training the variance becomes high but unbiased.",
+      "page": 2,
+      "bbox": [
+        108.0,
+        510.51,
+        504.0,
+        564.15
+      ],
+      "column": 1
+    },
+    {
+      "id": "b23",
+      "type": "paragraph",
+      "text": "None of the above methods, however, close the performance gap of VAEs with continuous latent\nvariables where one can use the Gaussian reparameterisation trick which beneﬁts from much lower\nvariance in the gradients. Furthermore, most of these techniques are typically evaluated on relatively\nsmall datasets such as MNIST, and the dimensionality of the latent distributions is small (e.g., below\n8). In our work, we use three complex image datasets (CIFAR10, ImageNet, and DeepMind Lab) and\na raw speech dataset (VCTK).",
+      "page": 2,
+      "bbox": [
+        107.75,
+        570.5,
+        504.36,
+        635.08
+      ],
+      "column": 1
+    },
+    {
+      "id": "b24",
+      "type": "paragraph",
+      "text": "Our work also extends the line of research where autoregressive distributions are used in the decoder\nof VAEs and/or in the prior [14]. This has been done for language modelling with LSTM decoders [4],\nand more recently with dilated convolutional decoders [42]. PixelCNNs [29, 38] are convolutional\nautoregressive models which have also been used as distribution in the decoder of VAEs [15, 7].",
+      "page": 2,
+      "bbox": [
+        108.0,
+        641.56,
+        505.25,
+        684.2
+      ],
+      "column": 1
+    },
+    {
+      "id": "b25",
+      "type": "paragraph",
+      "text": "Finally, our approach also relates to work in image compression with neural networks. Theis et. al.\n[36] use scalar quantisation to compress activations for lossy image compression before arithmetic\nencoding. Other authors [1] propose a method for similar compression model with vector quantisation.",
+      "page": 2,
+      "bbox": [
+        108.0,
+        690.59,
+        505.74,
+        722.41
+      ],
+      "column": 1
+    },
+    {
+      "id": "b26",
+      "type": "paragraph",
+      "text": "The authors propose a continuous relaxation of vector quantisation which is annealed over time\nto obtain a hard clustering. In their experiments they ﬁrst train an autoencoder, afterwards vector\nquantisation is applied to the activations of the encoder, and ﬁnally the whole network is ﬁne tuned\nusing the soft-to-hard relaxation with a small learning rate. In our experiments we were unable to\ntrain using the soft-to-hard relaxation approach from scratch as the decoder was always able to invert\nthe continuous relaxation during training, so that no actual quantisation took place.",
+      "page": 3,
+      "bbox": [
+        107.69,
+        74.33,
+        504.17,
+        138.92
+      ],
+      "column": 0
+    },
+    {
+      "id": "b27",
+      "type": "paragraph",
+      "text": "3\nVQ-VAE",
+      "page": 3,
+      "bbox": [
+        108.0,
+        157.11,
+        171.47,
+        169.06
+      ],
+      "column": 0
+    },
+    {
+      "id": "b28",
+      "type": "paragraph",
+      "text": "3.1\nDiscrete Latent variables",
+      "page": 3,
+      "bbox": [
+        108.0,
+        339.37,
+        236.94,
+        349.34
+      ],
+      "column": 0
+    },
+    {
+      "id": "b29",
+      "type": "paragraph",
+      "text": "The posterior categorical distribution q(z|x) probabilities are deﬁned as one-hot as follows:",
+      "page": 3,
+      "bbox": [
+        107.69,
+        485.11,
+        472.14,
+        495.43
+      ],
+      "column": 0
+    },
+    {
+      "id": "b30",
+      "type": "paragraph",
+      "text": "where ze(x) is the output of the encoder network. We view this model as a VAE in which we\ncan bound log p(x) with the ELBO. Our proposal distribution q(z = k|x) is deterministic, and by\ndeﬁning a simple uniform prior over z we obtain a KL divergence constant and equal to log K.",
+      "page": 3,
+      "bbox": [
+        107.64,
+        549.04,
+        504.35,
+        581.06
+      ],
+      "column": 0
+    },
+    {
+      "id": "b31",
+      "type": "paragraph",
+      "text": "The representation ze(x) is passed through the discretisation bottleneck followed by mapping onto\nthe nearest element of embedding e as given in equations 1 and 2.",
+      "page": 3,
+      "bbox": [
+        107.69,
+        587.25,
+        504.0,
+        608.35
+      ],
+      "column": 0
+    },
+    {
+      "id": "b32",
+      "type": "paragraph",
+      "text": "3.2\nLearning",
+      "page": 3,
+      "bbox": [
+        108.0,
+        659.1,
+        169.57,
+        669.06
+      ],
+      "column": 0
+    },
+    {
+      "id": "b33",
+      "type": "paragraph",
+      "text": "Perhaps the work most related to our approach are VAEs. VAEs consist of the following parts:\nan encoder network which parameterises a posterior distribution q(z|x) of discrete latent random\nvariables z given the input data x, a prior distribution p(z), and a decoder with a distribution p(x|z)\nover input data.",
+      "page": 3,
+      "bbox": [
+        107.75,
+        182.59,
+        505.38,
+        225.36
+      ],
+      "column": 1
+    },
+    {
+      "id": "b34",
+      "type": "paragraph",
+      "text": "Typically, the posteriors and priors in VAEs are assumed normally distributed with diagonal covari-\nance, which allows for the Gaussian reparametrisation trick to be used [32, 23]. Extensions include\nautoregressive prior and posterior models [14], normalising ﬂows [31, 10], and inverse autoregressive\nposteriors [22].",
+      "page": 3,
+      "bbox": [
+        107.69,
+        231.76,
+        505.65,
+        274.47
+      ],
+      "column": 1
+    },
+    {
+      "id": "b35",
+      "type": "paragraph",
+      "text": "In this work we introduce the VQ-VAE where we use discrete latent variables with a new way of\ntraining, inspired by vector quantisation (VQ). The posterior and prior distributions are categorical,\nand the samples drawn from these distributions index an embedding table. These embeddings are\nthen used as input into the decoder network.",
+      "page": 3,
+      "bbox": [
+        108.0,
+        280.82,
+        505.25,
+        323.59
+      ],
+      "column": 1
+    },
+    {
+      "id": "b36",
+      "type": "paragraph",
+      "text": "We deﬁne a latent embedding space e ∈RK×D where K is the size of the discrete latent space (i.e.,\na K-way categorical), and D is the dimensionality of each latent embedding vector ei. Note that\nthere are K embedding vectors ei ∈RD, i ∈1, 2, ..., K. As shown in Figure 1, the model takes an\ninput x, that is passed through an encoder producing output ze(x). The discrete latent variables z\nare then calculated by a nearest neighbour look-up using the shared embedding space e as shown in\nequation 1. The input to the decoder is the corresponding embedding vector ek as given in equation 2.\nOne can see this forward computation pipeline as a regular autoencoder with a particular non-linearity\nthat maps the latents to 1-of-K embedding vectors. The complete set of parameters for the model are\nunion of parameters of the encoder, decoder, and the embedding space e. For sake of simplicity we\nuse a single random variable z to represent the discrete latent variables in this Section, however for\nspeech, image and videos we actually extract a 1D, 2D and 3D latent feature spaces respectively.",
+      "page": 3,
+      "bbox": [
+        107.53,
+        356.39,
+        505.75,
+        479.04
+      ],
+      "column": 1
+    },
+    {
+      "id": "fig1",
+      "type": "figure",
+      "page": 4,
+      "bbox": [
+        104.0,
+        68.0,
+        508.0,
+        196.06
+      ],
+      "column": 1,
+      "image_path": "images/fig_01.png",
+      "caption": "Figure 1: Left: A ﬁgure describing the VQ-VAE. Right: Visualisation of the embedding space. The\noutput of the encoder z(x) is mapped to the nearest point e2. The gradient ∇zL (in red) will push the\nencoder to change its output, which could alter the conﬁguration in the next forward pass.",
+      "figure_label": "Figure 1"
+    },
+    {
+      "id": "b37",
+      "type": "paragraph",
+      "text": "q(z = k|x) =\n\u001a1\nfor k = argminj∥ze(x) −ej∥2,\n0\notherwise\n,\n(1)",
+      "page": 3,
+      "bbox": [
+        199.3,
+        511.97,
+        504.0,
+        536.19
+      ],
+      "column": 1
+    },
+    {
+      "id": "b38",
+      "type": "paragraph",
+      "text": "zq(x) = ek,\nwhere\nk = argminj∥ze(x) −ej∥2\n(2)",
+      "page": 3,
+      "bbox": [
+        204.59,
+        627.17,
+        504.0,
+        639.26
+      ],
+      "column": 1
+    },
+    {
+      "id": "b39",
+      "type": "paragraph",
+      "text": "Note that there is no real gradient deﬁned for equation 2, however we approximate the gradient\nsimilar to the straight-through estimator [3] and just copy gradients from decoder input zq(x) to\nencoder output ze(x). One could also use the subgradient through the quantisation operation, but this\nsimple estimator worked well for the initial experiments in this paper.",
+      "page": 3,
+      "bbox": [
+        108.0,
+        679.64,
+        504.0,
+        722.41
+      ],
+      "column": 1
+    },
+    {
+      "id": "b40",
+      "type": "paragraph",
+      "text": "As seen on Figure 1 (right), the gradient can push the encoder’s output to be discretised differently in\nthe next forward pass, because the assignment in equation 1 will be different.",
+      "page": 4,
+      "bbox": [
+        107.64,
+        313.61,
+        504.0,
+        334.42
+      ],
+      "column": 0
+    },
+    {
+      "id": "b41",
+      "type": "paragraph",
+      "text": "The log-likelihood of the complete model log p(x) can be evaluated as follows:",
+      "page": 4,
+      "bbox": [
+        107.69,
+        653.3,
+        423.44,
+        663.49
+      ],
+      "column": 0
+    },
+    {
+      "id": "b42",
+      "type": "paragraph",
+      "text": "log p(x) = log\nX",
+      "page": 4,
+      "bbox": [
+        239.67,
+        668.51,
+        314.86,
+        680.78
+      ],
+      "column": 0
+    },
+    {
+      "id": "b45",
+      "type": "paragraph",
+      "text": "During forward computation the nearest embedding zq(x) (equation 2) is passed to the decoder, and\nduring the backwards pass the gradient ∇zL is passed unaltered to the encoder. Since the output\nrepresentation of the encoder and the input to the decoder share the same D dimensional space,\nthe gradients contain useful information for how the encoder has to change its output to lower the\nreconstruction loss.",
+      "page": 4,
+      "bbox": [
+        108.0,
+        253.29,
+        505.25,
+        307.12
+      ],
+      "column": 1
+    },
+    {
+      "id": "b46",
+      "type": "paragraph",
+      "text": "Equation 3 speciﬁes the overall loss function. It is has three components that are used to train\ndifferent parts of VQ-VAE. The ﬁrst term is the reconstruction loss (or the data term) which optimizes\nthe decoder and the encoder (through the estimator explained above). Due to the straight-through\ngradient estimation of mapping from ze(x) to zq(x), the embeddings ei receive no gradients from\nthe reconstruction loss log p(z|zq(x)). Therefore, in order to learn the embedding space, we use one\nof the simplest dictionary learning algorithms, Vector Quantisation (VQ). The VQ objective uses\nthe l2 error to move the embedding vectors ei towards the encoder outputs ze(x) as shown in the\nsecond term of equation 3. Because this loss term is only used for updating the dictionary, one can\nalternatively also update the dictionary items as function of moving averages of ze(x) (not used for\nthe experiments in this work). For more details see Appendix A.1.",
+      "page": 4,
+      "bbox": [
+        108.0,
+        340.77,
+        504.16,
+        448.99
+      ],
+      "column": 1
+    },
+    {
+      "id": "b47",
+      "type": "paragraph",
+      "text": "Finally, since the volume of the embedding space is dimensionless, it can grow arbitrarily if the\nembeddings ei do not train as fast as the encoder parameters. To make sure the encoder commits to\nan embedding and its output does not grow, we add a commitment loss, the third term in equation 3.\nThus, the total training objective becomes:\nL = log p(x|zq(x)) + ∥sg[ze(x)] −e∥2\n2 + β∥ze(x) −sg[e]∥2\n2,\n(3)",
+      "page": 4,
+      "bbox": [
+        107.69,
+        455.34,
+        505.75,
+        514.81
+      ],
+      "column": 1
+    },
+    {
+      "id": "b48",
+      "type": "paragraph",
+      "text": "where sg stands for the stopgradient operator that is deﬁned as identity at forward computation time\nand has zero partial derivatives, thus effectively constraining its operand to be a non-updated constant.\nThe decoder optimises the ﬁrst loss term only, the encoder optimises the ﬁrst and the last loss terms,\nand the embeddings are optimised by the middle loss term. We found the resulting algorithm to be\nquite robust to β, as the results did not vary for values of β ranging from 0.1 to 2.0. We use β = 0.25\nin all our experiments, although in general this would depend on the scale of reconstruction loss.\nSince we assume a uniform prior for z, the KL term that usually appears in the ELBO is constant\nw.r.t. the encoder parameters and can thus be ignored for training.",
+      "page": 4,
+      "bbox": [
+        107.64,
+        522.58,
+        505.75,
+        608.9
+      ],
+      "column": 1
+    },
+    {
+      "id": "b49",
+      "type": "paragraph",
+      "text": "In our experiments we deﬁne N discrete latents (e.g., we use a ﬁeld of 32 x 32 latents for ImageNet,\nor 8 x 8 x 10 for CIFAR10). The resulting loss L is identical, except that we get an average over N\nterms for k-means and commitment loss – one for each latent.",
+      "page": 4,
+      "bbox": [
+        108.0,
+        615.09,
+        505.24,
+        647.1
+      ],
+      "column": 1
+    },
+    {
+      "id": "b50",
+      "type": "paragraph",
+      "text": "k\np(x|zk)p(zk),",
+      "page": 4,
+      "bbox": [
+        305.46,
+        670.68,
+        372.34,
+        692.11
+      ],
+      "column": 1
+    },
+    {
+      "id": "b51",
+      "type": "paragraph",
+      "text": "Because the decoder p(x|z) is trained with z = zq(x) from MAP-inference, the decoder should not\nallocate any probability mass to p(x|z) for z ̸= zq(x) once it has fully converged. Thus, we can write log p(x) ≈log p(x|zq(x))p(zq(x)). We empirically evaluate this approximation in section 4. From\nJensen’s inequality, we also can write log p(x) ≥log p(x|zq(x))p(zq(x)).",
+      "page": 4,
+      "bbox": [
+        108.0,
+        701.18,
+        504.0,
+        723.02
+      ],
+      "column": 1
+    },
+    {
+      "id": "b53",
+      "type": "paragraph",
+      "text": "3.3\nPrior",
+      "page": 5,
+      "bbox": [
+        108.0,
+        111.97,
+        153.1,
+        121.93
+      ],
+      "column": 0
+    },
+    {
+      "id": "b54",
+      "type": "paragraph",
+      "text": "4\nExperiments",
+      "page": 5,
+      "bbox": [
+        108.0,
+        216.55,
+        191.02,
+        228.5
+      ],
+      "column": 0
+    },
+    {
+      "id": "b55",
+      "type": "paragraph",
+      "text": "4.1\nComparison with continuous variables",
+      "page": 5,
+      "bbox": [
+        108.0,
+        242.56,
+        294.44,
+        252.52
+      ],
+      "column": 0
+    },
+    {
+      "id": "b56",
+      "type": "paragraph",
+      "text": "As a ﬁrst experiment we compare VQ-VAE with normal VAEs (with continuous variables), as well as\nVIMCO [28] with independent Gaussian or categorical priors. We train these models using the same\nstandard VAE architecture on CIFAR10, while varying the latent capacity (number of continuous or\ndiscrete latent variables, as well as the dimensionality of the discrete space K). The encoder consists\nof 2 strided convolutional layers with stride 2 and window size 4 × 4, followed by two residual\n3 × 3 blocks (implemented as ReLU, 3x3 conv, ReLU, 1x1 conv), all having 256 hidden units. The\ndecoder similarly has two residual 3 × 3 blocks, followed by two transposed convolutions with stride\n2 and window size 4 × 4. We use the ADAM optimiser [21] with learning rate 2e-4 and evaluate\nthe performance after 250,000 steps with batch-size 128. For VIMCO we use 50 samples in the\nmulti-sample training objective.",
+      "page": 5,
+      "bbox": [
+        107.64,
+        263.61,
+        504.17,
+        371.68
+      ],
+      "column": 0
+    },
+    {
+      "id": "b57",
+      "type": "paragraph",
+      "text": "4.2\nImages",
+      "page": 5,
+      "bbox": [
+        108.0,
+        475.69,
+        160.85,
+        485.65
+      ],
+      "column": 0
+    },
+    {
+      "id": "b58",
+      "type": "paragraph",
+      "text": "32×32×9\n≈42.6 in bits. We model images by learning a powerful prior (PixelCNN) over z. This\nallows to not only greatly speed up training and sampling, but also to use the PixelCNNs capacity to\ncapture the global structure instead of the low-level statistics of images.",
+      "page": 5,
+      "bbox": [
+        108.0,
+        545.43,
+        504.0,
+        578.67
+      ],
+      "column": 0
+    },
+    {
+      "id": "b59",
+      "type": "paragraph",
+      "text": "The prior distribution over the discrete latents p(z) is a categorical distribution, and can be made\nautoregressive by depending on other z in the feature map. Whilst training the VQ-VAE, the prior is\nkept constant and uniform. After training, we ﬁt an autoregressive distribution over z, p(z), so that\nwe can generate x via ancestral sampling. We use a PixelCNN over the discrete latents for images,\nand a WaveNet for raw audio. Training the prior and the VQ-VAE jointly, which could strengthen our\nresults, is left as future research.",
+      "page": 5,
+      "bbox": [
+        107.64,
+        132.71,
+        505.24,
+        197.45
+      ],
+      "column": 1
+    },
+    {
+      "id": "b60",
+      "type": "paragraph",
+      "text": "The VAE, VQ-VAE and VIMCO models obtain 4.51 bits/dim, 4.67 bits/dim and 5.14 respectively.\nAll reported likelihoods are lower bounds. Our numbers for the continuous VAE are comparable to\nthose reported for a Deep convolutional VAE: 4.54 bits/dim [13] on this dataset.",
+      "page": 5,
+      "bbox": [
+        107.64,
+        378.02,
+        505.74,
+        409.89
+      ],
+      "column": 1
+    },
+    {
+      "id": "b61",
+      "type": "paragraph",
+      "text": "Our model is the ﬁrst among those using discrete latent variables which challenges the performance\nof continuous VAEs. Thus, we get very good reconstructions like regular VAEs provide, with the\ncompressed representation that symbolic representations provide. A few interesting characteristics,\nimplications and applications of the VQ-VAEs that we train is shown in the next subsections.",
+      "page": 5,
+      "bbox": [
+        108.0,
+        416.32,
+        505.24,
+        459.0
+      ],
+      "column": 1
+    },
+    {
+      "id": "b62",
+      "type": "paragraph",
+      "text": "Images contain a lot of redundant information as most of the pixels are correlated and noisy, therefore\nlearning models at the pixel level could be wasteful.",
+      "page": 5,
+      "bbox": [
+        108.0,
+        496.75,
+        504.0,
+        517.54
+      ],
+      "column": 1
+    },
+    {
+      "id": "b63",
+      "type": "paragraph",
+      "text": "In this experiment we show that we can model x = 128 × 128 × 3 images by compressing them to a\nz = 32 × 32 × 1 discrete space (with K=512) via a purely deconvolutional p(x|z). So a reduction of\n128×128×3×8",
+      "page": 5,
+      "bbox": [
+        108.0,
+        523.61,
+        504.0,
+        550.94
+      ],
+      "column": 1
+    },
+    {
+      "id": "b66",
+      "type": "paragraph",
+      "text": "Next, we train a PixelCNN prior on the discretised 32x32x1 latent space. As we only have 1 channel\n(not 3 as with colours), we only have to use spatial masking in the PixelCNN. The capacity of the\nPixelCNN we used was similar to those used by the authors of the PixelCNN paper [38].",
+      "page": 6,
+      "bbox": [
+        107.67,
+        123.58,
+        504.0,
+        155.3
+      ],
+      "column": 0
+    },
+    {
+      "id": "b67",
+      "type": "paragraph",
+      "text": "Samples drawn from the PixelCNN were mapped to pixel-space with the decoder of the VQ-VAE\nand can be seen in Figure 3.",
+      "page": 6,
+      "bbox": [
+        108.0,
+        379.28,
+        504.0,
+        400.22
+      ],
+      "column": 0
+    },
+    {
+      "id": "fig4",
+      "type": "figure",
+      "page": 6,
+      "bbox": [
+        110.39,
+        172.37,
+        501.62,
+        318.98
+      ],
+      "column": 1,
+      "image_path": "images/fig_04.png",
+      "caption": "Figure 3: Samples (128x128) from a VQ-VAE with a PixelCNN prior trained on ImageNet images.\nFrom left to right: kit fox, gray whale, brown bear, admiral (butterﬂy), coral reef, alp, microwave,\npickup.",
+      "figure_label": "Figure 3"
+    },
+    {
+      "id": "b70",
+      "type": "paragraph",
+      "text": "We also repeat the same experiment for 84x84x3 frames drawn from the DeepMind Lab environment\n[2]. The reconstructions looked nearly identical to their originals. Samples drawn from the PixelCNN\nprior trained on the 21x21x1 latent space and decoded to the pixel space using a deconvolutional\nmodel decoder can be seen in Figure 4.",
+      "page": 6,
+      "bbox": [
+        107.53,
+        587.04,
+        504.0,
+        629.66
+      ],
+      "column": 0
+    },
+    {
+      "id": "fig3",
+      "type": "figure",
+      "page": 6,
+      "bbox": [
+        104.0,
+        375.28,
+        508.02,
+        537.5
+      ],
+      "column": 1,
+      "image_path": "images/fig_03.png",
+      "caption": "Figure 4: Samples (128x128) from a VQ-VAE with a PixelCNN prior trained on frames captured\nfrom DeepMind Lab.",
+      "figure_label": "Figure 4"
+    },
+    {
+      "id": "b71",
+      "type": "paragraph",
+      "text": "Reconstructions from the 32x32x1 space with discrete latents are shown in Figure 2. Even considering\nthat we greatly reduce the dimensionality with discrete encoding, the reconstructions look only slightly\nblurrier than the originals. It would be possible to use a more perceptual loss function than MSE over\npixels here (e.g., a GAN [12]), but we leave that as future work.",
+      "page": 6,
+      "bbox": [
+        108.0,
+        74.48,
+        504.35,
+        117.1
+      ],
+      "column": 1
+    },
+    {
+      "id": "fig2",
+      "type": "figure",
+      "page": 5,
+      "bbox": [
+        106.71,
+        588.41,
+        505.28,
+        693.05
+      ],
+      "column": 0,
+      "image_path": "images/fig_02.png",
+      "caption": "Figure 2: Left: ImageNet 128x128x3 images, right: reconstructions from a VQ-VAE with a 32x32x1\nlatent space, with K=512.",
+      "figure_label": "Figure 2"
+    },
+    {
+      "id": "b74",
+      "type": "paragraph",
+      "text": "Finally, we train a second VQ-VAE with a PixelCNN decoder on top of the 21x21x1 latent space\nfrom the ﬁrst VQ-VAE on DM-LAB frames. This setup typically breaks VAEs as they suffer from\n\"posterior collapse\", i.e., the latents are ignored as the decoder is powerful enough to model x\nperfectly. Our model however does not suffer from this, and the latents are meaningfully used. We use\nonly three latent variables (each with K=512 and their own embedding space e) at the second stage\nfor modelling the whole image and as such the model cannot reconstruct the image perfectly – which\nis consequence of compressing the image onto 3 x 9 bits, i.e. less than a ﬂoat32. Reconstructions\nsampled from the discretised global code can be seen in Figure 5.",
+      "page": 6,
+      "bbox": [
+        108.0,
+        635.83,
+        504.0,
+        722.41
+      ],
+      "column": 1
+    },
+    {
+      "id": "fig6",
+      "type": "figure",
+      "page": 7,
+      "bbox": [
+        104.0,
+        68.0,
+        508.0,
+        157.85
+      ],
+      "column": 1,
+      "image_path": "images/fig_06.png",
+      "caption": "Figure 5: Top original images, Bottom: reconstructions from a 2 stage VQ-VAE, with 3 latents to\nmodel the whole image (27 bits), and as such the model cannot reconstruct the images perfectly. The\nreconstructions are generated by sampled from the second PixelCNN prior in the 21x21 latent domain\nof ﬁrst VQ-VAE, and then decoded with standard VQ-VAE decoder to 84x84. A lot of the original\nscene, including textures, room layout and nearby walls remain, but the model does not try to store\nthe pixel values themselves, which means the textures are generated procedurally by the PixelCNN.",
+      "figure_label": "Figure 5"
+    },
+    {
+      "id": "b77",
+      "type": "paragraph",
+      "text": "4.3\nAudio",
+      "page": 7,
+      "bbox": [
+        108.0,
+        359.04,
+        155.94,
+        369.0
+      ],
+      "column": 0
+    },
+    {
+      "id": "b78",
+      "type": "paragraph",
+      "text": "We have then analysed the unconditional samples from the model to understand its capabilities. Given\nthe compact and abstract latent representation extracted from the audio, we trained the prior on top of\nthis representation to model the long-term dependencies in the data. For this task we have used a\nlarger dataset of 460 speakers [30] and trained a VQ-VAE model where the resolution of discrete\nspace is 128 times smaller. Next we trained the prior as usual on top of this representation on chunks\nof 40960 timesteps (2.56 seconds), which yields 320 latent timesteps. While samples drawn from even\nthe best speech models like the original WaveNet [37] sound like babbling , samples from VQ-VAE\ncontain clear words and part-sentences (see samples linked above). We conclude that VQ-VAE was\nable to model a rudimentary phoneme-level language model in a completely unsupervised fashion\nfrom raw audio waveforms.",
+      "page": 7,
+      "bbox": [
+        107.53,
+        614.34,
+        504.0,
+        722.41
+      ],
+      "column": 0
+    },
+    {
+      "id": "b81",
+      "type": "paragraph",
+      "text": "In this set of experiments we evaluate the behaviour of discrete latent variables on models of raw\naudio. In all our audio experiments, we train a VQ-VAE that has a dilated convolutional architecture\nsimilar to WaveNet decoder. All samples for this section can be played from the following url:\nhttps://avdnoord.github.io/homepage/vqvae/.",
+      "page": 7,
+      "bbox": [
+        108.0,
+        379.57,
+        505.38,
+        422.58
+      ],
+      "column": 1
+    },
+    {
+      "id": "b82",
+      "type": "paragraph",
+      "text": "We ﬁrst consider the VCTK dataset, which has speech recordings of 109 different speakers [41].\nWe train a VQ-VAE where the encoder has 6 strided convolutions with stride 2 and window-size 4.\nThis yields a latent space 64x smaller than the original waveform. The latents consist of one feature\nmap and the discrete space is 512-dimensional. The decoder is conditioned on both the latents and a\none-hot embedding for the speaker.",
+      "page": 7,
+      "bbox": [
+        107.53,
+        428.68,
+        505.75,
+        482.36
+      ],
+      "column": 1
+    },
+    {
+      "id": "b83",
+      "type": "paragraph",
+      "text": "First, we ran an experiment to show that VQ-VAE can extract a latent space that only conserves\nlong-term relevant information. After training the model, given an audio example, we can encode\nit to the discrete latent representation, and reconstruct by sampling from the decoder. Because the\ndimensionality of the discrete representation is 64 times smaller, the original sample cannot be\nperfectly reconstructed sample by sample. As it can be heard from the provided samples, and as\nshown in Figure 7, the reconstruction has the same content (same text contents), but the waveform\nis quite different and prosody in the voice is altered. This means that the VQ-VAE has, without\nany form of linguistic supervision, learned a high-level abstract space that is invariant to low-level\nfeatures and only encodes the content of the speech. This experiment conﬁrms our observations from\nbefore that important features are often those that span many dimensions in the input data space (in\nthis case phoneme and other high-level content in waveform).",
+      "page": 7,
+      "bbox": [
+        108.0,
+        488.71,
+        504.0,
+        607.84
+      ],
+      "column": 1
+    },
+    {
+      "id": "fig7",
+      "type": "figure",
+      "page": 8,
+      "bbox": [
+        104.0,
+        404.99,
+        507.98,
+        487.02
+      ],
+      "column": 0,
+      "image_path": "images/fig_07.png",
+      "caption": "Figure 7: First 6 frames are provided to the model, following frames are generated conditioned on an\naction. Top: repeated action \"move forward\", bottom: repeated action \"move right\".",
+      "figure_label": "Figure 7"
+    },
+    {
+      "id": "b84",
+      "type": "paragraph",
+      "text": "4.4\nVideo",
+      "page": 8,
+      "bbox": [
+        108.0,
+        246.59,
+        154.95,
+        256.55
+      ],
+      "column": 0
+    },
+    {
+      "id": "b87",
+      "type": "paragraph",
+      "text": "5\nConclusion",
+      "page": 8,
+      "bbox": [
+        108.0,
+        538.48,
+        183.07,
+        550.44
+      ],
+      "column": 0
+    },
+    {
+      "id": "b88",
+      "type": "paragraph",
+      "text": "In this work we have introduced VQ-VAE, a new family of models that combine VAEs with vector\nquantisation to obtain a discrete latent representation. We have shown that VQ-VAEs are capable of\nmodelling very long term dependencies through their compressed discrete latent space which we have\ndemonstrated by generating 128 × 128 colour images, sampling action conditional video sequences\nand ﬁnally using audio where even an unconditional model can generate surprisingly meaningful\nchunks of speech and doing speaker conversion. All these experiments demonstrated that the discrete\nlatent space learnt by VQ-VAEs capture important features of the data in a completely unsupervised\nmanner. Moreover, VQ-VAEs achieve likelihoods that are almost as good as their continuous latent\nvariable counterparts on CIFAR10 data. We believe that this is the ﬁrst discrete latent variable model\nthat can successfully model long range sequences and fully unsupervisedly learn high-level speech\ndescriptors that are closely related to phonemes.",
+      "page": 8,
+      "bbox": [
+        107.75,
+        563.5,
+        504.17,
+        682.58
+      ],
+      "column": 0
+    },
+    {
+      "id": "b89",
+      "type": "paragraph",
+      "text": "Next, we attempted the speaker conversion where the latents are extracted from one speaker and then\nreconstructed through the decoder using a separate speaker id. As can be heard from the samples,\nthe synthesised speech has the same content as the original sample, but with the voice from the\nsecond speaker. This experiment again demonstrates that the encoded representation has factored out\nspeaker-speciﬁc information: the embeddings not only have the same meaning regardless of details\nin the waveform, but also across different voice-characteristics.",
+      "page": 8,
+      "bbox": [
+        108.0,
+        74.47,
+        505.25,
+        138.92
+      ],
+      "column": 1
+    },
+    {
+      "id": "b90",
+      "type": "paragraph",
+      "text": "Finally, in an attempt to better understand the content of the discrete codes we have compared the\nlatents one-to-one with the ground-truth phoneme-sequence (which was not used any way to train the\nVQ-VAE). With a 128-dimensional discrete space that runs at 25 Hz (encoder downsampling factor\nof 640), we mapped every of the 128 possible latent values to one of the 41 possible phoneme values1\n(by taking the conditionally most likely phoneme). The accuracy of this 41-way classiﬁcation was\n49.3%, while a random latent space would result in an accuracy of 7.2% (prior most likely phoneme).\nIt is clear that these discrete latent codes obtained in a fully unsupervised way are high-level speech\ndescriptors that are closely related to phonemes.",
+      "page": 8,
+      "bbox": [
+        107.64,
+        145.27,
+        505.74,
+        231.67
+      ],
+      "column": 1
+    },
+    {
+      "id": "b91",
+      "type": "paragraph",
+      "text": "For our ﬁnal experiment we have used the DeepMind Lab [2] environment to train a generative model\nconditioned on a given action sequence. In Figure 7 we show the initial 6 frames that are input to the\nmodel followed by 10 frames that are sampled from VQ-VAE with all actions set to forward (top row)\nand right (bottom row). Generation of the video sequence with the VQ-VAE model is done purely in\nthe latent space, zt without the need to generate the actual images themselves. Each image in the\nsequence xt is then created by mapping the latents with a deterministic decoder to the pixel space\nafter all the latents are generated using only the prior model p(z1, . . . , zT ). Therefore, VQ-VAE can\nbe used to imagine long sequences purely in latent space without resorting to pixel space. It can be\nseen that the model has learnt to successfully generate a sequence of frames conditioned on given\naction without any degradation in the visual quality whilst keeping the local geometry correct. For\ncompleteness, we trained a model without actions and obtained similar results, not shown due to\nspace constraints.",
+      "page": 8,
+      "bbox": [
+        108.0,
+        266.86,
+        504.67,
+        396.82
+      ],
+      "column": 1
+    },
+    {
+      "id": "b92",
+      "type": "paragraph",
+      "text": "1Note that the encoder/decoder pairs could make the meaning of every discrete latent depend on previous\nlatents in the sequence, e.g.. bi/tri-grams (and thus achieve a higher compression) which means a more advanced\nmapping to phonemes would results in higher accuracy.",
+      "page": 8,
+      "bbox": [
+        108.0,
+        691.73,
+        504.0,
+        722.17
+      ],
+      "column": 1
+    },
+    {
+      "id": "b93",
+      "type": "heading",
+      "text": "References",
+      "page": 9,
+      "bbox": [
+        108.0,
+        72.79,
+        163.54,
+        84.74
+      ],
+      "column": 0,
+      "level": 1
+    },
+    {
+      "id": "b94",
+      "type": "paragraph",
+      "text": "A\nAppendix",
+      "page": 11,
+      "bbox": [
+        108.0,
+        72.79,
+        178.12,
+        84.74
+      ],
+      "column": 0
+    },
+    {
+      "id": "b95",
+      "type": "paragraph",
+      "text": "A.1\nVQ-VAE dictionary updates with Exponential Moving Averages",
+      "page": 11,
+      "bbox": [
+        108.0,
+        96.76,
+        403.51,
+        106.72
+      ],
+      "column": 0
+    },
+    {
+      "id": "b96",
+      "type": "paragraph",
+      "text": "As mentioned in Section 3.2, one can also use exponential moving averages (EMA) to update the dictionary\nitems instead of the loss term from Equation 3:",
+      "page": 11,
+      "bbox": [
+        107.68,
+        116.21,
+        504.32,
+        135.2
+      ],
+      "column": 0
+    },
+    {
+      "id": "b97",
+      "type": "paragraph",
+      "text": "Let {zi,1, zi,2, . . . , zi,ni} be the set of ni outputs from the encoder that are closest to dictionary item ei, so that\nwe can write the loss as:\nni\nX",
+      "page": 11,
+      "bbox": [
+        107.68,
+        164.41,
+        504.0,
+        197.68
+      ],
+      "column": 0
+    },
+    {
+      "id": "b98",
+      "type": "paragraph",
+      "text": "The optimal value for ei has a closed form solution, which is simply the average of elements in the set:",
+      "page": 11,
+      "bbox": [
+        107.72,
+        213.42,
+        476.73,
+        223.59
+      ],
+      "column": 0
+    },
+    {
+      "id": "b99",
+      "type": "paragraph",
+      "text": "ei = 1 ni",
+      "page": 11,
+      "bbox": [
+        274.55,
+        231.78,
+        302.14,
+        247.54
+      ],
+      "column": 0
+    },
+    {
+      "id": "b101",
+      "type": "paragraph",
+      "text": "This update is typically used in algorithms such as K-Means.",
+      "page": 11,
+      "bbox": [
+        107.72,
+        263.38,
+        326.39,
+        272.35
+      ],
+      "column": 0
+    },
+    {
+      "id": "b102",
+      "type": "paragraph",
+      "text": "However, we cannot use this update directly when working with minibatches. Instead we can use exponential\nmoving averages as an online version of this update:",
+      "page": 11,
+      "bbox": [
+        108.0,
+        278.79,
+        504.0,
+        297.76
+      ],
+      "column": 0
+    },
+    {
+      "id": "b103",
+      "type": "paragraph",
+      "text": "m(t)\ni\n:= m(t−1)\ni\n∗γ +\nX with γ a value between 0 and 1. We found γ = 0.99 to work well in practice.",
+      "page": 11,
+      "bbox": [
+        235.67,
+        320.63,
+        332.93,
+        333.65
+      ],
+      "column": 0
+    },
+    {
+      "id": "b105",
+      "type": "paragraph",
+      "text": "∥sg[ze(x)] −e∥2\n2.\n(4)",
+      "page": 11,
+      "bbox": [
+        273.37,
+        141.13,
+        504.0,
+        152.99
+      ],
+      "column": 1
+    },
+    {
+      "id": "b106",
+      "type": "paragraph",
+      "text": "j\n∥zi,j −ei∥2\n2.\n(5)",
+      "page": 11,
+      "bbox": [
+        279.65,
+        188.84,
+        504.0,
+        209.51
+      ],
+      "column": 1
+    },
+    {
+      "id": "b107",
+      "type": "paragraph",
+      "text": "ni\nX j\nzi,j.",
+      "page": 11,
+      "bbox": [
+        306.93,
+        228.24,
+        320.24,
+        244.45
+      ],
+      "column": 1
+    },
+    {
+      "id": "b109",
+      "type": "paragraph",
+      "text": "N (t)\ni\n:= N (t−1)\ni\n∗γ + n(t)\ni (1 −γ)\n(6)",
+      "page": 11,
+      "bbox": [
+        235.45,
+        304.24,
+        504.0,
+        317.91
+      ],
+      "column": 1
+    },
+    {
+      "id": "b110",
+      "type": "paragraph",
+      "text": "j\nz(t)\ni,j (1 −γ)\n(7)",
+      "page": 11,
+      "bbox": [
+        324.57,
+        320.7,
+        504.0,
+        341.65
+      ],
+      "column": 1
+    },
+    {
+      "id": "b111",
+      "type": "paragraph",
+      "text": "e(t)\ni\n:= m(t)\ni\nN (t)\ni\n,\n(8)",
+      "page": 11,
+      "bbox": [
+        239.51,
+        346.3,
+        504.0,
+        373.35
+      ],
+      "column": 1
+    },
+    {
+      "id": "fig5",
+      "type": "figure",
+      "page": 7,
+      "bbox": [
+        109.43,
+        237.59,
+        502.58,
+        308.64
+      ],
+      "column": 1,
+      "image_path": "images/fig_05.png",
+      "caption": "Figure 6: Left: original waveform, middle: reconstructed with same speaker-id, right: reconstructed\nwith different speaker-id. The contents of the three waveforms are the same.",
+      "figure_label": "Figure 6"
+    }
+  ]
+}

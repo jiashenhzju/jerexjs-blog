@@ -134,8 +134,12 @@ $paper-reading 依次深度精读 /Users/you/projects/jerexjs-blog/local-papers/
 | 全文翻译 | `$paper-reading 全文翻译 /absolute/path/paper.pdf，按语义大段双语展示。` |
 | 精读某节 | `$paper-reading 精读 /absolute/path/paper.pdf 的第 3 节，补充关键句、术语和公式分析。` |
 | 翻译某节 | `$paper-reading 翻译 /absolute/path/paper.pdf 的 Related Work，尽量少做扩展分析。` |
+| 论文分享 PPT | `$paper-reading 为 /absolute/path/paper.pdf 制作一份英文为主、极简 researcher 风格的论文分享 PPT。` |
+| 精读 + PPT | `$paper-reading 深度精读 /absolute/path/paper.pdf，生成博客文章，并制作英文论文分享 PPT。` |
 
 未指定模式时使用 `deep`：先给出宏观结论和论证链，再做研究者分析与正文语义分块精读，而不是逐句机械翻译。
+
+PPT 与阅读深度是两个独立维度：可以只生成分享 PPT，也可以在精读后同时生成博客和 PPT。未指定分享场景时，默认面向相邻领域研究者、时长 15–20 分钟，按“问题压力 → 核心洞见 → 方法机制 → 关键证据 → 成本与边界 → Takeaways & Discussion”组织 8–14 页；画面文字以英文为主，原论文图表作为主要视觉证据。
 
 ### 3. 生成产物
 
@@ -150,6 +154,7 @@ src/content/papers/MyPaper_2604/
     ├── fig_01.png
     └── fig_02.png
 local-papers/MyPaper_2604.pdf  # 指向原 PDF 的本地软链接
+presentations/MyPaper_2604-paper-talk.pptx  # 仅在请求 PPT 时生成
 ```
 
 最终发布内容是 `MyPaper_2604.md` 和其中引用的图片；原 PDF 与 `local-papers/` 不进入 GitHub Pages 部署包。
@@ -304,8 +309,8 @@ git push -u origin main
 本仓库保存了一份可维护的 skill 源码：`example/paper-reading/`；当前机器安装后的路径是 `~/.codex/skills/paper-reading/`。
 
 - 输入：本地 PDF 路径
-- 输出：`src/content/papers/<stem>.md`、抽取产物、图表和本地 PDF 软链接
-- 内置：宏观总结、论证地图、证据核验、独立分析、语义分块双语精读、frontmatter 校验与构建验收
+- 输出：可选博客笔记、抽取产物、图表、本地 PDF 软链接，以及 `presentations/<stem>-paper-talk.pptx`
+- 内置：宏观总结、论证地图、证据核验、独立分析、语义分块双语精读、英文极简论文分享 PPT、frontmatter/构建与幻灯片渲染验收
 
 首次在其他机器使用时，先复制到个人 skill 目录：
 
@@ -318,6 +323,18 @@ cp -R example/paper-reading/. ~/.codex/skills/paper-reading/
 
 ```text
 $paper-reading 请精读 /absolute/path/paper.pdf，生成到当前 JerexJs Blog 并跑完验证。
+```
+
+只制作论文分享 PPT：
+
+```text
+$paper-reading 为 /absolute/path/paper.pdf 制作一份英文为主、极简 researcher 风格的论文分享 PPT，讲清楚核心方法、关键证据与局限，并完成逐页渲染检查。
+```
+
+精读后同时生成博客与 PPT：
+
+```text
+$paper-reading 深度精读 /absolute/path/paper.pdf，生成到当前 JerexJs Blog；再制作一份 15 分钟英文论文分享 PPT，并分别完成 build 与幻灯片 QA。
 ```
 
 自然语言也会自动触发，例如：
